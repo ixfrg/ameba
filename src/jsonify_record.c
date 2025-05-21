@@ -127,6 +127,28 @@ static int str_buffer_state_json_write_ulong(struct str_buffer_state *s, const c
     return total;
 }
 
+static int str_buffer_state_json_write_accept_fd_type(struct str_buffer_state *s, const char *key, unsigned char fd_type)
+{
+    int total = 0;
+    if (s->bufIdx > 1)
+        total += str_buffer_state_snprintf(s, ",");
+    char *fd_type_name;
+    switch (fd_type)
+    {
+        case RECORD_ACCEPT_FD_TYPE_SERVER:
+            fd_type_name = "SERVER";
+            break;
+        case RECORD_ACCEPT_FD_TYPE_CLIENT:
+            fd_type_name = "CLIENT";
+            break;
+        default:
+            fd_type_name = "UNKNOWN";
+            break;
+    }
+    total += str_buffer_state_snprintf(s, "\"%s\":\"%s\"", key, fd_type_name);
+    return total;
+}
+
 // static int str_buffer_state_json_write_long(struct str_buffer_state *s, const char *key, long val)
 // {
 //     int total = 0;
@@ -298,6 +320,26 @@ static int record_connect_to_json(char *dst, unsigned int dst_len, struct record
     return total;
 }
 
+static int record_accept_to_json(char *dst, unsigned int dst_len, struct record_accept *data, char *record_type_name)
+{
+    int total = 0;
+
+    struct str_buffer_state s;
+    str_buffer_state_init_json_obj_from_existing_buffer(&s, dst, dst_len);
+    str_buffer_state_json_obj_open(&s);
+
+    total += str_buffer_state_json_write_elem_common(&s, &(data->e_common), record_type_name);
+    total += str_buffer_state_json_write_int(&s, "fd", data->fd);
+    total += str_buffer_state_json_write_accept_fd_type(&s, "fd_type", data->fd_type);
+    total += str_buffer_state_json_write_int(&s, "pid", data->pid);
+    total += str_buffer_state_json_write_elem_sockaddr(&s, "local", &(data->local), 0);
+    total += str_buffer_state_json_write_elem_sockaddr(&s, "remote", &(data->remote), 1);
+
+    str_buffer_state_json_obj_close(&s);
+
+    return total;
+}
+
 int record_data_to_json(char *dst, unsigned int dst_len, void *data, size_t data_len)
 {
     if (dst == NULL)
@@ -322,6 +364,12 @@ int record_data_to_json(char *dst, unsigned int dst_len, void *data, size_t data
                 return -6;
             }
             return record_connect_to_json(dst, dst_len, (struct record_connect *)data, "record_connect");
+        case RECORD_TYPE_ACCEPT:
+            if (data_len != sizeof(struct record_accept))
+            {
+                return -6;
+            }
+            return record_accept_to_json(dst, dst_len, (struct record_accept *)data, "record_accept");
         default:
             // Quietly ignore any expected record.
             return -7;
