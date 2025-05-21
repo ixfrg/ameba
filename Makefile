@@ -46,7 +46,7 @@ btf:
 
 bpf_obj:
 	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/ameba.bpf.c -o $(DIR_BUILD)/ameba.bpf.o
-# clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/connect.bpf.c -o $(DIR_BUILD)/connect.bpf.o
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/connect.bpf.c -o $(DIR_BUILD)/connect.bpf.o
 # clang -D__TARGET_ARCH_$(ARCH) -O2 -Wall -target bpf -g -c $(DIR_SRC)/entrypoint.c -E -o $(DIR_BUILD)/entrypoint.i -I$(DIR_BUILD)
 # clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/ameba.bpf.c -o $(DIR_BUILD)/ameba.bpf.o
 
@@ -60,8 +60,9 @@ bpf_obj:
 
 
 skel:
-# $(BPFTOOL_EXE_FILE) gen object $(DIR_BUILD)/combined.bpf.o $(DIR_BUILD)/ameba.bpf.o $(DIR_BUILD)/connect.bpf.o
-	$(BPFTOOL_EXE_FILE) gen skeleton $(DIR_BUILD)/ameba.bpf.o name ameba > $(DIR_BUILD)/ameba.skel.h
+	$(BPFTOOL_EXE_FILE) gen object $(DIR_BUILD)/combined.bpf.o $(DIR_BUILD)/ameba.bpf.o $(DIR_BUILD)/connect.bpf.o
+	$(BPFTOOL_EXE_FILE) gen skeleton $(DIR_BUILD)/combined.bpf.o name ameba > $(DIR_BUILD)/ameba.skel.h
+#	$(BPFTOOL_EXE_FILE) gen skeleton $(DIR_BUILD)/ameba.bpf.o name ameba > $(DIR_BUILD)/ameba.skel.h
 
 
 bpf_loader:

@@ -14,6 +14,8 @@
 #define SYS_ID_SETNS 4
 #define SYS_ID_UNSHARE 5
 
+#define RECORD_SIZE_CONNECT sizeof(struct record_connect)
+
 
 /*
 Notes:
