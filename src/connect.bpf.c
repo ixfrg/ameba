@@ -51,9 +51,11 @@ int BPF_PROG(
 
     struct record_connect map_val;
 
-    bpf_map_update_elem(&process_record_map, &map_key, (void *)&map_val, BPF_ANY);
-
-    // bpf_trace_printk("%s\\n", sizeof("%s\\n"), "update enter__sys_connect");
+    long result = bpf_map_update_elem(&process_record_map, &map_key, (void *)&map_val, BPF_ANY);
+    if (result != 0)
+    {
+        LOG_WARN("[enter__sys_connect] Failed to update map. Error = %ld", result);
+    }
 
     return 0;
 }
@@ -107,14 +109,14 @@ int BPF_PROG(
     //
 
     struct bpf_dynptr ptr;
-    if (bpf_dynptr_from_mem(map_val, RECORD_SIZE_CONNECT, 0, &ptr) == 0){
+    long dynptr_result = bpf_dynptr_from_mem(map_val, RECORD_SIZE_CONNECT, 0, &ptr);
+    if (dynptr_result == 0){
         write_record_to_output_buffer(&ptr, RECORD_TYPE_CONNECT);
     } else {
-        bpf_trace_printk("%s\\n", sizeof("%s\\n"), "some error");
+        LOG_WARN("[exit__sys_connect] Failed to create dynptr for record. Error = %ld", dynptr_result);
     }
 
     bpf_map_delete_elem(&process_record_map, &map_key);
-
 
     return 0;
 }
@@ -158,10 +160,9 @@ int BPF_PROG(
                 sin6->sin6_port = sk_c.skc_num;
                 sin6->sin6_addr = sk_c.skc_v6_rcv_saddr;
             }
-            // bpf_trace_printk("%s\\n", sizeof("%s\\n"), "in-place-update __sys_connect_file");
         }
     } else {
-        // log_warn("No map entry found for value... TODO more helpful info", 0);
+        
     }
 
     return 0;

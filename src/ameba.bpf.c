@@ -36,21 +36,11 @@ long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type){
         if (data != NULL){
             return bpf_ringbuf_output(&ameba_ringbuf, data, size, 0);
         } else {
-            // something
+            LOG_WARN("Unknown record to output ring buffer. Type = %d", record_type);
             return 0;
         }
     } else {
         return 0;
     }
-}
-
-void log_warn(const char *msg)
-{
-    bpf_printk("[WARN] %s\n", msg);
-}
-
-void log_error(const char *msg)
-{
-    bpf_printk("[ERROR] %s\n", msg);
 }
 

@@ -20,9 +20,18 @@
 #define RECORD_SIZE_CONNECT sizeof(struct record_connect)
 
 
+#define LOG_PREFIX "[ameba] [core]"
+
+#define LOG_WARN(fmt, args...) bpf_printk("%s" "[WARN]" fmt "\n", LOG_PREFIX, ##args)
+#define LOG_ERROR(fmt, args...) bpf_printk("%s" "[ERROR]" fmt "\n", LOG_PREFIX, ##args)
+
+
 /*
 Notes:
-1. 'record_type_id' is the first element in all record structs.
+1. 'elem_common' is the first element in all record structs.
+2. 'record_type_id' is the first element in 'elem_common'.
+
+The above ensures that 'record_type_id' is always at the beginning.
 */
 
 
