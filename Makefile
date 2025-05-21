@@ -47,8 +47,7 @@ btf:
 bpf_obj:
 	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/ameba.bpf.c -o $(DIR_BUILD)/ameba.bpf.o
 	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/connect.bpf.c -o $(DIR_BUILD)/connect.bpf.o
-# clang -D__TARGET_ARCH_$(ARCH) -O2 -Wall -target bpf -g -c $(DIR_SRC)/entrypoint.c -E -o $(DIR_BUILD)/entrypoint.i -I$(DIR_BUILD)
-# clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/ameba.bpf.c -o $(DIR_BUILD)/ameba.bpf.o
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/accept.bpf.c -o $(DIR_BUILD)/accept.bpf.o
 
 # In file included from /usr/include/linux/stat.h:5:
 # /usr/include/linux/types.h:5:10: fatal error: 'asm/types.h' file not found
@@ -60,21 +59,14 @@ bpf_obj:
 
 
 skel:
-	$(BPFTOOL_EXE_FILE) gen object $(DIR_BUILD)/combined.bpf.o $(DIR_BUILD)/ameba.bpf.o $(DIR_BUILD)/connect.bpf.o
+	$(BPFTOOL_EXE_FILE) gen object \
+		$(DIR_BUILD)/combined.bpf.o \
+		$(DIR_BUILD)/ameba.bpf.o $(DIR_BUILD)/connect.bpf.o $(DIR_BUILD)/accept.bpf.o
 	$(BPFTOOL_EXE_FILE) gen skeleton $(DIR_BUILD)/combined.bpf.o name ameba > $(DIR_BUILD)/ameba.skel.h
-#	$(BPFTOOL_EXE_FILE) gen skeleton $(DIR_BUILD)/ameba.bpf.o name ameba > $(DIR_BUILD)/ameba.skel.h
 
 
 bpf_loader:
-	clang -Wall -g -I$(DIR_BUILD) $(DIR_SRC)/jsonify_record.c $(DIR_SRC)/ameba.c -o $(DIR_BUILD)/ameba -l:$(LIBPF_SO) -lpthread
-# clang -Wall -g -c -I$(DIR_BUILD) $(DIR_SRC)/manager.c -o $(DIR_BUILD)/manager.o 
-# clang -Wall -g -c -I$(DIR_BUILD) $(DIR_SRC)/record_writer.c -o $(DIR_BUILD)/record_writer.o
-
-# clang -g \
-# 	$(DIR_BUILD)/manager.o $(DIR_BUILD)/record_writer.o \
-# 	-o $(DIR_BUILD)/ameba \
-# 	-l:$(LIBPF_SO) -lpthread
-
+	clang -Wall -g -I$(DIR_BUILD) $(DIR_SRC)/jsonify_record.c $(DIR_SRC)/ameba.c -o $(DIR_BIN)/ameba -l:$(LIBPF_SO) -lpthread
 
 
 all: build_setup btf bpf_obj skel bpf_loader
