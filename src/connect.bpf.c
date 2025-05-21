@@ -107,17 +107,11 @@ int BPF_PROG(
     //
 
     struct bpf_dynptr ptr;
-    const u32 dynptr_size = sizeof(*map_val);
-    if (bpf_dynptr_from_mem(map_val, dynptr_size, 0, &ptr) == 0){
+    if (bpf_dynptr_from_mem(map_val, RECORD_SIZE_CONNECT, 0, &ptr) == 0){
         write_record_to_output_buffer(&ptr, RECORD_TYPE_CONNECT);
     } else {
         bpf_trace_printk("%s\\n", sizeof("%s\\n"), "some error");
     }
-
-    // u64 write_size = sizeof(struct record_connect);
-    // size = size & (sizeof(struct record_connect));
-    // write_to_output_buffer(&ptr, sizeof(*map_val));
-    // bpf_ringbuf_output(&ameba_ringbuf, map_val, sizeof(struct record_connect), 0);
 
     bpf_map_delete_elem(&process_record_map, &map_key);
 
