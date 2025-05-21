@@ -33,7 +33,6 @@ static void sig_handler(int sig)
         close(log_file_fd);
         if (skel != NULL)
         {
-            ameba__detach(skel);
             ameba__destroy(skel);
         }
         exit(0);
