@@ -167,7 +167,7 @@ static int str_buffer_state_json_write_ulong(struct str_buffer_state *s, const c
 //     return total;
 // }
 
-static int str_buffer_state_json_write_record_sockaddr_raw(struct str_buffer_state *s, struct record_sockaddr *sa)
+static int str_buffer_state_json_write_elem_sockaddr_raw(struct str_buffer_state *s, struct elem_sockaddr *sa)
 {
     int total = 0;
     total += str_buffer_state_json_write_bytes(s, "sockaddr", &(sa->addr[0]), sa->addrlen);
@@ -175,7 +175,7 @@ static int str_buffer_state_json_write_record_sockaddr_raw(struct str_buffer_sta
     return total;
 }
 
-static int str_buffer_state_json_write_record_ip4_sockaddr_in(struct str_buffer_state *s, const struct sockaddr_in *sa_in, int do_ntohs)
+static int str_buffer_state_json_write_ip4_sockaddr_in(struct str_buffer_state *s, const struct sockaddr_in *sa_in, int do_ntohs)
 {
     int total = 0;
     int port;
@@ -195,7 +195,7 @@ static int str_buffer_state_json_write_record_ip4_sockaddr_in(struct str_buffer_
     return total;
 }
 
-static int str_buffer_state_json_write_record_ip6_sockaddr_in(struct str_buffer_state *s, const struct sockaddr_in6 *sa_in, int do_ntohs)
+static int str_buffer_state_json_write_ip6_sockaddr_in(struct str_buffer_state *s, const struct sockaddr_in6 *sa_in, int do_ntohs)
 {
     int total = 0;
     int port;
@@ -215,18 +215,18 @@ static int str_buffer_state_json_write_record_ip6_sockaddr_in(struct str_buffer_
     return total;
 }
 
-static int str_buffer_state_json_write_record_sockaddr_un(struct str_buffer_state *s, const struct sockaddr_un *sa_un)
+static int str_buffer_state_json_write_sockaddr_un(struct str_buffer_state *s, const struct sockaddr_un *sa_un)
 {
     return str_buffer_state_json_write_str(s, "path", &sa_un->sun_path[0]);
     // str_buffer_state_json_write_record_sockaddr_raw(s, r_sa);
 }
 
-static int str_buffer_state_json_write_record_sockaddr_generic(struct str_buffer_state *s, struct record_sockaddr *r_sa)
+static int str_buffer_state_json_write_elem_sockaddr_generic(struct str_buffer_state *s, struct elem_sockaddr *e_sa)
 {
-    return str_buffer_state_json_write_record_sockaddr_raw(s, r_sa);
+    return str_buffer_state_json_write_elem_sockaddr_raw(s, e_sa);
 }
 
-static int str_buffer_state_json_write_record_sockaddr(struct str_buffer_state *s, const char *key, struct record_sockaddr *r_sa, int do_ntohs)
+static int str_buffer_state_json_write_elem_sockaddr(struct str_buffer_state *s, const char *key, struct elem_sockaddr *e_sa, int do_ntohs)
 {
     char *s_child_buf = (char *)malloc(sizeof(char) * MAX_BUFFER_LEN);
     if (s_child_buf == NULL)
@@ -236,26 +236,26 @@ static int str_buffer_state_json_write_record_sockaddr(struct str_buffer_state *
     str_buffer_state_init_json_obj_from_existing_buffer(&s_child, s_child_buf, MAX_BUFFER_LEN);
     str_buffer_state_json_obj_open(&s_child);
 
-    struct sockaddr *sa = (struct sockaddr *)r_sa;
+    struct sockaddr *sa = (struct sockaddr *)(e_sa->addr);
 
     if (sa->sa_family == AF_INET || sa->sa_family == PF_INET)
     {
         const struct sockaddr_in *sa_in = (const struct sockaddr_in *)sa;
-        str_buffer_state_json_write_record_ip4_sockaddr_in(&s_child, sa_in, do_ntohs);
+        str_buffer_state_json_write_ip4_sockaddr_in(&s_child, sa_in, do_ntohs);
     }
     else if (sa->sa_family == AF_INET6 || sa->sa_family == PF_INET6)
     {
         const struct sockaddr_in6 *sa_in = (const struct sockaddr_in6 *)sa;
-        str_buffer_state_json_write_record_ip6_sockaddr_in(&s_child, sa_in, do_ntohs);
+        str_buffer_state_json_write_ip6_sockaddr_in(&s_child, sa_in, do_ntohs);
     }
     else if (sa->sa_family == AF_UNIX || sa->sa_family == PF_UNIX)
     {
         const struct sockaddr_un *sa_un = (const struct sockaddr_un *)sa;
-        str_buffer_state_json_write_record_sockaddr_un(&s_child, sa_un);
+        str_buffer_state_json_write_sockaddr_un(&s_child, sa_un);
     }
     else
     {
-        str_buffer_state_json_write_record_sockaddr_generic(&s_child, r_sa);
+        str_buffer_state_json_write_elem_sockaddr_generic(&s_child, e_sa);
     }
 
     str_buffer_state_json_obj_close(&s_child);
@@ -266,15 +266,15 @@ static int str_buffer_state_json_write_record_sockaddr(struct str_buffer_state *
     return total;
 }
 
-static int str_buffer_state_json_write_record_common(
+static int str_buffer_state_json_write_elem_common(
     struct str_buffer_state *s,
-    struct record_common *common,
+    struct elem_common *e_common,
     char *record_type_name)
 {
     int total = 0;
     total += str_buffer_state_json_write_str(s, "type_name", record_type_name);
-    total += str_buffer_state_json_write_int(s, "type_id", common->record_type_id);
-    total += str_buffer_state_json_write_ulong(s, "event_id", common->event_id);
+    total += str_buffer_state_json_write_int(s, "type_id", e_common->record_type_id);
+    total += str_buffer_state_json_write_ulong(s, "event_id", e_common->event_id);
     return total;
 }
 
@@ -286,12 +286,12 @@ static int record_connect_to_json(char *dst, unsigned int dst_len, struct record
     str_buffer_state_init_json_obj_from_existing_buffer(&s, dst, dst_len);
     str_buffer_state_json_obj_open(&s);
 
-    total += str_buffer_state_json_write_record_common(&s, &(data->r_common), record_type_name);
+    total += str_buffer_state_json_write_elem_common(&s, &(data->e_common), record_type_name);
     total += str_buffer_state_json_write_int(&s, "fd", data->fd);
     total += str_buffer_state_json_write_int(&s, "ret", data->ret);
     total += str_buffer_state_json_write_int(&s, "pid", data->pid);
-    total += str_buffer_state_json_write_record_sockaddr(&s, "local", &(data->local), 0);
-    total += str_buffer_state_json_write_record_sockaddr(&s, "remote", &(data->remote), 1);
+    total += str_buffer_state_json_write_elem_sockaddr(&s, "local", &(data->local), 0);
+    total += str_buffer_state_json_write_elem_sockaddr(&s, "remote", &(data->remote), 1);
 
     str_buffer_state_json_obj_close(&s);
 

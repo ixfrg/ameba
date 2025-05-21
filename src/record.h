@@ -14,6 +14,9 @@
 #define SYS_ID_SETNS 4
 #define SYS_ID_UNSHARE 5
 
+#define RECORD_SIZE_PROCESS sizeof(struct record_process)
+#define RECORD_SIZE_CRED sizeof(struct record_cred)
+#define RECORD_SIZE_NAMESPACE sizeof(struct record_namespace)
 #define RECORD_SIZE_CONNECT sizeof(struct record_connect)
 
 
@@ -23,15 +26,21 @@ Notes:
 */
 
 
-struct record_common
+struct elem_common
 {
     int record_type_id;
     unsigned long event_id;
 };
 
+struct elem_sockaddr
+{
+    unsigned char addr[SOCKADDR_MAX_SIZE];
+    int addrlen; // socklen_t addrlen;
+};
+
 struct record_process
 {
-    struct record_common r_common;
+    struct elem_common e_common;
     pid_t pid;
     pid_t ppid;
     char comm[COMM_MAX_SIZE];
@@ -39,7 +48,7 @@ struct record_process
 
 struct record_cred
 {
-    struct record_common r_common;
+    struct elem_common e_common;
     pid_t pid;
     uid_t uid;
     uid_t euid;
@@ -53,7 +62,7 @@ struct record_cred
 
 struct record_namespace
 {
-    struct record_common r_common;
+    struct elem_common e_common;
     pid_t pid;
     unsigned int ipc;
     unsigned int mnt;
@@ -62,20 +71,14 @@ struct record_namespace
     unsigned int cgroup;
 };
 
-struct record_sockaddr
-{
-    unsigned char addr[SOCKADDR_MAX_SIZE];
-    int addrlen; // socklen_t addrlen;
-};
-
 struct record_connect
 {
-    struct record_common r_common;
+    struct elem_common e_common;
     pid_t pid;
     int fd;
     int ret;
-    struct record_sockaddr local;
-    struct record_sockaddr remote;
+    struct elem_sockaddr local;
+    struct elem_sockaddr remote;
 };
 
 #endif

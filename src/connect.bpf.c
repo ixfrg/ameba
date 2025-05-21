@@ -89,7 +89,7 @@ int BPF_PROG(
     }
 
     // Get the event id on syscall exit
-    const struct record_common r_common = {
+    const struct elem_common e_common = {
         .record_type_id = record_type_id,
         .event_id = increment_event_id()
     };
@@ -98,12 +98,12 @@ int BPF_PROG(
     map_val->fd = fd;
     map_val->ret = ret;
     map_val->pid = pid;
-    map_val->r_common = r_common;
+    map_val->e_common = e_common;
 
-    struct record_sockaddr r_sa;
-    r_sa.addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
-    bpf_probe_read_user(&(r_sa.addr[0]), r_sa.addrlen, sockaddr);
-    map_val->remote = r_sa;
+    struct elem_sockaddr e_sa;
+    e_sa.addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
+    bpf_probe_read_user(&(e_sa.addr[0]), e_sa.addrlen, sockaddr);
+    map_val->remote = e_sa;
     //
 
     struct bpf_dynptr ptr;
@@ -146,12 +146,14 @@ int BPF_PROG(
         if (sock) {
             struct sock_common sk_c = BPF_CORE_READ(sock, sk, __sk_common);
             if (sk_c.skc_family == AF_INET) {
-                struct sockaddr_in *sin = (struct sockaddr_in *)(&map_val->local);
+                map_val->local.addrlen = sizeof(struct sockaddr_in);
+                struct sockaddr_in *sin = (struct sockaddr_in *)(&map_val->local.addr);
                 sin->sin_family = sk_c.skc_family;
                 sin->sin_port = sk_c.skc_num;
                 sin->sin_addr.s_addr = sk_c.skc_rcv_saddr;
             } else if (sk_c.skc_family == AF_INET6) {
-                struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)(&map_val->local);
+                map_val->local.addrlen = sizeof(struct sockaddr_in6);
+                struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)(&map_val->local.addr);
                 sin6->sin6_family = sk_c.skc_family;
                 sin6->sin6_port = sk_c.skc_num;
                 sin6->sin6_addr = sk_c.skc_v6_rcv_saddr;
