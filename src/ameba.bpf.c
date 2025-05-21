@@ -8,6 +8,7 @@
 
 char _license[] SEC("license") = "GPL";
 
+
 struct
 {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
@@ -19,6 +20,18 @@ unsigned long current_event_id = 0;
 unsigned long increment_event_id(void)
 {
     return __sync_fetch_and_add(&current_event_id, 1);
+}
+
+long init_map_key_process_record(struct map_key_process_record *map_key, const int record_type_id)
+{
+    if (map_key != NULL)
+    {
+        struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+        pid_t pid = BPF_CORE_READ(current_task, pid);
+        map_key->pid = pid;
+        map_key->record_type_id = record_type_id;
+    }
+    return 0;
 }
 
 long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type){

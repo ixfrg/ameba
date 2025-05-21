@@ -28,11 +28,18 @@
 
 /*
 Notes:
-1. 'elem_common' is the first element in all record structs.
+1. 'elem_common' is the first element in all record_* structs.
 2. 'record_type_id' is the first element in 'elem_common'.
 
 The above ensures that 'record_type_id' is always at the beginning.
 */
+
+
+struct map_key_process_record
+{
+    pid_t pid;
+    int record_type_id;
+};
 
 
 struct elem_common

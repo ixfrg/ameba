@@ -9,13 +9,8 @@
 
 extern long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type);
 extern unsigned long increment_event_id(void);
+extern long init_map_key_process_record(struct map_key_process_record *map_key, const int record_type_id);
 
-
-struct map_key_process_record
-{
-    pid_t pid;
-    int record_type_id;
-};
 
 struct
 {
@@ -25,15 +20,6 @@ struct
     __type(value, struct record_connect);
 } process_record_map SEC(".maps");
 
-
-
-static void init_connect_map_key(struct map_key_process_record *map_key, const int record_type_id)
-{
-    struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    pid_t pid = BPF_CORE_READ(current_task, pid);
-    map_key->pid = pid;
-    map_key->record_type_id = record_type_id;
-}
 
 //
 
@@ -47,7 +33,7 @@ int BPF_PROG(
 )
 {
     struct map_key_process_record map_key;
-    init_connect_map_key(&map_key, RECORD_TYPE_CONNECT);
+    init_map_key_process_record(&map_key, RECORD_TYPE_CONNECT);
 
     struct record_connect map_val;
 
@@ -76,7 +62,7 @@ int BPF_PROG(
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
     struct map_key_process_record map_key;
-    init_connect_map_key(&map_key, record_type_id);
+    init_map_key_process_record(&map_key, record_type_id);
 
     if (ret != 0 && ret != ERROR_EINPROGRESS)
     {
@@ -111,7 +97,7 @@ int BPF_PROG(
     struct bpf_dynptr ptr;
     long dynptr_result = bpf_dynptr_from_mem(map_val, RECORD_SIZE_CONNECT, 0, &ptr);
     if (dynptr_result == 0){
-        write_record_to_output_buffer(&ptr, RECORD_TYPE_CONNECT);
+        write_record_to_output_buffer(&ptr, record_type_id);
     } else {
         LOG_WARN("[exit__sys_connect] Failed to create dynptr for record. Error = %ld", dynptr_result);
     }
@@ -133,7 +119,7 @@ int BPF_PROG(
 )
 {
     struct map_key_process_record map_key;
-    init_connect_map_key(&map_key, RECORD_TYPE_CONNECT);
+    init_map_key_process_record(&map_key, RECORD_TYPE_CONNECT);
 
     if (ret != 0 && ret != ERROR_EINPROGRESS)
     {
