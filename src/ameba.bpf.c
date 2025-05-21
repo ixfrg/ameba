@@ -22,6 +22,14 @@ unsigned long increment_event_id(void)
     return __sync_fetch_and_add(&current_event_id, 1);
 }
 
+int is_event_auditable(void)
+{
+    struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    uid_t uid = BPF_CORE_READ(current_task, real_cred, uid).val;
+    // "uid=1001(audited_user) gid=1001(audited_user) groups=1001(audited_user),100(users)"
+    return uid == 1001;
+}
+
 long init_map_key_process_record(struct map_key_process_record *map_key, const int record_type_id)
 {
     if (map_key != NULL)
