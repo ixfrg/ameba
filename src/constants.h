@@ -1,0 +1,19 @@
+#ifndef __CONSTANTS_H
+#define __CONSTANTS_H
+
+
+#define SOCKADDR_MAX_SIZE 128
+#define COMM_MAX_SIZE 16
+
+#define SIGCHLD 17
+#define CLONE_VFORK 0x00004000
+#define CLONE_VM 0x00000100
+
+#define ERROR_EINPROGRESS -150
+#define PF_INET 2
+#define AF_INET PF_INET
+#define PF_INET6 10
+#define AF_INET6 PF_INET6
+
+
+#endif
