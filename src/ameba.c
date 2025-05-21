@@ -30,7 +30,12 @@ static void sig_handler(int sig)
     if (sig == SIGTERM)
     {
         syslog(LOG_INFO, "%s : Received termination signal...\n", log_prefix);
-        ameba__destroy(skel);
+        close(log_file_fd);
+        if (skel != NULL)
+        {
+            ameba__detach(skel);
+            ameba__destroy(skel);
+        }
         exit(0);
     }
 }
