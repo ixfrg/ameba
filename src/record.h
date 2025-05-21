@@ -7,6 +7,7 @@
 #define RECORD_TYPE_CRED 2
 #define RECORD_TYPE_NAMESPACE 3
 #define RECORD_TYPE_CONNECT 4
+#define RECORD_TYPE_ACCEPT 5
 
 #define SYS_ID_FORK 1
 #define SYS_ID_VFORK 2
@@ -18,6 +19,10 @@
 #define RECORD_SIZE_CRED sizeof(struct record_cred)
 #define RECORD_SIZE_NAMESPACE sizeof(struct record_namespace)
 #define RECORD_SIZE_CONNECT sizeof(struct record_connect)
+#define RECORD_SIZE_ACCEPT sizeof(struct record_accept)
+
+#define RECORD_ACCEPT_FD_TYPE_SERVER 1
+#define RECORD_ACCEPT_FD_TYPE_CLIENT 2
 
 
 #define LOG_PREFIX "[ameba] [core]"
@@ -93,6 +98,16 @@ struct record_connect
     pid_t pid;
     int fd;
     int ret;
+    struct elem_sockaddr local;
+    struct elem_sockaddr remote;
+};
+
+struct record_accept
+{
+    struct elem_common e_common;
+    pid_t pid;
+    unsigned char fd_type;
+    int fd;
     struct elem_sockaddr local;
     struct elem_sockaddr remote;
 };
