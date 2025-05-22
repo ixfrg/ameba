@@ -91,6 +91,15 @@ static int str_buffer_state_json_write_int(struct str_buffer_state *s, const cha
     return total;
 }
 
+static int str_buffer_state_json_write_uint(struct str_buffer_state *s, const char *key, unsigned int val)
+{
+    int total = 0;
+    if (s->bufIdx > 1)
+        total += str_buffer_state_snprintf(s, ",");
+    total += str_buffer_state_snprintf(s, "\"%s\":%u", key, val);
+    return total;
+}
+
 // static int str_buffer_state_json_write_uint(struct str_buffer_state *s, const char *key, unsigned int val)
 // {
 //     int total = 0;
@@ -158,36 +167,36 @@ static int str_buffer_state_json_write_accept_fd_type(struct str_buffer_state *s
 //     return total;
 // }
 
-// static int str_buffer_state_json_write_syscall(struct str_buffer_state *s, int sys_id)
-// {
-//     int total = 0;
-//     if (s->bufIdx > 1)
-//         total += str_buffer_state_snprintf(s, ",");
-//     char *sys_name;
-//     switch (sys_id)
-//     {
-//     case SYS_ID_FORK:
-//         sys_name = "fork";
-//         break;
-//     case SYS_ID_VFORK:
-//         sys_name = "vfork";
-//         break;
-//     case SYS_ID_CLONE:
-//         sys_name = "clone";
-//         break;
-//     case SYS_ID_SETNS:
-//         sys_name = "setns";
-//         break;
-//     case SYS_ID_UNSHARE:
-//         sys_name = "unshare";
-//         break;
-//     default:
-//         sys_name = "UNKNOWN";
-//         break;
-//     }
-//     total += str_buffer_state_snprintf(s, "\"%s\":\"%s\"", "syscall", sys_name);
-//     return total;
-// }
+static int str_buffer_state_json_write_sys_id(struct str_buffer_state *s, const char *key, int sys_id)
+{
+    int total = 0;
+    if (s->bufIdx > 1)
+        total += str_buffer_state_snprintf(s, ",");
+    char *sys_name;
+    switch (sys_id)
+    {
+    case SYS_ID_FORK:
+        sys_name = "fork";
+        break;
+    case SYS_ID_VFORK:
+        sys_name = "vfork";
+        break;
+    case SYS_ID_CLONE:
+        sys_name = "clone";
+        break;
+    case SYS_ID_SETNS:
+        sys_name = "setns";
+        break;
+    case SYS_ID_UNSHARE:
+        sys_name = "unshare";
+        break;
+    default:
+        sys_name = "UNKNOWN";
+        break;
+    }
+    total += str_buffer_state_snprintf(s, "\"%s\":\"%s\"", key, sys_name);
+    return total;
+}
 
 static int str_buffer_state_json_write_elem_sockaddr_raw(struct str_buffer_state *s, struct elem_sockaddr *sa)
 {
@@ -340,6 +349,30 @@ static int record_accept_to_json(char *dst, unsigned int dst_len, struct record_
     return total;
 }
 
+static int record_namespace_to_json(char *dst, unsigned int dst_len, struct record_namespace *data, char *record_type_name)
+{
+    int total = 0;
+
+    struct str_buffer_state s;
+    str_buffer_state_init_json_obj_from_existing_buffer(&s, dst, dst_len);
+    str_buffer_state_json_obj_open(&s);
+
+    total += str_buffer_state_json_write_elem_common(&s, &(data->e_common), record_type_name);
+    total += str_buffer_state_json_write_int(&s, "pid", data->pid);
+    total += str_buffer_state_json_write_sys_id(&s, "sys_id", data->sys_id);
+    total += str_buffer_state_json_write_int(&s, "ret", data->ret);
+    total += str_buffer_state_json_write_uint(&s, "ns_ipc", data->ns_ipc);
+    total += str_buffer_state_json_write_uint(&s, "ns_mnt", data->ns_mnt);
+    total += str_buffer_state_json_write_uint(&s, "ns_pid_children", data->ns_pid_children);
+    total += str_buffer_state_json_write_uint(&s, "ns_net", data->ns_net);
+    total += str_buffer_state_json_write_uint(&s, "ns_cgroup", data->ns_cgroup);
+    total += str_buffer_state_json_write_uint(&s, "ns_usr", data->ns_usr);
+
+    str_buffer_state_json_obj_close(&s);
+
+    return total;
+}
+
 int record_data_to_json(char *dst, unsigned int dst_len, void *data, size_t data_len)
 {
     if (dst == NULL)
@@ -370,6 +403,12 @@ int record_data_to_json(char *dst, unsigned int dst_len, void *data, size_t data
                 return -6;
             }
             return record_accept_to_json(dst, dst_len, (struct record_accept *)data, "record_accept");
+        case RECORD_TYPE_NAMESPACE:
+            if (data_len != sizeof(struct record_namespace))
+            {
+                return -6;
+            }
+            return record_namespace_to_json(dst, dst_len, (struct record_namespace *)data, "record_namespace");
         default:
             // Quietly ignore any expected record.
             return -7;

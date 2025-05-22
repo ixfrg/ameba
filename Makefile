@@ -48,6 +48,7 @@ bpf_obj:
 	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/ameba.bpf.c -o $(DIR_BUILD)/ameba.bpf.o
 	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/connect.bpf.c -o $(DIR_BUILD)/connect.bpf.o
 	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/accept.bpf.c -o $(DIR_BUILD)/accept.bpf.o
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/namespace.bpf.c -o $(DIR_BUILD)/namespace.bpf.o
 
 # In file included from /usr/include/linux/stat.h:5:
 # /usr/include/linux/types.h:5:10: fatal error: 'asm/types.h' file not found
@@ -61,7 +62,10 @@ bpf_obj:
 skel:
 	$(BPFTOOL_EXE_FILE) gen object \
 		$(DIR_BUILD)/combined.bpf.o \
-		$(DIR_BUILD)/ameba.bpf.o $(DIR_BUILD)/connect.bpf.o $(DIR_BUILD)/accept.bpf.o
+		$(DIR_BUILD)/ameba.bpf.o \
+		$(DIR_BUILD)/connect.bpf.o \
+		$(DIR_BUILD)/accept.bpf.o \
+		$(DIR_BUILD)/namespace.bpf.o
 	$(BPFTOOL_EXE_FILE) gen skeleton $(DIR_BUILD)/combined.bpf.o name ameba > $(DIR_BUILD)/ameba.skel.h
 
 

@@ -85,11 +85,14 @@ struct record_namespace
 {
     struct elem_common e_common;
     pid_t pid;
-    unsigned int ipc;
-    unsigned int mnt;
-    unsigned int pid_children;
-    unsigned int net;
-    unsigned int cgroup;
+    int sys_id;
+    int ret;
+    unsigned int ns_ipc;
+    unsigned int ns_mnt;
+    unsigned int ns_pid_children;
+    unsigned int ns_net;
+    unsigned int ns_cgroup;
+    unsigned int ns_usr;
 };
 
 struct record_connect

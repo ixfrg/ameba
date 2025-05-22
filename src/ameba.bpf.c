@@ -42,6 +42,14 @@ long init_map_key_process_record(struct map_key_process_record *map_key, const i
     return 0;
 }
 
+long write_record_namespace_to_output_buffer(struct record_namespace *ptr)
+{
+    if (ptr == NULL){
+        return 0;
+    }
+    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_NAMESPACE, 0);
+}
+
 long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type){
     if (ptr != NULL){
         void *data = NULL;
@@ -55,6 +63,10 @@ long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type){
             case RECORD_TYPE_ACCEPT:
                 size = RECORD_SIZE_ACCEPT;
                 data = bpf_dynptr_data(ptr, 0, RECORD_SIZE_ACCEPT);
+                break;
+            case RECORD_TYPE_NAMESPACE:
+                size = RECORD_SIZE_NAMESPACE;
+                data = bpf_dynptr_data(ptr, 0, RECORD_SIZE_NAMESPACE);
                 break;
             default: break;
         }
