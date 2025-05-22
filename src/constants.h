@@ -15,5 +15,7 @@
 #define PF_INET6 10
 #define AF_INET6 PF_INET6
 
+#define ERROR_EACCES -13
+
 
 #endif

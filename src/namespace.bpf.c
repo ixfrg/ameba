@@ -57,21 +57,21 @@ int BPF_PROG(
         return 0;
     }
 
-    int sys_id;
+    // int sys_id;
 
-    sys_id = SYS_ID_CLONE; // by default
+    // sys_id = SYS_ID_CLONE; // by default
 
-    if (BPF_CORE_READ(args, exit_signal) == SIGCHLD)
-    {
-        if (BPF_CORE_READ(args, flags) == (CLONE_VFORK | CLONE_VM))
-        {
-            sys_id = SYS_ID_VFORK;
-        }
-        else if (BPF_CORE_READ(args, flags) == 0)
-        {
-            sys_id = SYS_ID_FORK;
-        }
-    }
+    // if (BPF_CORE_READ(args, exit_signal) == SIGCHLD)
+    // {
+    //     if (BPF_CORE_READ(args, flags) == (CLONE_VFORK | CLONE_VM))
+    //     {
+    //         sys_id = SYS_ID_VFORK;
+    //     }
+    //     else if (BPF_CORE_READ(args, flags) == 0)
+    //     {
+    //         sys_id = SYS_ID_FORK;
+    //     }
+    // }
 
     // return ns_update(sys_id, ret);
     return 0;
