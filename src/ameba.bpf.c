@@ -52,6 +52,10 @@ long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type){
                 size = RECORD_SIZE_CONNECT;
                 data = bpf_dynptr_data(ptr, 0, RECORD_SIZE_CONNECT);
                 break;
+            case RECORD_TYPE_ACCEPT:
+                size = RECORD_SIZE_ACCEPT;
+                data = bpf_dynptr_data(ptr, 0, RECORD_SIZE_ACCEPT);
+                break;
             default: break;
         }
         if (data != NULL){
