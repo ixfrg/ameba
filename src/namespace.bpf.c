@@ -7,7 +7,6 @@
 #include "record.h"
 
 extern int is_event_auditable(int record_type);
-extern int is_namespace_event_auditable(void);
 extern long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type);
 extern long write_record_namespace_to_output_buffer(struct record_namespace *ptr);
 extern unsigned long increment_event_id(void);
