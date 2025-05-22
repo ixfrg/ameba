@@ -40,7 +40,8 @@ int BPF_PROG(
     init_map_key_process_record(&map_key, RECORD_TYPE_CONNECT);
 
     struct record_connect map_val;
-
+    map_val.local.addrlen = 0;
+    map_val.remote.addrlen = 0;
     long result = bpf_map_update_elem(&process_record_map, &map_key, (void *)&map_val, BPF_ANY);
     if (result != 0)
     {
