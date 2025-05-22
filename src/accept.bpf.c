@@ -14,7 +14,7 @@ struct map_key_process_record_accept
 };
 
 
-extern int is_event_auditable(void);
+extern int is_event_auditable(int record_type);
 extern long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type);
 extern unsigned long increment_event_id(void);
 extern long init_map_key_process_record(struct map_key_process_record *map_key, const int record_type_id);
@@ -125,7 +125,7 @@ int BPF_PROG(
     int flags
 )
 {
-    if (!is_event_auditable())
+    if (!is_event_auditable(RECORD_TYPE_ACCEPT))
         return 0;
 
     set_process_record_map_accept_key_val(RECORD_ACCEPT_FD_TYPE_SERVER);
@@ -146,7 +146,7 @@ int BPF_PROG(
     struct file *ret_file
 )
 {
-    if (!is_event_auditable())
+    if (!is_event_auditable(RECORD_TYPE_ACCEPT))
         return 0;
 
     if (ret_file == NULL){
@@ -170,7 +170,7 @@ int BPF_PROG(
     int ret
 )
 {
-    if (!is_event_auditable())
+    if (!is_event_auditable(RECORD_TYPE_ACCEPT))
         goto exit;
 
     struct map_key_process_record_accept map_key_server;

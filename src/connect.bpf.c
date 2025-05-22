@@ -7,7 +7,7 @@
 #include "record.h"
 
 
-extern int is_event_auditable(void);
+extern int is_event_auditable(int record_type);
 extern long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type);
 extern unsigned long increment_event_id(void);
 extern long init_map_key_process_record(struct map_key_process_record *map_key, const int record_type_id);
@@ -33,7 +33,7 @@ int BPF_PROG(
     int addrlen
 )
 {
-    if (!is_event_auditable())
+    if (!is_event_auditable(RECORD_TYPE_CONNECT))
         return 0;
 
     struct map_key_process_record map_key;
@@ -60,7 +60,7 @@ int BPF_PROG(
     int ret
 )
 {
-    if (!is_event_auditable())
+    if (!is_event_auditable(RECORD_TYPE_CONNECT))
         return 0;
 
     const int record_type_id = RECORD_TYPE_CONNECT;
@@ -126,7 +126,7 @@ int BPF_PROG(
     int ret
 )
 {
-    if (!is_event_auditable())
+    if (!is_event_auditable(RECORD_TYPE_CONNECT))
         return 0;
 
     struct map_key_process_record map_key;

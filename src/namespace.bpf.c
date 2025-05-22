@@ -6,7 +6,8 @@
 
 #include "record.h"
 
-extern int is_event_auditable(void);
+extern int is_event_auditable(int record_type);
+extern int is_namespace_event_auditable(void);
 extern long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type);
 extern long write_record_namespace_to_output_buffer(struct record_namespace *ptr);
 extern unsigned long increment_event_id(void);
@@ -25,7 +26,7 @@ static int ns_update(
     int record_type_id = RECORD_TYPE_NAMESPACE;
 
     struct record_namespace r_ns;
-    r_ns.e_common.event_id = 0;
+    r_ns.e_common.event_id = increment_event_id();
     r_ns.e_common.record_type_id = record_type_id;
     r_ns.pid = BPF_CORE_READ(current_task, pid);
     r_ns.sys_id = sys_id;
@@ -45,11 +46,11 @@ static int ns_update(
 
 SEC("fexit/kernel_clone")
 int BPF_PROG(
-    kernel_clone,
+    exit__kernel_clone,
     struct kernel_clone_args *args,
     int ret)
 {
-    if (!is_event_auditable())
+    if (!is_event_auditable(-1))
         return 0;
 
     if (ret == -1)
@@ -73,17 +74,18 @@ int BPF_PROG(
         }
     }
 
-    return ns_update(sys_id, ret);
+    // return ns_update(sys_id, ret);
+    return 0;
 }
 
 SEC("fexit/ksys_unshare")
 int BPF_PROG(
-    ksys_unshare,
+    exit__ksys_unshare,
     unsigned long unshare_flags,
     int ret
 )
 {
-    if (!is_event_auditable())
+    if (!is_event_auditable(RECORD_TYPE_NAMESPACE))
         return 0;
 
     if (ret == -1)
@@ -94,6 +96,26 @@ int BPF_PROG(
     int sys_id;
 
     sys_id = SYS_ID_UNSHARE;
+
+    return ns_update(sys_id, ret);
+}
+
+SEC("tracepoint/syscalls/sys_exit_setns")
+int trace_setns_exit(struct trace_event_raw_sys_exit *ctx)
+{
+    if (!is_event_auditable(RECORD_TYPE_NAMESPACE))
+        return 0;
+
+    long int ret = ctx->ret;
+
+    if (ret == -1)
+    {
+        return 0;
+    }
+
+    int sys_id;
+
+    sys_id = SYS_ID_SETNS;
 
     return ns_update(sys_id, ret);
 }
