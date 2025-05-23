@@ -87,7 +87,6 @@ struct record_namespace
     struct elem_common e_common;
     pid_t pid;
     int sys_id;
-    int ret;
     unsigned int ns_ipc;
     unsigned int ns_mnt;
     unsigned int ns_pid_children;

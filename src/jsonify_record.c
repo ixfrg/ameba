@@ -360,7 +360,6 @@ static int record_namespace_to_json(char *dst, unsigned int dst_len, struct reco
     total += str_buffer_state_json_write_elem_common(&s, &(data->e_common), record_type_name);
     total += str_buffer_state_json_write_int(&s, "pid", data->pid);
     total += str_buffer_state_json_write_sys_id(&s, "sys_id", data->sys_id);
-    total += str_buffer_state_json_write_int(&s, "ret", data->ret);
     total += str_buffer_state_json_write_uint(&s, "ns_ipc", data->ns_ipc);
     total += str_buffer_state_json_write_uint(&s, "ns_mnt", data->ns_mnt);
     total += str_buffer_state_json_write_uint(&s, "ns_pid_children", data->ns_pid_children);
