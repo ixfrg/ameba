@@ -56,6 +56,7 @@ static int send_record_new_process(
     r_np.pid = BPF_CORE_READ(task, pid);
     r_np.ppid = parent_pid;
     r_np.sys_id = sys_id;
+    // bpf_probe_read_kernel(&r_np.comm[0], COMM_MAX_SIZE, &(BPF_CORE_READ(task, comm)[0]));
 
     write_record_new_process_to_output_buffer(&r_np);
     return 0;
