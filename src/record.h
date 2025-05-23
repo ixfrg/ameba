@@ -3,7 +3,7 @@
 
 #include "constants.h"
 
-#define RECORD_TYPE_PROCESS 1
+#define RECORD_TYPE_NEW_PROCESS 1
 #define RECORD_TYPE_CRED 2
 #define RECORD_TYPE_NAMESPACE 3
 #define RECORD_TYPE_CONNECT 4
@@ -15,7 +15,7 @@
 #define SYS_ID_SETNS 4
 #define SYS_ID_UNSHARE 5
 
-#define RECORD_SIZE_PROCESS sizeof(struct record_process)
+#define RECORD_SIZE_NEW_PROCESS sizeof(struct record_new_process)
 #define RECORD_SIZE_CRED sizeof(struct record_cred)
 #define RECORD_SIZE_NAMESPACE sizeof(struct record_namespace)
 #define RECORD_SIZE_CONNECT sizeof(struct record_connect)
@@ -59,11 +59,12 @@ struct elem_sockaddr
     int addrlen; // socklen_t addrlen;
 };
 
-struct record_process
+struct record_new_process
 {
     struct elem_common e_common;
-    pid_t pid;
     pid_t ppid;
+    pid_t pid;
+    int sys_id;
     char comm[COMM_MAX_SIZE];
 };
 
@@ -114,5 +115,6 @@ struct record_accept
     struct elem_sockaddr local;
     struct elem_sockaddr remote;
 };
+
 
 #endif

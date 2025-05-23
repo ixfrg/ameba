@@ -373,6 +373,25 @@ static int record_namespace_to_json(char *dst, unsigned int dst_len, struct reco
     return total;
 }
 
+static int record_new_process_to_json(char *dst, unsigned int dst_len, struct record_new_process *data, char *record_type_name)
+{
+    int total = 0;
+
+    struct str_buffer_state s;
+    str_buffer_state_init_json_obj_from_existing_buffer(&s, dst, dst_len);
+    str_buffer_state_json_obj_open(&s);
+
+    total += str_buffer_state_json_write_elem_common(&s, &(data->e_common), record_type_name);
+    total += str_buffer_state_json_write_int(&s, "pid", data->pid);
+    total += str_buffer_state_json_write_int(&s, "ppid", data->ppid);
+    total += str_buffer_state_json_write_sys_id(&s, "sys_id", data->sys_id);
+    total += str_buffer_state_json_write_str(&s, "comm", &data->comm[0]);
+
+    str_buffer_state_json_obj_close(&s);
+
+    return total;
+}
+
 int record_data_to_json(char *dst, unsigned int dst_len, void *data, size_t data_len)
 {
     if (dst == NULL)
@@ -409,6 +428,12 @@ int record_data_to_json(char *dst, unsigned int dst_len, void *data, size_t data
                 return -6;
             }
             return record_namespace_to_json(dst, dst_len, (struct record_namespace *)data, "record_namespace");
+        case RECORD_TYPE_NEW_PROCESS:
+            if (data_len != sizeof(struct record_new_process))
+            {
+                return -6;
+            }
+            return record_new_process_to_json(dst, dst_len, (struct record_new_process *)data, "record_new_process");
         default:
             // Quietly ignore any expected record.
             return -7;

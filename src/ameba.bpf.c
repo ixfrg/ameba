@@ -54,6 +54,14 @@ long write_record_namespace_to_output_buffer(struct record_namespace *ptr)
     return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_NAMESPACE, 0);
 }
 
+long write_record_new_process_to_output_buffer(struct record_new_process *ptr)
+{
+    if (ptr == NULL){
+        return 0;
+    }
+    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_NEW_PROCESS, 0);
+}
+
 long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type){
     if (ptr != NULL){
         void *data = NULL;
@@ -71,6 +79,10 @@ long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type){
             case RECORD_TYPE_NAMESPACE:
                 size = RECORD_SIZE_NAMESPACE;
                 data = bpf_dynptr_data(ptr, 0, RECORD_SIZE_NAMESPACE);
+                break;
+            case RECORD_TYPE_NEW_PROCESS:
+                size = RECORD_SIZE_NEW_PROCESS;
+                data = bpf_dynptr_data(ptr, 0, RECORD_SIZE_NEW_PROCESS);
                 break;
             default: break;
         }

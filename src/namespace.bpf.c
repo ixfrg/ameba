@@ -9,6 +9,7 @@
 extern int is_event_auditable(int record_type);
 extern long write_record_to_output_buffer(struct bpf_dynptr *ptr, int record_type);
 extern long write_record_namespace_to_output_buffer(struct record_namespace *ptr);
+extern long write_record_new_process_to_output_buffer(struct record_new_process *ptr);
 extern unsigned long increment_event_id(void);
 extern long init_map_key_process_record(struct map_key_process_record *map_key, const int record_type_id);
 
@@ -47,15 +48,67 @@ SEC("fexit/kernel_clone")
 int BPF_PROG(
     exit__kernel_clone,
     struct kernel_clone_args *args,
-    int ret)
+    pid_t ret
+)
 {
-    if (!is_event_auditable(-1))
+    int record_type = RECORD_TYPE_NEW_PROCESS;
+
+    if (!is_event_auditable(record_type))
         return 0;
 
     if (ret == -1)
     {
         return 0;
     }
+
+    int sys_id;
+
+    sys_id = SYS_ID_CLONE; // by default
+
+    if (BPF_CORE_READ(args, exit_signal) == SIGCHLD)
+    {
+        if (BPF_CORE_READ(args, flags) == (CLONE_VFORK | CLONE_VM))
+        {
+            sys_id = SYS_ID_VFORK;
+        }
+        else if (BPF_CORE_READ(args, flags) == 0)
+        {
+            sys_id = SYS_ID_FORK;
+        }
+    }
+
+    unsigned long event_id = increment_event_id();
+
+    const struct task_struct *parent_task = (struct task_struct *)bpf_get_current_task_btf();
+    const pid_t parent_pid = BPF_CORE_READ(parent_task, pid);
+
+    struct record_new_process r_np;
+    r_np.e_common.event_id = event_id;
+    r_np.e_common.record_type_id = record_type;
+    r_np.pid = ret; // NOT FROM ROOT PID NAMESPACE!!!
+    r_np.ppid = parent_pid;
+    r_np.sys_id = sys_id;
+    bpf_get_current_comm(&r_np.comm[0], COMM_MAX_SIZE);
+
+    write_record_new_process_to_output_buffer(&r_np);
+
+    return 0;
+
+    /*
+    
+        NOTE!!! BELOW!!!
+    
+    */
+
+    // The following is for namespace
+
+    // if (!is_event_auditable(-1))
+    //     return 0;
+
+    // if (ret == -1)
+    // {
+    //     return 0;
+    // }
 
     // int sys_id;
 
@@ -74,7 +127,6 @@ int BPF_PROG(
     // }
 
     // return ns_update(sys_id, ret);
-    return 0;
 }
 
 SEC("fexit/ksys_unshare")

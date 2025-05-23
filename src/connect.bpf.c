@@ -173,6 +173,8 @@ int BPF_PROG(
     fmod_ret__arm64_sys_connect
 )
 {
+    //bpf_override_return() kprobe
+    //__weak
     if (!is_event_auditable(RECORD_TYPE_CONNECT))
         return 0;
 
