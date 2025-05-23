@@ -65,7 +65,7 @@ struct record_new_process
     pid_t ppid;
     pid_t pid;
     int sys_id;
-    char comm[COMM_MAX_SIZE];
+    // char comm[COMM_MAX_SIZE];
 };
 
 struct record_cred

@@ -385,7 +385,7 @@ static int record_new_process_to_json(char *dst, unsigned int dst_len, struct re
     total += str_buffer_state_json_write_int(&s, "pid", data->pid);
     total += str_buffer_state_json_write_int(&s, "ppid", data->ppid);
     total += str_buffer_state_json_write_sys_id(&s, "sys_id", data->sys_id);
-    total += str_buffer_state_json_write_str(&s, "comm", &data->comm[0]);
+    // total += str_buffer_state_json_write_str(&s, "comm", &data->comm[0]);
 
     str_buffer_state_json_obj_close(&s);
 

@@ -44,11 +44,20 @@ static int ns_update(
 }
 
 
-SEC("fexit/kernel_clone")
+// SEC("fexit/kernel_clone")
+// int BPF_PROG(
+//     exit__kernel_clone,
+//     struct kernel_clone_args *args,
+//     pid_t ret
+// )
+SEC("fexit/copy_process")
 int BPF_PROG(
-    exit__kernel_clone,
+    exit__copy_process,
+    struct pid *s_pid,
+    int trace,
+    int node,
     struct kernel_clone_args *args,
-    pid_t ret
+    struct task_struct *ret
 )
 {
     int record_type = RECORD_TYPE_NEW_PROCESS;
@@ -56,10 +65,15 @@ int BPF_PROG(
     if (!is_event_auditable(record_type))
         return 0;
 
-    if (ret == -1)
+    if (ret == NULL)
     {
         return 0;
     }
+
+    // if (ret == -1) // fexit/kernel_clone"
+    // {
+    //     return 0;
+    // }
 
     int sys_id;
 
@@ -85,10 +99,10 @@ int BPF_PROG(
     struct record_new_process r_np;
     r_np.e_common.event_id = event_id;
     r_np.e_common.record_type_id = record_type;
-    r_np.pid = ret; // NOT FROM ROOT PID NAMESPACE!!!
+    r_np.pid = BPF_CORE_READ(ret, pid); //ret; // NOT FROM ROOT PID NAMESPACE!!!
     r_np.ppid = parent_pid;
     r_np.sys_id = sys_id;
-    bpf_get_current_comm(&r_np.comm[0], COMM_MAX_SIZE);
+    // bpf_get_current_comm(&r_np.comm[0], COMM_MAX_SIZE);
 
     write_record_new_process_to_output_buffer(&r_np);
 
