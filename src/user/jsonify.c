@@ -70,11 +70,16 @@ static int str_buffer_state_json_obj_close(struct str_buffer_state *s)
     return str_buffer_state_snprintf(s, "}");
 }
 
+static int str_buffer_state_json_write_element_divider(struct str_buffer_state *s){
+    if (s->bufIdx > 1)
+        return str_buffer_state_snprintf(s, ",");
+    return 0;
+}
+
 static int str_buffer_state_json_write_bytes(struct str_buffer_state *s, const char *key, unsigned char *val, int val_size)
 {
     int total = 0;
-    if (s->bufIdx > 1)
-        total += str_buffer_state_snprintf(s, ",");
+    total += str_buffer_state_json_write_element_divider(s);
     total += str_buffer_state_snprintf(s, "\"%s\":\"", key);
     for (size_t i = 0; i < val_size; i++)
     {
@@ -87,8 +92,7 @@ static int str_buffer_state_json_write_bytes(struct str_buffer_state *s, const c
 static int str_buffer_state_json_write_int(struct str_buffer_state *s, const char *key, int val)
 {
     int total = 0;
-    if (s->bufIdx > 1)
-        total += str_buffer_state_snprintf(s, ",");
+    total += str_buffer_state_json_write_element_divider(s);
     total += str_buffer_state_snprintf(s, "\"%s\":%d", key, val);
     return total;
 }
@@ -107,8 +111,7 @@ static int str_buffer_state_json_write_uint(
 )
 {
     int total = 0;
-    if (s->bufIdx > 1)
-        total += str_buffer_state_snprintf(s, ",");
+    total += str_buffer_state_json_write_element_divider(s);
     total += str_buffer_state_snprintf(s, "\"%s\":%u", key, val);
     return total;
 }
@@ -134,20 +137,10 @@ static int str_buffer_state_json_write_inode(
     return str_buffer_state_json_write_uint(s, key, val);
 }
 
-// static int str_buffer_state_json_write_uint(struct str_buffer_state *s, const char *key, unsigned int val)
-// {
-//     int total = 0;
-//     if (s->bufIdx > 1)
-//         total += str_buffer_state_snprintf(s, ",");
-//     total += str_buffer_state_snprintf(s, "\"%s\":%u", key, val);
-//     return total;
-// }
-
 static int str_buffer_state_json_write_str(struct str_buffer_state *s, const char *key, const char *val)
 {
     int total = 0;
-    if (s->bufIdx > 1)
-        total += str_buffer_state_snprintf(s, ",");
+    total += str_buffer_state_json_write_element_divider(s);
     total += str_buffer_state_snprintf(s, "\"%s\":\"%s\"", key, val);
     return total;
 }
@@ -155,8 +148,7 @@ static int str_buffer_state_json_write_str(struct str_buffer_state *s, const cha
 static int str_buffer_state_json_write_raw(struct str_buffer_state *s, const char *key, const char *val)
 {
     int total = 0;
-    if (s->bufIdx > 1)
-        total += str_buffer_state_snprintf(s, ",");
+    total += str_buffer_state_json_write_element_divider(s);
     total += str_buffer_state_snprintf(s, "\"%s\":%s", key, val);
     return total;
 }
@@ -164,8 +156,7 @@ static int str_buffer_state_json_write_raw(struct str_buffer_state *s, const cha
 static int str_buffer_state_json_write_ulong(struct str_buffer_state *s, const char *key, unsigned long val)
 {
     int total = 0;
-    if (s->bufIdx > 1)
-        total += str_buffer_state_snprintf(s, ",");
+    total += str_buffer_state_json_write_element_divider(s);
     total += str_buffer_state_snprintf(s, "\"%s\":%lu", key, val);
     return total;
 }
@@ -180,22 +171,12 @@ static int str_buffer_state_json_write_version(
 )
 {
     int total = 0;
-    if (s->bufIdx > 1)
-        total += str_buffer_state_snprintf(s, ",");
+    total += str_buffer_state_json_write_element_divider(s);
     total += str_buffer_state_snprintf(
         s, "\"%s\":\"%u.%u.%u\"", key, version->major, version->minor, version->patch
     );
     return total;
 }
-
-// static int str_buffer_state_json_write_long(struct str_buffer_state *s, const char *key, long val)
-// {
-//     int total = 0;
-//     if (s->bufIdx > 1)
-//         total += str_buffer_state_snprintf(s, ",");
-//     total += str_buffer_state_snprintf(s, "\"%s\":%ld", key, val);
-//     return total;
-// }
 
 static int str_buffer_state_json_write_sys_id(
     struct str_buffer_state *s, const char *key, sys_id_t sys_id
