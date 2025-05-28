@@ -40,15 +40,63 @@ build_setup:
 
 
 btf:
-	$(BPFTOOL_EXE_FILE) btf dump file /sys/kernel/btf/vmlinux format c > $(DIR_BUILD)/vmlinux.h
-	@cp $(DIR_BUILD)/vmlinux.h $(DIR_SRC)/vmlinux.h
+	$(BPFTOOL_EXE_FILE) btf dump file /sys/kernel/btf/vmlinux format c > $(DIR_SRC)/common/vmlinux.h
+#	@cp $(DIR_BUILD)/vmlinux.h $(DIR_SRC)/common/vmlinux.h
 
 
-bpf_obj:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/ameba.bpf.c -o $(DIR_BUILD)/ameba.bpf.o
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/connect.bpf.c -o $(DIR_BUILD)/connect.bpf.o
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/accept.bpf.c -o $(DIR_BUILD)/accept.bpf.o
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/process_namespace.bpf.c -o $(DIR_BUILD)/process_namespace.bpf.o
+bpf_obj_maps:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/maps/map_helper.bpf.c -o $(DIR_BUILD)/map_helper.bpf.o
+
+
+bpf_obj_helpers:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/helpers/record_helper.bpf.c -o $(DIR_BUILD)/record_helper.bpf.o
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/helpers/event_context.bpf.c -o $(DIR_BUILD)/event_context.bpf.o
+
+
+bpf_obj_core:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/ameba.bpf.c -o $(DIR_BUILD)/ameba.bpf.o
+
+
+bpf_obj_events:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/connect.bpf.c -o $(DIR_BUILD)/connect.bpf.o
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/accept.bpf.c -o $(DIR_BUILD)/accept.bpf.o
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/process_namespace.bpf.c -o $(DIR_BUILD)/process_namespace.bpf.o
+	$(BPFTOOL_EXE_FILE) gen object \
+		$(DIR_BUILD)/all_events.bpf.o \
+		$(DIR_BUILD)/connect.bpf.o \
+		$(DIR_BUILD)/accept.bpf.o \
+		$(DIR_BUILD)/process_namespace.bpf.o
+
+
+bpf_objs: bpf_obj_maps bpf_obj_helpers bpf_obj_core bpf_obj_events
+
+
+bpf_skel:
+	$(BPFTOOL_EXE_FILE) gen object \
+		$(DIR_BUILD)/combined.bpf.o \
+		$(DIR_BUILD)/map_helper.bpf.o \
+		$(DIR_BUILD)/record_helper.bpf.o \
+		$(DIR_BUILD)/event_context.bpf.o \
+		$(DIR_BUILD)/ameba.bpf.o \
+		$(DIR_BUILD)/all_events.bpf.o
+	$(BPFTOOL_EXE_FILE) gen skeleton $(DIR_BUILD)/combined.bpf.o name ameba > $(DIR_BUILD)/ameba.skel.h
+
+
+bpf_loader:
+	clang -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC) \
+		$(DIR_SRC)/user/jsonify.c \
+		$(DIR_SRC)/user/ameba.c \
+		-o $(DIR_BIN)/ameba -l:$(LIBPF_SO) -lpthread
+
+
+all: build_setup btf bpf_objs bpf_skel bpf_loader
+
+
+clean: 
+	rm -rf $(DIR_BUILD)
+
+
+###
 
 # In file included from /usr/include/linux/stat.h:5:
 # /usr/include/linux/types.h:5:10: fatal error: 'asm/types.h' file not found
@@ -57,24 +105,3 @@ bpf_obj:
 # SOURCE: https://github.com/xdp-project/xdp-tutorial/issues/44
 # https://github.com/xdp-project/xdp-tutorial/issues/44#issuecomment-554608521
 # RESOLUTION on aarch64: ln -s /usr/include/aarch64-linux-gnu/asm /usr/include/asm
-
-
-skel:
-	$(BPFTOOL_EXE_FILE) gen object \
-		$(DIR_BUILD)/combined.bpf.o \
-		$(DIR_BUILD)/ameba.bpf.o \
-		$(DIR_BUILD)/connect.bpf.o \
-		$(DIR_BUILD)/accept.bpf.o \
-		$(DIR_BUILD)/process_namespace.bpf.o
-	$(BPFTOOL_EXE_FILE) gen skeleton $(DIR_BUILD)/combined.bpf.o name ameba > $(DIR_BUILD)/ameba.skel.h
-
-
-bpf_loader:
-	clang -Wall -g -I$(DIR_BUILD) $(DIR_SRC)/jsonify_record.c $(DIR_SRC)/ameba.c -o $(DIR_BIN)/ameba -l:$(LIBPF_SO) -lpthread
-
-
-all: build_setup btf bpf_obj skel bpf_loader
-
-
-clean: 
-	rm -rf $(DIR_BUILD)

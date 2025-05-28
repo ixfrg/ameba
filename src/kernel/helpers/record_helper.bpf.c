@@ -1,0 +1,185 @@
+#include "common/vmlinux.h"
+#include "common/types.h"
+#include "kernel/current_version.bpf.h"
+
+
+// externs
+extern const struct elem_version current_version;
+
+
+// extern functions
+int recordhelper_init_elem_version(
+    struct elem_version *e_version
+)
+{
+    if (!e_version)
+        return 0;
+    e_version->major = current_version.major;
+    e_version->minor = current_version.minor;
+    e_version->patch = current_version.patch;
+    return 0;
+}
+
+int recordhelper_init_elem_common(
+    struct elem_common *e_common,
+    record_type_t record_type
+)
+{
+    if (!e_common)
+        return 0;
+    e_common->magic = (int)AMEBA_MAGIC;
+    e_common->record_type = record_type;
+    recordhelper_init_elem_version(&(e_common->version));
+    return 0;
+}
+
+int recordhelper_init_elem_timestamp(
+    struct elem_timestamp *e_ts,
+    event_id_t event_id
+)
+{
+    if (!e_ts)
+        return 0;
+    e_ts->event_id = event_id;
+    return 0;
+}
+
+int recordhelper_init_elem_sockaddr(
+    struct elem_sockaddr *e_sockaddr,
+    socklen_t addrlen,
+    byte_order_t byte_order
+)
+{
+    if (!e_sockaddr)
+        return 0;
+    e_sockaddr->addrlen = addrlen;
+    e_sockaddr->byte_order = byte_order;
+    return 0;
+}
+
+int recordhelper_zero_out_elem_sockaddr(
+    struct elem_sockaddr *e_sockaddr
+)
+{
+    if (!e_sockaddr)
+        return 0;
+    return recordhelper_init_elem_sockaddr(e_sockaddr, 0, 0);
+}
+
+int recordhelper_init_record_new_process(
+    struct record_new_process *r_new_process,
+    event_id_t event_id,
+    pid_t pid, pid_t ppid, sys_id_t sys_id
+)
+{
+    if (!r_new_process)
+        return 0;
+    recordhelper_init_elem_common(&(r_new_process->e_common), RECORD_TYPE_NEW_PROCESS);
+    recordhelper_init_elem_timestamp(&(r_new_process->e_ts), event_id);
+
+    r_new_process->pid = pid;
+    r_new_process->ppid = ppid;
+    r_new_process->sys_id = sys_id;
+
+    return 0;
+}
+
+/*
+struct record_cred * recordhelper_init_record_cred(
+    struct record_cred *r_cred,
+    event_id_t event_id,
+    pid_t pid,
+    uid_t uid, uid_t euid, uid_t suid, uid_t fsuid,
+    gid_t gid, gid_t egid, gid_t sgid, gid_t fsgid
+)
+{
+    recordhelper_init_elem_common(&(r_cred->e_common), RECORD_TYPE_CRED, event_id);
+
+    r_cred->pid = pid;
+    r_cred->uid = uid;
+    r_cred->euid = euid;
+    r_cred->suid = suid;
+    r_cred->fsuid = fsuid;
+    r_cred->gid = gid;
+    r_cred->egid = egid;
+    r_cred->sgid = sgid;
+    r_cred->fsgid = fsgid;
+
+    return r_cred;
+}
+*/
+
+int recordhelper_init_record_namespace(
+    struct record_namespace *r_namespace,
+    event_id_t event_id,
+    pid_t pid, sys_id_t sys_id
+)
+{
+    if (!r_namespace)
+        return 0;
+    recordhelper_init_elem_common(&(r_namespace->e_common), RECORD_TYPE_NAMESPACE);
+    recordhelper_init_elem_timestamp(&(r_namespace->e_ts), event_id);
+
+    r_namespace->pid = pid;
+    r_namespace->sys_id = sys_id;
+
+    return 0;
+}
+
+int recordhelper_init_record_connect(
+    struct record_connect *r_connect,
+    pid_t pid, int fd, int ret
+)
+{
+    if (!r_connect)
+        return 0;
+    recordhelper_init_elem_common(&(r_connect->e_common), RECORD_TYPE_CONNECT);
+    recordhelper_init_elem_timestamp(&(r_connect->e_ts), 0);
+
+    r_connect->pid = pid;
+    r_connect->fd = fd;
+    r_connect->ret = ret;
+
+    return 0;
+}
+
+int recordhelper_zero_out_record_connect(
+    struct record_connect *r_connect
+)
+{
+    if (!r_connect)
+        return 0;
+    recordhelper_init_record_connect(r_connect, 0, 0, 0);
+    r_connect->local.addrlen = 0;
+    r_connect->remote.addrlen = 0;
+    return 0;
+}
+
+int recordhelper_init_record_accept(
+    struct record_accept *r_accept,
+    pid_t pid, int fd
+)
+{
+    if (!r_accept)
+        return 0;
+
+    recordhelper_init_elem_common(&(r_accept->e_common), RECORD_TYPE_ACCEPT);
+    recordhelper_init_elem_timestamp(&(r_accept->e_ts), 0);
+
+    r_accept->pid = pid;
+    r_accept->fd = fd;
+
+    return 0;
+}
+
+int recordhelper_zero_out_record_accept(
+    struct record_accept *r_accept
+)
+{
+    if (!r_accept)
+        return 0;
+    recordhelper_init_record_accept(r_accept, 0, 0);
+    r_accept->local.addrlen = 0;
+    r_accept->remote.addrlen = 0;
+    return 0;
+}

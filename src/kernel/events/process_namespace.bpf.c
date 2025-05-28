@@ -1,0 +1,178 @@
+#include "common/vmlinux.h"
+
+#include <bpf/bpf_tracing.h>
+#include <bpf/bpf_core_read.h>
+#include <bpf/bpf_helpers.h>
+
+#include "common/types.h"
+#include "kernel/helpers/log.bpf.h"
+#include "kernel/maps/map.bpf.h"
+#include "kernel/helpers/event_context.bpf.h"
+
+
+// local globals
+static const record_type_t new_process_record_type = RECORD_TYPE_NEW_PROCESS;
+static const record_type_t namespace_record_type = RECORD_TYPE_NAMESPACE;
+
+
+// externs
+extern int recordhelper_init_record_new_process(
+    struct record_new_process *r_new_process,
+    event_id_t event_id,
+    pid_t pid, pid_t ppid, sys_id_t sys_id
+);
+extern int recordhelper_init_record_namespace(
+    struct record_namespace *r_namespace,
+    event_id_t event_id,
+    pid_t pid, sys_id_t sys_id
+);
+extern event_id_t ameba_increment_event_id(void);
+extern int ameba_is_event_auditable(struct event_context *e_ctx);
+extern long ameba_write_record_to_output_buffer(struct bpf_dynptr *ptr, record_type_t record_type);
+extern long ameba_write_record_new_process_to_output_buffer(struct record_new_process *ptr);
+extern long ameba_write_record_namespace_to_output_buffer(struct record_namespace *ptr);
+
+
+static int send_record_namespace(
+    struct task_struct *task,
+    const sys_id_t sys_id
+)
+{
+    struct record_namespace r_ns;
+    recordhelper_init_record_namespace(
+        &r_ns,
+        ameba_increment_event_id(),
+        BPF_CORE_READ(task, pid),
+        sys_id
+    );
+    r_ns.ns_cgroup = BPF_CORE_READ(task, nsproxy, cgroup_ns, ns).inum;
+    r_ns.ns_ipc = BPF_CORE_READ(task, nsproxy, ipc_ns, ns).inum;
+    r_ns.ns_mnt = BPF_CORE_READ(task, nsproxy, mnt_ns, ns).inum;
+    r_ns.ns_net = BPF_CORE_READ(task, nsproxy, net_ns, ns).inum;
+    r_ns.ns_pid_children = BPF_CORE_READ(task, nsproxy, pid_ns_for_children, ns).inum;
+    r_ns.ns_usr = BPF_CORE_READ(task, cred, user_ns, ns).inum;
+
+    ameba_write_record_namespace_to_output_buffer(&r_ns);
+    return 0;
+}
+
+static int send_record_new_process(
+    struct task_struct *task,
+    sys_id_t sys_id
+)
+{
+    const struct task_struct *parent_task = (struct task_struct *)bpf_get_current_task_btf();
+
+    struct record_new_process r_np;
+    recordhelper_init_record_new_process(
+        &r_np,
+        ameba_increment_event_id(),
+        BPF_CORE_READ(task, pid),
+        BPF_CORE_READ(parent_task, pid),
+        sys_id
+    );
+
+    // bpf_probe_read_kernel(&r_np.comm[0], COMM_MAX_SIZE, &(BPF_CORE_READ(task, comm)[0]));
+
+    ameba_write_record_new_process_to_output_buffer(&r_np);
+    return 0;
+}
+
+
+// SEC("fexit/kernel_clone")
+// int BPF_PROG(
+//     fexit__kernel_clone,
+//     struct kernel_clone_args *args,
+//     pid_t ret
+// )
+SEC("fexit/copy_process")
+int BPF_PROG(
+    fexit__copy_process,
+    struct pid *s_pid,
+    int trace,
+    int node,
+    struct kernel_clone_args *args,
+    struct task_struct *ret
+)
+{
+    if (ret == NULL)
+    {
+        return 0;
+    }
+
+    int sys_id;
+
+    sys_id = SYS_ID_CLONE; // by default
+
+    if (BPF_CORE_READ(args, exit_signal) == SIGCHLD)
+    {
+        if (BPF_CORE_READ(args, flags) == (CLONE_VFORK | CLONE_VM))
+        {
+            sys_id = SYS_ID_VFORK;
+        }
+        else if (BPF_CORE_READ(args, flags) == 0)
+        {
+            sys_id = SYS_ID_FORK;
+        }
+    }
+
+    struct event_context e_ctx_new_process;
+    event_context_init_event_context(&e_ctx_new_process, new_process_record_type);
+    if (ameba_is_event_auditable(&e_ctx_new_process)){
+        send_record_new_process(ret, sys_id);
+    }
+
+    struct event_context e_ctx_namespace;
+    event_context_init_event_context(&e_ctx_namespace, namespace_record_type);
+    if (ameba_is_event_auditable(&e_ctx_namespace)){
+        send_record_namespace(ret, sys_id);
+    }
+
+    return 0;
+}
+
+SEC("fexit/ksys_unshare")
+int BPF_PROG(
+    fexit__ksys_unshare,
+    unsigned long unshare_flags,
+    int ret
+)
+{
+    struct event_context e_ctx_namespace;
+    event_context_init_event_context(&e_ctx_namespace, namespace_record_type);
+    if (!ameba_is_event_auditable(&e_ctx_namespace)){
+        return 0;
+    }
+
+    if (ret == -1)
+        return 0;
+
+    struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+
+    int sys_id = SYS_ID_UNSHARE;
+
+    return send_record_namespace(current_task, sys_id);
+}
+
+SEC("tracepoint/syscalls/sys_exit_setns")
+int trace_setns_exit(struct trace_event_raw_sys_exit *ctx)
+{
+    struct event_context e_ctx_namespace;
+    event_context_init_event_context(&e_ctx_namespace, namespace_record_type);
+    if (!ameba_is_event_auditable(&e_ctx_namespace)){
+        return 0;
+    }
+
+    long int ret = ctx->ret;
+
+    if (ret == -1)
+    {
+        return 0;
+    }
+
+    struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+
+    int sys_id = SYS_ID_SETNS;
+
+    return send_record_namespace(current_task, sys_id);
+}
