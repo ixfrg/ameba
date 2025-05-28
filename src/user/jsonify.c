@@ -9,6 +9,8 @@
 #include <arpa/inet.h>
 #include <assert.h>
 
+#include "user/error.h"
+
 #include "user/jsonify.h"
 
 
@@ -479,46 +481,46 @@ static int record_cred_to_json(char *dst, unsigned int dst_len, struct record_cr
 int jsonify_record_data_to_json(char *dst, unsigned int dst_len, void *data, size_t data_len)
 {
     if (dst == NULL)
-        return -1;
+        return ERR_DST_INVALID;
     if (dst_len == 0)
-        return -2;
+        return ERR_DST_INSUFFICIENT;
     if (data == NULL)
-        return -3;
+        return ERR_DATA_INVALID;
     if (data_len == 0)
-        return -4;
+        return ERR_DATA_INVALID;
 
     if (data_len < sizeof(struct elem_common))
-        return -5;
+        return ERR_DATA_INVALID_HEADER;
 
     struct elem_common *e_common = (struct elem_common *)(data);
 
     if (e_common->magic != AMEBA_MAGIC)
-        return -6;
+        return ERR_DATA_INVALID_MAGIC;
 
     switch (e_common->record_type)
     {
         case RECORD_TYPE_CONNECT:
             if (data_len != sizeof(struct record_connect))
-                return -7;
+                return ERR_DATA_SIZE_MISMATCH;
             return record_connect_to_json(dst, dst_len, (struct record_connect *)data, "record_connect");
         case RECORD_TYPE_ACCEPT:
             if (data_len != sizeof(struct record_accept))
-                return -7;
+                return ERR_DATA_SIZE_MISMATCH;
             return record_accept_to_json(dst, dst_len, (struct record_accept *)data, "record_accept");
         case RECORD_TYPE_NAMESPACE:
             if (data_len != sizeof(struct record_namespace))
-                return -7;
+                return ERR_DATA_SIZE_MISMATCH;
             return record_namespace_to_json(dst, dst_len, (struct record_namespace *)data, "record_namespace");
         case RECORD_TYPE_NEW_PROCESS:
             if (data_len != sizeof(struct record_new_process))
-                return -7;
+                return ERR_DATA_SIZE_MISMATCH;
             return record_new_process_to_json(dst, dst_len, (struct record_new_process *)data, "record_new_process");
         case RECORD_TYPE_CRED:
             if (data_len != sizeof(struct record_cred))
-                return -7;
+                return ERR_DATA_SIZE_MISMATCH;
             return record_cred_to_json(dst, dst_len, (struct record_cred *)data, "record_cred");
         default:
             // Quietly ignore any expected record.
-            return -8;
+            return ERR_DATA_UNKNOWN;
     }
 }
