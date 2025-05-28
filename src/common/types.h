@@ -94,6 +94,7 @@ struct record_cred
     struct elem_common e_common;
     struct elem_timestamp e_ts;
     pid_t pid;
+    sys_id_t sys_id;
     uid_t uid;
     uid_t euid;
     uid_t suid;

@@ -43,6 +43,14 @@ int ameba_is_event_auditable(struct event_context *e_ctx)
     return uid == 1001;
 }
 
+long ameba_write_record_cred_to_output_buffer(struct record_cred *ptr)
+{
+    if (ptr == NULL){
+        return 0;
+    }
+    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_CRED, 0);
+}
+
 long ameba_write_record_namespace_to_output_buffer(struct record_namespace *ptr)
 {
     if (ptr == NULL){

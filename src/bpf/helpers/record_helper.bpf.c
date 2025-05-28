@@ -84,30 +84,22 @@ int recordhelper_init_record_new_process(
     return 0;
 }
 
-/*
-struct record_cred * recordhelper_init_record_cred(
-    struct record_cred *r_cred,
+int recordhelper_init_record_cred(
+    struct record_cred *r_c,
     event_id_t event_id,
-    pid_t pid,
-    uid_t uid, uid_t euid, uid_t suid, uid_t fsuid,
-    gid_t gid, gid_t egid, gid_t sgid, gid_t fsgid
+    pid_t pid, sys_id_t sys_id
 )
 {
-    recordhelper_init_elem_common(&(r_cred->e_common), RECORD_TYPE_CRED, event_id);
+    if (!r_c)
+        return 0;
+    recordhelper_init_elem_common(&(r_c->e_common), RECORD_TYPE_CRED);
+    recordhelper_init_elem_timestamp(&(r_c->e_ts), event_id);
 
-    r_cred->pid = pid;
-    r_cred->uid = uid;
-    r_cred->euid = euid;
-    r_cred->suid = suid;
-    r_cred->fsuid = fsuid;
-    r_cred->gid = gid;
-    r_cred->egid = egid;
-    r_cred->sgid = sgid;
-    r_cred->fsgid = fsgid;
+    r_c->pid = pid;
+    r_c->sys_id = sys_id;
 
-    return r_cred;
+    return 0;
 }
-*/
 
 int recordhelper_init_record_namespace(
     struct record_namespace *r_namespace,

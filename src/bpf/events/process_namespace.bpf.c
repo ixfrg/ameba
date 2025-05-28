@@ -13,6 +13,7 @@
 // local globals
 static const record_type_t new_process_record_type = RECORD_TYPE_NEW_PROCESS;
 static const record_type_t namespace_record_type = RECORD_TYPE_NAMESPACE;
+static const record_type_t cred_record_type = RECORD_TYPE_CRED;
 
 
 // externs
@@ -26,11 +27,44 @@ extern int recordhelper_init_record_namespace(
     event_id_t event_id,
     pid_t pid, sys_id_t sys_id
 );
+extern int recordhelper_init_record_cred(
+    struct record_cred *r_c,
+    event_id_t event_id,
+    pid_t pid, sys_id_t sys_id
+);
 extern event_id_t ameba_increment_event_id(void);
 extern int ameba_is_event_auditable(struct event_context *e_ctx);
 extern long ameba_write_record_to_output_buffer(struct bpf_dynptr *ptr, record_type_t record_type);
 extern long ameba_write_record_new_process_to_output_buffer(struct record_new_process *ptr);
 extern long ameba_write_record_namespace_to_output_buffer(struct record_namespace *ptr);
+extern long ameba_write_record_cred_to_output_buffer(struct record_cred *ptr);
+
+
+static int send_record_cred(
+    struct task_struct *task,
+    const sys_id_t sys_id
+)
+{
+    struct record_cred r_c;
+    recordhelper_init_record_cred(
+        &r_c,
+        ameba_increment_event_id(),
+        BPF_CORE_READ(task, pid),
+        sys_id
+    );
+
+    r_c.uid = BPF_CORE_READ(task, cred, uid).val;
+    r_c.euid = BPF_CORE_READ(task, cred, euid).val;
+    r_c.suid = BPF_CORE_READ(task, cred, suid).val;
+    r_c.fsuid = BPF_CORE_READ(task, cred, fsuid).val;
+    r_c.gid = BPF_CORE_READ(task, cred, gid).val;
+    r_c.egid = BPF_CORE_READ(task, cred, egid).val;
+    r_c.sgid = BPF_CORE_READ(task, cred, sgid).val;
+    r_c.fsgid = BPF_CORE_READ(task, cred, fsgid).val;
+
+    ameba_write_record_cred_to_output_buffer(&r_c);
+    return 0;
+}
 
 
 static int send_record_namespace(
@@ -126,6 +160,12 @@ int BPF_PROG(
     event_context_init_event_context(&e_ctx_namespace, namespace_record_type);
     if (ameba_is_event_auditable(&e_ctx_namespace)){
         send_record_namespace(ret, sys_id);
+    }
+
+    struct event_context e_ctx_cred;
+    event_context_init_event_context(&e_ctx_cred, cred_record_type);
+    if (ameba_is_event_auditable(&e_ctx_cred)){
+        send_record_cred(ret, sys_id);
     }
 
     return 0;

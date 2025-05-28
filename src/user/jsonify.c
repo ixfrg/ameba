@@ -111,6 +111,20 @@ static int str_buffer_state_json_write_uint(
     return total;
 }
 
+static int str_buffer_state_json_write_uid(
+    struct str_buffer_state *s, const char *key, uid_t val
+)
+{
+    return str_buffer_state_json_write_uint(s, key, val);
+}
+
+static int str_buffer_state_json_write_gid(
+    struct str_buffer_state *s, const char *key, gid_t val
+)
+{
+    return str_buffer_state_json_write_uint(s, key, val);
+}
+
 static int str_buffer_state_json_write_inode(
     struct str_buffer_state *s, const char *key, inode_num_t val
 )
@@ -436,6 +450,32 @@ static int record_new_process_to_json(char *dst, unsigned int dst_len, struct re
     return total;
 }
 
+static int record_cred_to_json(char *dst, unsigned int dst_len, struct record_cred *data, char *record_type_name)
+{
+    int total = 0;
+
+    struct str_buffer_state s;
+    str_buffer_state_init_json_obj_from_existing_buffer(&s, dst, dst_len);
+    str_buffer_state_json_obj_open(&s);
+
+    total += str_buffer_state_json_write_elem_common(&s, &(data->e_common), record_type_name);
+    total += str_buffer_state_json_write_elem_timestamp(&s, &(data->e_ts));
+    total += str_buffer_state_json_write_pid(&s, "pid", data->pid);
+    total += str_buffer_state_json_write_sys_id(&s, "sys_id", data->sys_id);
+    total += str_buffer_state_json_write_uid(&s, "uid", data->uid);
+    total += str_buffer_state_json_write_uid(&s, "euid", data->euid);
+    total += str_buffer_state_json_write_uid(&s, "suid", data->suid);
+    total += str_buffer_state_json_write_uid(&s, "fsuid", data->fsuid);
+    total += str_buffer_state_json_write_gid(&s, "gid", data->gid);
+    total += str_buffer_state_json_write_gid(&s, "egid", data->egid);
+    total += str_buffer_state_json_write_gid(&s, "sgid", data->sgid);
+    total += str_buffer_state_json_write_gid(&s, "fsgid", data->fsgid);
+
+    str_buffer_state_json_obj_close(&s);
+
+    return total;
+}
+
 int jsonify_record_data_to_json(char *dst, unsigned int dst_len, void *data, size_t data_len)
 {
     if (dst == NULL)
@@ -473,6 +513,10 @@ int jsonify_record_data_to_json(char *dst, unsigned int dst_len, void *data, siz
             if (data_len != sizeof(struct record_new_process))
                 return -7;
             return record_new_process_to_json(dst, dst_len, (struct record_new_process *)data, "record_new_process");
+        case RECORD_TYPE_CRED:
+            if (data_len != sizeof(struct record_cred))
+                return -7;
+            return record_cred_to_json(dst, dst_len, (struct record_cred *)data, "record_cred");
         default:
             // Quietly ignore any expected record.
             return -8;
