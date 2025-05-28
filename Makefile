@@ -19,9 +19,14 @@ LIBPF_SO = libbpf.so.1
 
 
 CLANG_BUILD_BPF_FLAGS = -D__TARGET_ARCH_$(ARCH) -O2 -Wall -target bpf -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
+CLANG_BUILD_USER_FLAGS = -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
 
 
-default: all
+BPF_OBJS_EVENTS = $(DIR_BUILD)/accept.bpf.o $(DIR_BUILD)/connect.bpf.o $(DIR_BUILD)/process_namespace.bpf.o
+BPF_OBJS_HELPERS = $(DIR_BUILD)/map_helper.bpf.o $(DIR_BUILD)/record_helper.bpf.o $(DIR_BUILD)/event_context.bpf.o
+BPF_OBJS_ALL = $(BPF_OBJS_HELPERS) $(DIR_BUILD)/ameba.bpf.o $(BPF_OBJS_EVENTS)
+
+USER_OBJS_ALL = $(DIR_BUILD)/jsonify.o $(DIR_BUILD)/ameba.o
 
 
 download_bpftool:
@@ -34,67 +39,70 @@ download_bpftool:
 		chmod +x "$(BPFTOOL_EXE_FILE)"
 
 
-build_setup:
+$(DIR_BUILD):
 	@mkdir -p $(DIR_BUILD)
-	@mkdir -p $(DIR_BIN)
 
 
-btf:
-	$(BPFTOOL_EXE_FILE) btf dump file /sys/kernel/btf/vmlinux format c > $(DIR_SRC)/common/vmlinux.h
-#	@cp $(DIR_BUILD)/vmlinux.h $(DIR_SRC)/common/vmlinux.h
+$(DIR_SRC)/common/vmlinux.h: 
+	$(BPFTOOL_EXE_FILE) btf dump file /sys/kernel/btf/vmlinux format c > $@
 
 
-bpf_obj_maps:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/maps/map_helper.bpf.c -o $(DIR_BUILD)/map_helper.bpf.o
+$(DIR_BUILD)/map_helper.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/maps/map_helper.bpf.c -o $@
 
 
-bpf_obj_helpers:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/helpers/record_helper.bpf.c -o $(DIR_BUILD)/record_helper.bpf.o
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/helpers/event_context.bpf.c -o $(DIR_BUILD)/event_context.bpf.o
+$(DIR_BUILD)/record_helper.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/helpers/record_helper.bpf.c -o $@
 
 
-bpf_obj_core:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/ameba.bpf.c -o $(DIR_BUILD)/ameba.bpf.o
+$(DIR_BUILD)/event_context.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/helpers/event_context.bpf.c -o $@
 
 
-bpf_obj_events:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/connect.bpf.c -o $(DIR_BUILD)/connect.bpf.o
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/accept.bpf.c -o $(DIR_BUILD)/accept.bpf.o
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/process_namespace.bpf.c -o $(DIR_BUILD)/process_namespace.bpf.o
-	$(BPFTOOL_EXE_FILE) gen object \
-		$(DIR_BUILD)/all_events.bpf.o \
-		$(DIR_BUILD)/connect.bpf.o \
-		$(DIR_BUILD)/accept.bpf.o \
-		$(DIR_BUILD)/process_namespace.bpf.o
+$(DIR_BUILD)/ameba.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/ameba.bpf.c -o $@
 
 
-bpf_objs: bpf_obj_maps bpf_obj_helpers bpf_obj_core bpf_obj_events
+$(DIR_BUILD)/process_namespace.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/process_namespace.bpf.c -o $@
 
 
-bpf_skel:
-	$(BPFTOOL_EXE_FILE) gen object \
-		$(DIR_BUILD)/combined.bpf.o \
-		$(DIR_BUILD)/map_helper.bpf.o \
-		$(DIR_BUILD)/record_helper.bpf.o \
-		$(DIR_BUILD)/event_context.bpf.o \
-		$(DIR_BUILD)/ameba.bpf.o \
-		$(DIR_BUILD)/all_events.bpf.o
-	$(BPFTOOL_EXE_FILE) gen skeleton $(DIR_BUILD)/combined.bpf.o name ameba > $(DIR_BUILD)/ameba.skel.h
+$(DIR_BUILD)/connect.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/connect.bpf.c -o $@
 
 
-bpf_loader:
-	clang -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC) \
-		$(DIR_SRC)/user/jsonify.c \
-		$(DIR_SRC)/user/ameba.c \
-		-o $(DIR_BIN)/ameba -l:$(LIBPF_SO) -lpthread
+$(DIR_BUILD)/accept.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/accept.bpf.c -o $@
 
 
-all: build_setup btf bpf_objs bpf_skel bpf_loader
+$(DIR_BUILD)/combined.bpf.o: $(DIR_BUILD) $(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL)
+	$(BPFTOOL_EXE_FILE) gen object $@ $(BPF_OBJS_ALL)
+
+
+$(DIR_BUILD)/ameba.skel.h: $(DIR_BUILD)/combined.bpf.o
+	$(BPFTOOL_EXE_FILE) gen skeleton $^ name ameba > $@
+
+
+$(DIR_BUILD)/jsonify.o:
+	clang  $(CLANG_BUILD_USER_FLAGS) $(DIR_SRC)/user/jsonify.c -o $@
+
+
+$(DIR_BUILD)/ameba.o:
+	clang $(CLANG_BUILD_USER_FLAGS) $(DIR_SRC)/user/ameba.c -o $@
+
+
+$(DIR_BIN)/ameba: $(DIR_BUILD)/ameba.skel.h $(USER_OBJS_ALL)
+	clang $(USER_OBJS_ALL) -o $@ -l:$(LIBPF_SO) -lpthread
+
+
+.PHONY: clean all
 
 
 clean: 
-	rm -rf $(DIR_BUILD)
+	-rm -r $(DIR_BUILD)
 
+
+all: $(DIR_BIN)/ameba
 
 ###
 
