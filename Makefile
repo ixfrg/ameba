@@ -48,31 +48,31 @@ $(DIR_SRC)/common/vmlinux.h:
 
 
 $(DIR_BUILD)/map_helper.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/maps/map_helper.bpf.c -o $@
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/maps/map_helper.bpf.c -o $@
 
 
 $(DIR_BUILD)/record_helper.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/helpers/record_helper.bpf.c -o $@
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/helpers/record_helper.bpf.c -o $@
 
 
 $(DIR_BUILD)/event_context.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/helpers/event_context.bpf.c -o $@
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/helpers/event_context.bpf.c -o $@
 
 
 $(DIR_BUILD)/ameba.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/ameba.bpf.c -o $@
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/ameba.bpf.c -o $@
 
 
 $(DIR_BUILD)/process_namespace.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/process_namespace.bpf.c -o $@
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/events/process_namespace.bpf.c -o $@
 
 
 $(DIR_BUILD)/connect.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/connect.bpf.c -o $@
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/events/connect.bpf.c -o $@
 
 
 $(DIR_BUILD)/accept.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/kernel/events/accept.bpf.c -o $@
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/events/accept.bpf.c -o $@
 
 
 $(DIR_BUILD)/combined.bpf.o: $(DIR_BUILD) $(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL)

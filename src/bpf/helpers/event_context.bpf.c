@@ -1,4 +1,4 @@
-#include "kernel/helpers/event_context.bpf.h"
+#include "bpf/helpers/event_context.bpf.h"
 
 
 int event_context_init_event_context(struct event_context *e_ctx, record_type_t r_type)

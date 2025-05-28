@@ -1,4 +1,4 @@
-#include "kernel/maps/map.bpf.h"
+#include "bpf/maps/map.bpf.h"
 
 
 // external functions

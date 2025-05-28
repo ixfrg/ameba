@@ -1,6 +1,6 @@
 #include "common/vmlinux.h"
 #include "common/types.h"
-#include "kernel/current_version.bpf.h"
+#include "bpf/current_version.bpf.h"
 
 
 // externs

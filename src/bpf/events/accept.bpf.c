@@ -5,9 +5,9 @@
 #include <bpf/bpf_helpers.h>
 
 #include "common/types.h"
-#include "kernel/helpers/log.bpf.h"
-#include "kernel/maps/map.bpf.h"
-#include "kernel/helpers/event_context.bpf.h"
+#include "bpf/helpers/log.bpf.h"
+#include "bpf/maps/map.bpf.h"
+#include "bpf/helpers/event_context.bpf.h"
 
 
 // defs
