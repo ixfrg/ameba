@@ -242,7 +242,15 @@ int BPF_PROG(
         delete_send_map_entry();
         return 0;
     }
-    update_send_map_entry_on_syscall_exit(fd, NULL, 0, ret);
+
+    struct sockaddr *addr = NULL;
+    int addrlen = 0;
+    if (msg)
+    {
+        addr = (struct sockaddr *)BPF_CORE_READ(msg, msg_name);
+        addrlen = BPF_CORE_READ(msg, msg_namelen);
+    }
+    update_send_map_entry_on_syscall_exit(fd, addr, addrlen, ret);
     send_send_map_entry_on_syscall_exit();
     delete_send_map_entry();
     return 0;
