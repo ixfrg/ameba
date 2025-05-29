@@ -157,10 +157,10 @@ static int update_send_map_entry_on_syscall_exit(
     if (addr)
     {
         // Sometimes NULL like in send/sendmsg syscall.
-        // struct elem_sockaddr *remote_sa = (struct elem_sockaddr *)&(map_val->remote);
-        // remote_sa->byte_order = BYTE_ORDER_NETWORK;
-        // remote_sa->addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
-        // bpf_probe_read_user(&(remote_sa->addr[0]), remote_sa->addrlen, addr);
+        struct elem_sockaddr *remote_sa = (struct elem_sockaddr *)&(map_val->remote);
+        remote_sa->byte_order = BYTE_ORDER_NETWORK;
+        remote_sa->addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
+        bpf_probe_read_user(&(remote_sa->addr[0]), remote_sa->addrlen, addr);
     }
 
     return 0;
