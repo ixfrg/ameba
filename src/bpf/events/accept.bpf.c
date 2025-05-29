@@ -10,6 +10,7 @@
 #include "bpf/maps/map.bpf.h"
 #include "bpf/helpers/event_context.bpf.h"
 #include "bpf/helpers/record_helper.bpf.h"
+#include "bpf/maps/constants.h"
 
 
 // defs
@@ -34,7 +35,7 @@ static const record_type_t accept_record_type = RECORD_TYPE_ACCEPT;
 struct
 {
     __uint(type, BPF_MAP_TYPE_HASH);
-    __uint(max_entries, 1024); // TODO
+    __uint(max_entries, MAPS_HASH_MAP_MAX_ENTRIES);
     __type(key, struct map_key_process_record_accept);
     __type(value, struct record_accept);
 } process_record_map_accept SEC(".maps");

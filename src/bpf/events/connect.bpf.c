@@ -10,6 +10,7 @@
 #include "bpf/helpers/event_context.bpf.h"
 #include "bpf/helpers/record_helper.bpf.h"
 #include "bpf/ameba.bpf.h"
+#include "bpf/maps/constants.h"
 
 
 // local globals
@@ -21,7 +22,7 @@ static const record_size_t connect_record_size = RECORD_SIZE_CONNECT;
 struct
 {
     __uint(type, BPF_MAP_TYPE_HASH);
-    __uint(max_entries, 1024); // TODO
+    __uint(max_entries, MAPS_HASH_MAP_MAX_ENTRIES); // TODO
     __type(key, struct map_key_process_record);
     __type(value, struct record_connect);
 } process_record_map SEC(".maps");
