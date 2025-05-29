@@ -55,3 +55,5 @@ build
 bin/ameba
 vmlinux.h
 .vscode
+
+bin/bpftool.tar.gz

@@ -8,36 +8,8 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/maps/map.bpf.h"
 #include "bpf/helpers/event_context.bpf.h"
-
-
-// local globals
-static const record_type_t new_process_record_type = RECORD_TYPE_NEW_PROCESS;
-static const record_type_t namespace_record_type = RECORD_TYPE_NAMESPACE;
-static const record_type_t cred_record_type = RECORD_TYPE_CRED;
-
-
-// externs
-extern int recordhelper_init_record_new_process(
-    struct record_new_process *r_new_process,
-    event_id_t event_id,
-    pid_t pid, pid_t ppid, sys_id_t sys_id
-);
-extern int recordhelper_init_record_namespace(
-    struct record_namespace *r_namespace,
-    event_id_t event_id,
-    pid_t pid, sys_id_t sys_id
-);
-extern int recordhelper_init_record_cred(
-    struct record_cred *r_c,
-    event_id_t event_id,
-    pid_t pid, sys_id_t sys_id
-);
-extern event_id_t ameba_increment_event_id(void);
-extern int ameba_is_event_auditable(struct event_context *e_ctx);
-extern long ameba_write_record_to_output_buffer(struct bpf_dynptr *ptr, record_type_t record_type);
-extern long ameba_write_record_new_process_to_output_buffer(struct record_new_process *ptr);
-extern long ameba_write_record_namespace_to_output_buffer(struct record_namespace *ptr);
-extern long ameba_write_record_cred_to_output_buffer(struct record_cred *ptr);
+#include "bpf/helpers/record_helper.bpf.h"
+#include "bpf/ameba.bpf.h"
 
 
 static int send_record_cred(
@@ -45,6 +17,12 @@ static int send_record_cred(
     const sys_id_t sys_id
 )
 {
+    struct event_context e_ctx;
+    event_context_init_event_context(&e_ctx, RECORD_TYPE_CRED);
+    if (!ameba_is_event_auditable(&e_ctx)){
+        return 0;
+    }
+
     struct record_cred r_c;
     recordhelper_init_record_cred(
         &r_c,
@@ -72,6 +50,12 @@ static int send_record_namespace(
     const sys_id_t sys_id
 )
 {
+    struct event_context e_ctx;
+    event_context_init_event_context(&e_ctx, RECORD_TYPE_NAMESPACE);
+    if (!ameba_is_event_auditable(&e_ctx)){
+        return 0;
+    }
+
     struct record_namespace r_ns;
     recordhelper_init_record_namespace(
         &r_ns,
@@ -95,6 +79,12 @@ static int send_record_new_process(
     sys_id_t sys_id
 )
 {
+    struct event_context e_ctx;
+    event_context_init_event_context(&e_ctx, RECORD_TYPE_NEW_PROCESS);
+    if (!ameba_is_event_auditable(&e_ctx)){
+        return 0;
+    }
+
     const struct task_struct *parent_task = (struct task_struct *)bpf_get_current_task_btf();
 
     struct record_new_process r_np;
@@ -112,6 +102,25 @@ static int send_record_new_process(
     return 0;
 }
 
+static sys_id_t get_sys_id_from_kernel_clone_args(struct kernel_clone_args *args)
+{
+    sys_id_t sys_id;
+
+    sys_id = SYS_ID_CLONE; // by default
+
+    if (BPF_CORE_READ(args, exit_signal) == SIGCHLD)
+    {
+        if (BPF_CORE_READ(args, flags) == (CLONE_VFORK | CLONE_VM))
+        {
+            sys_id = SYS_ID_VFORK;
+        }
+        else if (BPF_CORE_READ(args, flags) == 0)
+        {
+            sys_id = SYS_ID_FORK;
+        }
+    }
+    return sys_id;
+}
 
 // SEC("fexit/kernel_clone")
 // int BPF_PROG(
@@ -130,43 +139,13 @@ int BPF_PROG(
 )
 {
     if (ret == NULL)
-    {
         return 0;
-    }
 
-    int sys_id;
+    sys_id_t sys_id = get_sys_id_from_kernel_clone_args(args);
 
-    sys_id = SYS_ID_CLONE; // by default
-
-    if (BPF_CORE_READ(args, exit_signal) == SIGCHLD)
-    {
-        if (BPF_CORE_READ(args, flags) == (CLONE_VFORK | CLONE_VM))
-        {
-            sys_id = SYS_ID_VFORK;
-        }
-        else if (BPF_CORE_READ(args, flags) == 0)
-        {
-            sys_id = SYS_ID_FORK;
-        }
-    }
-
-    struct event_context e_ctx_new_process;
-    event_context_init_event_context(&e_ctx_new_process, new_process_record_type);
-    if (ameba_is_event_auditable(&e_ctx_new_process)){
-        send_record_new_process(ret, sys_id);
-    }
-
-    struct event_context e_ctx_namespace;
-    event_context_init_event_context(&e_ctx_namespace, namespace_record_type);
-    if (ameba_is_event_auditable(&e_ctx_namespace)){
-        send_record_namespace(ret, sys_id);
-    }
-
-    struct event_context e_ctx_cred;
-    event_context_init_event_context(&e_ctx_cred, cred_record_type);
-    if (ameba_is_event_auditable(&e_ctx_cred)){
-        send_record_cred(ret, sys_id);
-    }
+    send_record_new_process(ret, sys_id);
+    send_record_namespace(ret, sys_id);
+    send_record_cred(ret, sys_id);
 
     return 0;
 }
@@ -178,41 +157,23 @@ int BPF_PROG(
     int ret
 )
 {
-    struct event_context e_ctx_namespace;
-    event_context_init_event_context(&e_ctx_namespace, namespace_record_type);
-    if (!ameba_is_event_auditable(&e_ctx_namespace)){
-        return 0;
-    }
-
     if (ret == -1)
         return 0;
 
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-
-    int sys_id = SYS_ID_UNSHARE;
-
+    sys_id_t sys_id = SYS_ID_UNSHARE;
     return send_record_namespace(current_task, sys_id);
 }
 
 SEC("tracepoint/syscalls/sys_exit_setns")
 int trace_setns_exit(struct trace_event_raw_sys_exit *ctx)
 {
-    struct event_context e_ctx_namespace;
-    event_context_init_event_context(&e_ctx_namespace, namespace_record_type);
-    if (!ameba_is_event_auditable(&e_ctx_namespace)){
-        return 0;
-    }
-
     long int ret = ctx->ret;
 
     if (ret == -1)
-    {
         return 0;
-    }
 
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-
-    int sys_id = SYS_ID_SETNS;
-
+    sys_id_t sys_id = SYS_ID_SETNS;
     return send_record_namespace(current_task, sys_id);
 }

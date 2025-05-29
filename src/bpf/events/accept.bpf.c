@@ -40,69 +40,61 @@ struct
 } process_record_map_accept SEC(".maps");
 
 
-// externs
-extern int recordhelper_zero_out_record_accept(
-    struct record_accept *r_accept
-);
-extern int recordhelper_init_record_accept(
-    struct record_accept *r_accept,
-    pid_t pid, int fd
-);
-extern int recordhelper_zero_out_elem_sockaddr(
-    struct elem_sockaddr *e_sockaddr
-);
-extern int recordhelper_init_elem_sockaddr(
-    struct elem_sockaddr *e_sockaddr,
-    socklen_t addrlen,
-    byte_order_t byte_order
-);
+static int is_accept_event_auditable(void)
+{
+    struct event_context e_ctx;
+    event_context_init_event_context(&e_ctx, accept_record_type);
+    return ameba_is_event_auditable(&e_ctx);
+}
 
-// local functions
-static int init_map_key_process_record_accept(
-    struct map_key_process_record_accept *map_key, 
-    pid_t pid, const record_type_t record_type, accept_type_fd_t fd_type
-){
+static int init_accept_map_key(struct map_key_process_record_accept *map_key, accept_type_fd_t fd_type)
+{
     if (!map_key)
         return 0;
-    maphelper_init_map_key_process_record(&(map_key->map_key), pid, record_type);
+
+    const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    const pid_t pid = BPF_CORE_READ(current_task, pid);
+    maphelper_init_map_key_process_record(&(map_key->map_key), pid, accept_record_type);
     map_key->fd_type = fd_type;
     return 0;
 }
 
-
-static long set_process_record_map_accept_key_val(
-    pid_t pid, accept_type_fd_t fd_type
-)
+static int insert_accept_map_entry_at_syscall_enter(accept_type_fd_t fd_type)
 {
     struct map_key_process_record_accept map_key;
-    init_map_key_process_record_accept(&map_key, pid, accept_record_type, fd_type);
+    init_accept_map_key(&map_key, fd_type);
 
     struct record_accept map_val;
     recordhelper_zero_out_record_accept(&map_val);
     long result = bpf_map_update_elem(&process_record_map_accept, &map_key, (void *)&map_val, BPF_ANY);
     if (result != 0)
     {
-        LOG_WARN("[fentry__sys_accept4] Failed to update map for fd type: %u. Error = %ld", fd_type, result);
+        LOG_WARN("[insert_accept_map_entry_at_syscall_enter] Failed to insert map for fd type: %u. Error = %ld", fd_type, result);
     }
     return 0;
 }
 
-
-static long set_internal_and_external_sockaddr_for_file(
-    pid_t pid, struct file *file, accept_type_fd_t fd_type
-)
+static int insert_accept_local_map_entry_at_syscall_enter(void)
 {
-    struct map_key_process_record_accept map_key;
-    init_map_key_process_record_accept(&map_key, pid, accept_record_type, fd_type);
+    return insert_accept_map_entry_at_syscall_enter(LOCAL);
+}
 
-    if (file == NULL)
-    {
-        bpf_map_delete_elem(&process_record_map_accept, &map_key);
+static int insert_accept_remote_map_entry_at_syscall_enter(void)
+{
+    return insert_accept_map_entry_at_syscall_enter(REMOTE);
+}
+
+static int update_accept_map_entry_with_file(accept_type_fd_t fd_type, struct file *file)
+{
+    if (!file || !is_accept_event_auditable()){
         return 0;
     }
 
+    struct map_key_process_record_accept map_key;
+    init_accept_map_key(&map_key, fd_type);
+
     struct record_accept *map_val = bpf_map_lookup_elem(&process_record_map_accept, &map_key);
-    if (map_val == NULL)
+    if (!map_val)
     {
         return 0;
     }
@@ -112,6 +104,7 @@ static long set_internal_and_external_sockaddr_for_file(
         struct sock_common sk_c = BPF_CORE_READ(sock, sk, __sk_common);
         if (sk_c.skc_family == AF_INET) {
             // local
+            map_val->local.byte_order = BYTE_ORDER_HOST;
             map_val->local.addrlen = sizeof(struct sockaddr_in);
             struct sockaddr_in *sin_local = (struct sockaddr_in *)(&map_val->local.addr);
             sin_local->sin_family = sk_c.skc_family;
@@ -119,6 +112,7 @@ static long set_internal_and_external_sockaddr_for_file(
             sin_local->sin_addr.s_addr = sk_c.skc_rcv_saddr;
 
             // remote
+            map_val->remote.byte_order = BYTE_ORDER_NETWORK;
             map_val->remote.addrlen = sizeof(struct sockaddr_in);
             struct sockaddr_in *sin_remote = (struct sockaddr_in *)(&map_val->remote.addr);
             sin_remote->sin_family = sk_c.skc_family;
@@ -126,6 +120,7 @@ static long set_internal_and_external_sockaddr_for_file(
             sin_remote->sin_addr.s_addr = sk_c.skc_daddr;
         } else if (sk_c.skc_family == AF_INET6) {
             // local
+            map_val->local.byte_order = BYTE_ORDER_HOST;
             map_val->local.addrlen = sizeof(struct sockaddr_in6);
             struct sockaddr_in6 *sin6_local = (struct sockaddr_in6 *)(&map_val->local.addr);
             sin6_local->sin6_family = sk_c.skc_family;
@@ -133,6 +128,7 @@ static long set_internal_and_external_sockaddr_for_file(
             sin6_local->sin6_addr = sk_c.skc_v6_rcv_saddr;
 
             // remote
+            map_val->remote.byte_order = BYTE_ORDER_NETWORK;
             map_val->remote.addrlen = sizeof(struct sockaddr_in6);
             struct sockaddr_in6 *sin6_remote = (struct sockaddr_in6 *)(&map_val->remote.addr);
             sin6_remote->sin6_family = sk_c.skc_family;
@@ -140,6 +136,91 @@ static long set_internal_and_external_sockaddr_for_file(
             sin6_remote->sin6_addr = sk_c.skc_v6_daddr;
         }
     }
+    return 0;
+}
+
+static int update_accept_local_map_entry_with_file(struct file *file)
+{
+    update_accept_map_entry_with_file(LOCAL, file);
+    return 0;
+}
+
+static int update_accept_remote_map_entry_with_file(struct file *file)
+{
+    update_accept_map_entry_with_file(REMOTE, file);
+    return 0;
+}
+
+static int insert_accept_map_entries_at_syscall_enter(void)
+{
+    if (!is_accept_event_auditable())
+        return 0;
+    insert_accept_local_map_entry_at_syscall_enter();
+    insert_accept_remote_map_entry_at_syscall_enter();
+    return 0;
+}
+
+static int delete_accept_map_entry(accept_type_fd_t fd_type)
+{
+    struct map_key_process_record_accept map_key;
+    init_accept_map_key(&map_key, fd_type);
+
+    bpf_map_delete_elem(&process_record_map_accept, &map_key);
+    return 0;
+}
+
+static int delete_accept_local_map_entry(void)
+{
+    delete_accept_map_entry(LOCAL);
+    return 9;
+}
+
+static int delete_accept_remote_map_entry(void)
+{
+    delete_accept_map_entry(REMOTE);
+    return 0;
+}
+
+static int delete_accept_map_entries(void)
+{
+    delete_accept_local_map_entry();
+    delete_accept_remote_map_entry();
+    return 0;
+}
+
+static int update_accept_map_entry_on_syscall_exit(event_id_t event_id, int fd, accept_type_fd_t fd_type)
+{
+    if (!is_accept_event_auditable()){
+        return 0;
+    }
+
+    struct map_key_process_record_accept map_key;
+    init_accept_map_key(&map_key, fd_type);
+
+    struct record_accept *map_val = bpf_map_lookup_elem(&process_record_map_accept, &map_key);
+    if (!map_val)
+        return 0;
+
+    const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    const pid_t pid = BPF_CORE_READ(current_task, pid);
+
+    map_val->fd = fd;
+    map_val->pid = pid;
+    map_val->e_ts.event_id = event_id;
+
+    return 0;
+}
+
+static int send_accept_map_entry_on_syscall_exit(accept_type_fd_t fd_type)
+{
+    struct map_key_process_record_accept map_key;
+    init_accept_map_key(&map_key, fd_type);
+
+    struct record_accept *map_val = bpf_map_lookup_elem(&process_record_map_accept, &map_key);
+    if (!map_val)
+        return 0;
+
+    ameba_write_record_accept_to_output_buffer(map_val);
     return 0;
 }
 
@@ -152,18 +233,7 @@ int BPF_PROG(
     int flags
 )
 {
-    struct event_context e_ctx;
-    event_context_init_event_context(&e_ctx, accept_record_type);
-
-    if (!ameba_is_event_auditable(&e_ctx))
-        return 0;
-
-    const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    const pid_t pid = BPF_CORE_READ(current_task, pid);
-
-    set_process_record_map_accept_key_val(pid, LOCAL);
-    set_process_record_map_accept_key_val(pid, REMOTE);
-
+    insert_accept_map_entries_at_syscall_enter();
     return 0;
 }
 
@@ -179,21 +249,13 @@ int BPF_PROG(
     struct file *ret_file
 )
 {
-    struct event_context e_ctx;
-    event_context_init_event_context(&e_ctx, accept_record_type);
-
-    if (!ameba_is_event_auditable(&e_ctx))
-        return 0;
-
-    if (ret_file == NULL){
+    if (!ret_file){
+        delete_accept_map_entries();
         return 0;
     }
 
-    const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    const pid_t pid = BPF_CORE_READ(current_task, pid);
-
-    set_internal_and_external_sockaddr_for_file(pid, file, LOCAL);
-    set_internal_and_external_sockaddr_for_file(pid, ret_file, REMOTE);
+    update_accept_local_map_entry_with_file(file);
+    update_accept_remote_map_entry_with_file(ret_file);
 
     return 0;
 }
@@ -209,68 +271,21 @@ int BPF_PROG(
     int ret
 )
 {
-    struct event_context e_ctx;
-    event_context_init_event_context(&e_ctx, accept_record_type);
-
-    if (!ameba_is_event_auditable(&e_ctx))
-        goto exit;
-
-    const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    const pid_t pid = BPF_CORE_READ(current_task, pid);
-
-    struct map_key_process_record_accept map_key_server;
-    init_map_key_process_record_accept(&map_key_server, pid, accept_record_type, LOCAL);
-
-    struct map_key_process_record_accept map_key_client;
-    init_map_key_process_record_accept(&map_key_client, pid, accept_record_type, REMOTE);
-
     if (ret == -1)
     {
-        goto delete_map_entries;
-    }
-
-    struct record_accept *map_val_server = bpf_map_lookup_elem(&process_record_map_accept, &map_key_server);
-    if (map_val_server == NULL)
-    {
-        goto delete_map_entries;
-    }
-
-    struct record_accept *map_val_client = bpf_map_lookup_elem(&process_record_map_accept, &map_key_client);
-    if (map_val_client == NULL)
-    {
-        goto delete_map_entries;
+        delete_accept_map_entries();
+        return 0;
     }
 
     event_id_t event_id = ameba_increment_event_id();
 
-    map_val_server->fd = fd;
-    map_val_server->pid = pid;
-    map_val_server->e_ts.event_id = event_id;
+    update_accept_map_entry_on_syscall_exit(event_id, fd, LOCAL);
+    update_accept_map_entry_on_syscall_exit(event_id, ret, REMOTE);
 
-    map_val_client->fd = ret;
-    map_val_client->pid = pid;
-    map_val_client->e_ts.event_id = event_id;
+    send_accept_map_entry_on_syscall_exit(LOCAL);
+    send_accept_map_entry_on_syscall_exit(REMOTE);
 
-    struct bpf_dynptr ptr_server;
-    long dynptr_result_server = bpf_dynptr_from_mem(map_val_server, RECORD_SIZE_ACCEPT, 0, &ptr_server);
-    if (dynptr_result_server == 0){
-        ameba_write_record_to_output_buffer(&ptr_server, accept_record_type);
-    } else {
-        LOG_WARN("[fexit__sys_accept4] Failed to create server dynptr for record. Error = %ld", dynptr_result_server);
-    }
+    delete_accept_map_entries();
 
-    struct bpf_dynptr ptr_client;
-    long dynptr_result_client = bpf_dynptr_from_mem(map_val_client, RECORD_SIZE_ACCEPT, 0, &ptr_client);
-    if (dynptr_result_client == 0){
-        ameba_write_record_to_output_buffer(&ptr_client, accept_record_type);
-    } else {
-        LOG_WARN("[fexit__sys_accept4] Failed to create client dynptr for record. Error = %ld", dynptr_result_client);
-    }
-
-delete_map_entries:
-    bpf_map_delete_elem(&process_record_map_accept, &map_key_server);
-    bpf_map_delete_elem(&process_record_map_accept, &map_key_client);
-
-exit:
     return 0;
 }

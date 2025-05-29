@@ -67,6 +67,14 @@ long ameba_write_record_new_process_to_output_buffer(struct record_new_process *
     return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_NEW_PROCESS, 0);
 }
 
+long ameba_write_record_accept_to_output_buffer(struct record_accept *ptr)
+{
+    if (ptr == NULL){
+        return 0;
+    }
+    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_ACCEPT, 0);
+}
+
 long ameba_write_record_to_output_buffer(struct bpf_dynptr *ptr, record_type_t record_type){
     if (ptr != NULL){
         void *data = NULL;
