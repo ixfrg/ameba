@@ -12,7 +12,10 @@
 #include <time.h>
 #include <signal.h>
 
-#include "user/jsonify.h"
+#include "user/convert_data.h"
+#include "user/error.h"
+#include "user/writer.h"
+#include "user/jsonify/record.h"
 #include "ameba.skel.h"
 
 
@@ -20,62 +23,8 @@ static const char *log_prefix = "[ameba] [user]";
 
 static struct ameba *skel = NULL;
 
-static int log_file_fd;
-static char *log_file_symlink_path = "/tmp/current_ameba_log.json";
 
-
-extern int record_data_to_json(char *dst, unsigned int dst_len, void *data, size_t data_len);
-
-
-static void sig_handler(int sig)
-{
-    if (sig == SIGTERM)
-    {
-        syslog(LOG_INFO, "%s : Received termination signal...\n", log_prefix);
-        close(log_file_fd);
-        if (skel != NULL)
-        {
-            ameba__destroy(skel);
-        }
-        exit(0);
-    }
-}
-
-static int create_log_file_symlink(char *src, char *tgt)
-{
-    if (access(tgt, F_OK) == 0)
-        if (unlink(tgt) != 0)
-        {
-            perror("Error removing existing symlink");
-            return 1;
-        }
-    if (symlink(src, tgt) != 0)
-    {
-        perror("Error creating symlink");
-        return 1;
-    }
-    return 0;
-}
-
-static int init_log_file()
-{
-    int fd;
-    char filename[40];
-    struct tm *time_str;
-
-    time_t current_time = time(NULL);
-
-    time_str = localtime(&current_time);
-    strftime(filename, sizeof(filename), "/tmp/prov_%Y-%m-%d_%H:%M:%S.json", time_str);
-
-    fd = open(filename, O_RDWR | O_CREAT);
-
-    create_log_file_symlink(&filename[0], log_file_symlink_path);
-
-    return fd;
-}
-
-int process_ringbuf_record(void *ctx, void *data, size_t data_len)
+static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
 {
     int dst_len = MAX_BUFFER_LEN;
     char *dst = (char *)malloc(sizeof(char) * dst_len);
@@ -84,17 +33,33 @@ int process_ringbuf_record(void *ctx, void *data, size_t data_len)
         return 0;
     }
 
-    int result = jsonify_record_data_to_json(dst, dst_len, data, data_len);
+    int result = convert_data_to_json(dst, dst_len, data, data_len);
 
-    if (result > 0)
+    if (result >= 0)
     {
-        write(log_file_fd, dst, strnlen(dst, MAX_BUFFER_LEN));
-        write(log_file_fd, "\n", 1);
+        writer_write(dst, strnlen(dst, MAX_BUFFER_LEN));
+    } else {
+        printf("%s : Failed 'convert_data_to_json'. Error: %d\n", log_prefix, result);
+        // error
     }
 
     free(dst);
 
     return 0;
+}
+
+static void sig_handler(int sig)
+{
+    if (sig == SIGTERM)
+    {
+        syslog(LOG_INFO, "%s : Received termination signal...\n", log_prefix);
+        writer_close();
+        if (skel != NULL)
+        {
+            ameba__destroy(skel);
+        }
+        exit(0);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -107,8 +72,6 @@ int main(int argc, char *argv[])
 
     syslog(LOG_INFO, "%s : Registering signal handler...\n", log_prefix);
     signal(SIGTERM, sig_handler);
-
-    
 
     skel = ameba__open_and_load();
     if (!skel)
@@ -135,11 +98,11 @@ int main(int argc, char *argv[])
         goto skel_detach;
     }
 
-    ringbuf = ring_buffer__new(ringbuf_map_fd, process_ringbuf_record, NULL, NULL);
+    ringbuf = ring_buffer__new(ringbuf_map_fd, handle_ringbuf_data, NULL, NULL);
 
-    log_file_fd = init_log_file();
+    int writer_error = writer_init();
 
-    if (log_file_fd < 0)
+    if (writer_error == -1)
     {
         syslog(LOG_ERR, "%s : Error creating log file\n", log_prefix);
         result = 1;
@@ -154,7 +117,7 @@ int main(int argc, char *argv[])
     }
 
 // log_file_close:
-    close(log_file_fd);
+    writer_close();
 
 skel_detach:
     ameba__detach(skel);

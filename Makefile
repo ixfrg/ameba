@@ -6,6 +6,38 @@ DIR_BUILD = build
 DIR_BIN = bin
 
 
+# BEGIN: Construction of USER_OBJS_ALL
+DIR_SRC_U = $(DIR_SRC)/user
+DIR_SRC_U_J = $(DIR_SRC_U)/jsonify
+
+DIR_BUILD_U = $(DIR_BUILD)/user
+DIR_BUILD_U_J = $(DIR_BUILD_U)/jsonify
+
+USER_OBJS_U = $(DIR_BUILD_U)/ameba.o $(DIR_BUILD_U)/convert_data.o $(DIR_BUILD_U)/writer.o
+USER_OBJS_U_J = $(DIR_BUILD_U_J)/core.o $(DIR_BUILD_U_J)/record.o $(DIR_BUILD_U_J)/types.o
+USER_OBJS_ALL = $(USER_OBJS_U_J) $(USER_OBJS_U)	
+# END: Construction of USER_OBJS_ALL
+
+
+# BEGIN: Construction of BPF_OBJS_ALL
+DIR_SRC_B = $(DIR_SRC)/bpf
+DIR_SRC_B_E = $(DIR_SRC_B)/events
+DIR_SRC_B_H = $(DIR_SRC_B)/helpers
+DIR_SRC_B_M = $(DIR_SRC_B)/maps
+
+DIR_BUILD_B = $(DIR_BUILD)/bpf
+DIR_BUILD_B_E = $(DIR_BUILD_B)/events
+DIR_BUILD_B_H = $(DIR_BUILD_B)/helpers
+DIR_BUILD_B_M = $(DIR_BUILD_B)/maps
+
+BPF_OBJS_B = $(DIR_BUILD_B)/ameba.bpf.o
+BPF_OBJS_B_E = $(DIR_BUILD_B_E)/accept.bpf.o $(DIR_BUILD_B_E)/connect.bpf.o $(DIR_BUILD_B_E)/process_namespace.bpf.o
+BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event_context.bpf.o $(DIR_BUILD_B_H)/record_helper.bpf.o
+BPF_OBJS_B_M = $(DIR_BUILD_B_M)/map_helper.bpf.o
+BPF_OBJS_ALL = $(BPF_OBJS_B) $(BPF_OBJS_B_E) $(BPF_OBJS_B_H) $(BPF_OBJS_B_M)
+# END: Construction of BPF_OBJS_ALL
+
+
 BPFTOOL_VERSION = v7.2.0
 BPFTOOL_ARCH = $(ARCH)
 BPFTOOL_URL = https://github.com/libbpf/bpftool/releases/download/$(BPFTOOL_VERSION)/bpftool-$(BPFTOOL_VERSION)-$(BPFTOOL_ARCH).tar.gz
@@ -22,13 +54,6 @@ CLANG_BUILD_BPF_FLAGS = -D__TARGET_ARCH_$(ARCH) -O2 -Wall -target bpf -g -I$(DIR
 CLANG_BUILD_USER_FLAGS = -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
 
 
-BPF_OBJS_EVENTS = $(DIR_BUILD)/accept.bpf.o $(DIR_BUILD)/connect.bpf.o $(DIR_BUILD)/process_namespace.bpf.o
-BPF_OBJS_HELPERS = $(DIR_BUILD)/map_helper.bpf.o $(DIR_BUILD)/record_helper.bpf.o $(DIR_BUILD)/event_context.bpf.o
-BPF_OBJS_ALL = $(BPF_OBJS_HELPERS) $(DIR_BUILD)/ameba.bpf.o $(BPF_OBJS_EVENTS)
-
-USER_OBJS_ALL = $(DIR_BUILD)/jsonify.o $(DIR_BUILD)/ameba.o
-
-
 download_bpftool:
 # https://github.com/xdp-project/xdp-tutorial/issues/368
 	test -f "$(BPFTOOL_TARGZ_FILE)" || \
@@ -38,60 +63,83 @@ download_bpftool:
 	test -x "$(BPFTOOL_EXE_FILE)" || \
 		chmod +x "$(BPFTOOL_EXE_FILE)"
 
+# DIR creations
+
+$(DIR_BUILD_B_M):
+	@mkdir -p $(DIR_BUILD_B_M)
+
+$(DIR_BUILD_B_H):
+	@mkdir -p $(DIR_BUILD_B_H)
+
+$(DIR_BUILD_B_E):
+	@mkdir -p $(DIR_BUILD_B_E)
+
+$(DIR_BUILD_B):
+	@mkdir -p $(DIR_BUILD_B)
+
+$(DIR_BUILD_U_J):
+	@mkdir -p $(DIR_BUILD_U_J)
+
+$(DIR_BUILD_U):
+	@mkdir -p $(DIR_BUILD_U)
 
 $(DIR_BUILD):
 	@mkdir -p $(DIR_BUILD)
 
+# BPF objs build
 
 $(DIR_SRC)/common/vmlinux.h: 
 	$(BPFTOOL_EXE_FILE) btf dump file /sys/kernel/btf/vmlinux format c > $@
 
+$(DIR_BUILD_B_M)/map_helper.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC_B_M)/map_helper.bpf.c -o $@
 
-$(DIR_BUILD)/map_helper.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/maps/map_helper.bpf.c -o $@
+$(DIR_BUILD_B_H)/record_helper.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC_B_H)/record_helper.bpf.c -o $@
 
+$(DIR_BUILD_B_H)/event_context.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC_B_H)/event_context.bpf.c -o $@
 
-$(DIR_BUILD)/record_helper.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/helpers/record_helper.bpf.c -o $@
+$(DIR_BUILD_B)/ameba.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC_B)/ameba.bpf.c -o $@
 
+$(DIR_BUILD_B_E)/process_namespace.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC_B_E)/process_namespace.bpf.c -o $@
 
-$(DIR_BUILD)/event_context.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/helpers/event_context.bpf.c -o $@
+$(DIR_BUILD_B_E)/connect.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC_B_E)/connect.bpf.c -o $@
 
+$(DIR_BUILD_B_E)/accept.bpf.o:
+	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC_B_E)/accept.bpf.c -o $@
 
-$(DIR_BUILD)/ameba.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/ameba.bpf.c -o $@
-
-
-$(DIR_BUILD)/process_namespace.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/events/process_namespace.bpf.c -o $@
-
-
-$(DIR_BUILD)/connect.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/events/connect.bpf.c -o $@
-
-
-$(DIR_BUILD)/accept.bpf.o:
-	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC)/bpf/events/accept.bpf.c -o $@
-
-
-$(DIR_BUILD)/combined.bpf.o: $(DIR_BUILD) $(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL)
+$(DIR_BUILD)/combined.bpf.o: $(DIR_BUILD) $(DIR_BUILD_B) $(DIR_BUILD_B_E) $(DIR_BUILD_B_H) $(DIR_BUILD_B_M) \
+								$(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL)
 	$(BPFTOOL_EXE_FILE) gen object $@ $(BPF_OBJS_ALL)
-
 
 $(DIR_BUILD)/ameba.skel.h: $(DIR_BUILD)/combined.bpf.o
 	$(BPFTOOL_EXE_FILE) gen skeleton $^ name ameba > $@
 
+# USER objs build
 
-$(DIR_BUILD)/jsonify.o:
-	clang  $(CLANG_BUILD_USER_FLAGS) $(DIR_SRC)/user/jsonify.c -o $@
+$(DIR_BUILD_U)/writer.o:
+	clang $(CLANG_BUILD_USER_FLAGS) $(DIR_SRC_U)/writer.c -o $@
 
+$(DIR_BUILD_U)/convert_data.o:
+	clang $(CLANG_BUILD_USER_FLAGS) $(DIR_SRC_U)/convert_data.c -o $@
 
-$(DIR_BUILD)/ameba.o:
-	clang $(CLANG_BUILD_USER_FLAGS) $(DIR_SRC)/user/ameba.c -o $@
+$(DIR_BUILD_U)/ameba.o:
+	clang $(CLANG_BUILD_USER_FLAGS) $(DIR_SRC_U)/ameba.c -o $@
 
+$(DIR_BUILD_U_J)/core.o:
+	clang $(CLANG_BUILD_USER_FLAGS) $(DIR_SRC_U_J)/core.c -o $@
 
-$(DIR_BIN)/ameba: $(DIR_BUILD)/ameba.skel.h $(USER_OBJS_ALL)
+$(DIR_BUILD_U_J)/record.o:
+	clang $(CLANG_BUILD_USER_FLAGS) $(DIR_SRC_U_J)/record.c -o $@
+
+$(DIR_BUILD_U_J)/types.o:
+	clang $(CLANG_BUILD_USER_FLAGS) $(DIR_SRC_U_J)/types.c -o $@
+
+$(DIR_BIN)/ameba: $(DIR_BUILD) $(DIR_BUILD_U) $(DIR_BUILD_U_J) $(DIR_BUILD)/ameba.skel.h $(USER_OBJS_ALL)
 	clang $(USER_OBJS_ALL) -o $@ -l:$(LIBPF_SO) -lpthread
 
 

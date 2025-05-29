@@ -1,3 +1,5 @@
+#pragma once
+
 #define ERR_DST_INVALID -1
 #define ERR_DST_INSUFFICIENT -2
 #define ERR_DATA_INVALID -3
