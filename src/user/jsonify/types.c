@@ -39,6 +39,11 @@ int jsonify_types_write_event_id(struct json_buffer *s, event_id_t val)
     return jsonify_core_write_ulong(s, "event_id", val);
 }
 
+int jsonify_types_write_ssize(struct json_buffer *s, const char *key, ssize_t val)
+{
+    return jsonify_core_write_long(s, key, val);
+}
+
 static int jsonify_types_write_version(struct json_buffer *s, const char *key, struct elem_version *version)
 {
     const int max_size = 13;
@@ -69,6 +74,12 @@ int jsonify_types_write_sys_id(struct json_buffer *s, sys_id_t sys_id)
         break;
     case SYS_ID_UNSHARE:
         sys_name = "unshare";
+        break;
+    case SYS_ID_SENDTO:
+        sys_name = "sendto";
+        break;
+    case SYS_ID_SENDMSG:
+        sys_name = "sendmsg";
         break;
     default:
         sys_name = "UNKNOWN";

@@ -31,7 +31,7 @@ DIR_BUILD_B_H = $(DIR_BUILD_B)/helpers
 DIR_BUILD_B_M = $(DIR_BUILD_B)/maps
 
 BPF_OBJS_B = $(DIR_BUILD_B)/ameba.bpf.o
-BPF_OBJS_B_E = $(DIR_BUILD_B_E)/accept.bpf.o $(DIR_BUILD_B_E)/connect.bpf.o $(DIR_BUILD_B_E)/process_namespace.bpf.o
+BPF_OBJS_B_E = $(DIR_BUILD_B_E)/accept.bpf.o $(DIR_BUILD_B_E)/connect.bpf.o $(DIR_BUILD_B_E)/process_namespace.bpf.o $(DIR_BUILD_B_E)/send.bpf.o
 BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event_context.bpf.o $(DIR_BUILD_B_H)/record_helper.bpf.o
 BPF_OBJS_B_M = $(DIR_BUILD_B_M)/map_helper.bpf.o
 BPF_OBJS_ALL = $(BPF_OBJS_B) $(BPF_OBJS_B_E) $(BPF_OBJS_B_H) $(BPF_OBJS_B_M)
@@ -111,6 +111,9 @@ $(DIR_BUILD_B_E)/connect.bpf.o:
 
 $(DIR_BUILD_B_E)/accept.bpf.o:
 	clang $(CLANG_BUILD_BPF_FLAGS) $(DIR_SRC_B_E)/accept.bpf.c -o $@
+
+$(DIR_BUILD_B_E)/send.bpf.o: $(DIR_SRC_B_E)/send.bpf.c 
+	clang $(CLANG_BUILD_BPF_FLAGS) $^ -o $@
 
 $(DIR_BUILD)/combined.bpf.o: $(DIR_BUILD) $(DIR_BUILD_B) $(DIR_BUILD_B_E) $(DIR_BUILD_B_H) $(DIR_BUILD_B_M) \
 								$(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL)

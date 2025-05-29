@@ -8,6 +8,7 @@
 
 int jsonify_types_write_fd(struct json_buffer *s, const char *key, int val);
 int jsonify_types_write_return(struct json_buffer *s, const char *key, int val);
+int jsonify_types_write_ssize(struct json_buffer *s, const char *key, ssize_t val);
 int jsonify_types_write_pid(struct json_buffer *s, const char *key, pid_t val);
 int jsonify_types_write_uid(struct json_buffer *s, const char *key, uid_t val);
 int jsonify_types_write_gid(struct json_buffer *s, const char *key, gid_t val);

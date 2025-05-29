@@ -17,3 +17,5 @@ int recordhelper_init_record_connect(struct record_connect *r_connect, pid_t pid
 int recordhelper_zero_out_record_connect(struct record_connect *r_connect);
 int recordhelper_init_record_accept(struct record_accept *r_accept, pid_t pid, int fd);
 int recordhelper_zero_out_record_accept(struct record_accept *r_accept);
+int recordhelper_init_record_send(struct record_send *r_send, pid_t pid, int fd, ssize_t ret);
+int recordhelper_zero_out_record_send(struct record_send *r_send);

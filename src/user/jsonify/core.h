@@ -24,3 +24,4 @@ int jsonify_core_write_uint(struct json_buffer *s, const char *key, unsigned int
 int jsonify_core_write_str(struct json_buffer *s, const char *key, const char *val);
 int jsonify_core_write_raw(struct json_buffer *s, const char *key, const char *val);
 int jsonify_core_write_ulong(struct json_buffer *s, const char *key, unsigned long val);
+int jsonify_core_write_long(struct json_buffer *s, const char *key, long val);

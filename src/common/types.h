@@ -20,7 +20,8 @@ typedef enum {
     RECORD_TYPE_CRED,
     RECORD_TYPE_NAMESPACE,
     RECORD_TYPE_CONNECT,
-    RECORD_TYPE_ACCEPT
+    RECORD_TYPE_ACCEPT,
+    RECORD_TYPE_SEND
 } record_type_t;
 
 typedef enum {
@@ -28,7 +29,9 @@ typedef enum {
     SYS_ID_VFORK,
     SYS_ID_CLONE,
     SYS_ID_SETNS,
-    SYS_ID_UNSHARE
+    SYS_ID_UNSHARE,
+    SYS_ID_SENDTO,
+    SYS_ID_SENDMSG
 } sys_id_t;
 
 typedef enum {
@@ -140,10 +143,23 @@ struct record_accept
     struct elem_sockaddr remote;
 };
 
+struct record_send
+{
+    struct elem_common e_common;
+    struct elem_timestamp e_ts;
+    pid_t pid;
+    sys_id_t sys_id;
+    int fd;
+    ssize_t ret;
+    struct elem_sockaddr local;
+    struct elem_sockaddr remote;
+};
+
 typedef enum {
     RECORD_SIZE_NEW_PROCESS = sizeof(struct record_new_process),
     RECORD_SIZE_CRED = sizeof(struct record_cred),
     RECORD_SIZE_NAMESPACE = sizeof(struct record_namespace),
     RECORD_SIZE_CONNECT = sizeof(struct record_connect),
-    RECORD_SIZE_ACCEPT = sizeof(struct record_accept)
+    RECORD_SIZE_ACCEPT = sizeof(struct record_accept),
+    RECORD_SIZE_SEND = sizeof(struct record_send)
 } record_size_t;
