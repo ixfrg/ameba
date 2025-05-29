@@ -4,10 +4,12 @@
 #include <bpf/bpf_core_read.h>
 #include <bpf/bpf_helpers.h>
 
+#include "bpf/ameba.bpf.h"
 #include "common/types.h"
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/maps/map.bpf.h"
 #include "bpf/helpers/event_context.bpf.h"
+#include "bpf/helpers/record_helper.bpf.h"
 
 
 // defs
@@ -54,10 +56,6 @@ extern int recordhelper_init_elem_sockaddr(
     socklen_t addrlen,
     byte_order_t byte_order
 );
-extern event_id_t ameba_increment_event_id(void);
-extern int ameba_is_event_auditable(struct event_context *e_ctx);
-extern long ameba_write_record_to_output_buffer(struct bpf_dynptr *ptr, record_type_t record_type);
-
 
 // local functions
 static int init_map_key_process_record_accept(

@@ -4,8 +4,8 @@
 #include <bpf/bpf_core_read.h>
 #include <bpf/bpf_helpers.h>
 
+#include "bpf/ameba.bpf.h"
 #include "common/types.h"
-#include "bpf/helpers/event_context.bpf.h"
 #include "bpf/helpers/log.bpf.h"
 
 
