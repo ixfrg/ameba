@@ -15,7 +15,7 @@
 
 
 // local globals
-static const record_type_t send_record_type = RECORD_TYPE_SEND;
+static const record_type_t send_recv_record_type = RECORD_TYPE_SEND_RECV;
 
 
 // maps
@@ -24,18 +24,18 @@ struct
     __uint(type, BPF_MAP_TYPE_HASH);
     __uint(max_entries, MAPS_HASH_MAP_MAX_ENTRIES); // TODO
     __type(key, struct map_key_process_record);
-    __type(value, struct record_send);
-} process_record_map_send SEC(".maps");
+    __type(value, struct record_send_recv);
+} process_record_map_send_recv SEC(".maps");
 
 
-static int is_send_event_auditable(void)
+static int is_send_recv_event_auditable(void)
 {
     struct event_context e_ctx;
-    event_context_init_event_context(&e_ctx, send_record_type);
+    event_context_init_event_context(&e_ctx, RECORD_TYPE_SEND_RECV);
     return ameba_is_event_auditable(&e_ctx);
 }
 
-static int init_send_map_key(struct map_key_process_record *map_key)
+static int init_send_recv_map_key(struct map_key_process_record *map_key)
 {
     if (!map_key)
         return 0;
@@ -43,49 +43,49 @@ static int init_send_map_key(struct map_key_process_record *map_key)
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
-    maphelper_init_map_key_process_record(map_key, pid, send_record_type);
+    maphelper_init_map_key_process_record(map_key, pid, send_recv_record_type);
     return 0;
 }
 
-static int insert_send_map_entry_at_syscall_enter(sys_id_t sys_id)
+static int insert_send_recv_map_entry_at_syscall_enter(sys_id_t sys_id)
 {
-    if (!is_send_event_auditable())
+    if (!is_send_recv_event_auditable())
         return 0;
 
     struct map_key_process_record map_key;
-    init_send_map_key(&map_key);
+    init_send_recv_map_key(&map_key);
 
-    struct record_send map_val;
-    recordhelper_zero_out_record_send(&map_val);
+    struct record_send_recv map_val;
+    recordhelper_zero_out_record_send_recv(&map_val);
     map_val.sys_id = sys_id;
-    long result = bpf_map_update_elem(&process_record_map_send, &map_key, (void *)&map_val, BPF_ANY);
+    long result = bpf_map_update_elem(&process_record_map_send_recv, &map_key, (void *)&map_val, BPF_ANY);
     if (result != 0)
     {
-        LOG_WARN("[insert_send_map_entry_at_syscall_enter] Failed to do map insert. Error = %ld", result);
+        LOG_WARN("[insert_send_recv_map_entry_at_syscall_enter] Failed to do map insert. Error = %ld", result);
     }
 
     return 0;
 }
 
-static int delete_send_map_entry(void)
+static int delete_send_recv_map_entry(void)
 {
     struct map_key_process_record map_key;
-    init_send_map_key(&map_key);
+    init_send_recv_map_key(&map_key);
 
-    bpf_map_delete_elem(&process_record_map_send, &map_key);
+    bpf_map_delete_elem(&process_record_map_send_recv, &map_key);
 
     return 0;
 }
 
-static int update_send_map_entry_with_local_saddr(struct socket *sock)
+static int update_send_recv_map_entry_with_local_saddr(struct socket *sock)
 {
-    if (!is_send_event_auditable())
+    if (!is_send_recv_event_auditable())
         return 0;
 
     struct map_key_process_record map_key;
-    init_send_map_key(&map_key);
+    init_send_recv_map_key(&map_key);
 
-    struct record_send *map_val = bpf_map_lookup_elem(&process_record_map_send, &map_key);
+    struct record_send_recv *map_val = bpf_map_lookup_elem(&process_record_map_send_recv, &map_key);
     if (!map_val)
     {
         return 0;
@@ -93,7 +93,7 @@ static int update_send_map_entry_with_local_saddr(struct socket *sock)
 
     if (!sock)
     {
-        delete_send_map_entry();
+        delete_send_recv_map_entry();
         return 0;
     }
 
@@ -109,24 +109,24 @@ static int update_send_map_entry_with_local_saddr(struct socket *sock)
     return 0;
 }
 
-static int update_send_map_entry_on_syscall_exit(
+static int update_send_recv_map_entry_on_syscall_exit(
     int fd, struct sockaddr *addr, int addrlen, ssize_t ret
 )
 {
-    if (!is_send_event_auditable())
+    if (!is_send_recv_event_auditable())
         return 0;
 
     struct map_key_process_record map_key;
-    init_send_map_key(&map_key);
+    init_send_recv_map_key(&map_key);
 
-    struct record_send *map_val = bpf_map_lookup_elem(&process_record_map_send, &map_key);
+    struct record_send_recv *map_val = bpf_map_lookup_elem(&process_record_map_send_recv, &map_key);
     if (!map_val)
         return 0;
 
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
-    recordhelper_init_record_send(map_val, pid, fd, ret);
+    recordhelper_init_record_send_recv(map_val, pid, fd, ret);
     map_val->e_ts.event_id = ameba_increment_event_id();
 
     if (addr)
@@ -141,19 +141,19 @@ static int update_send_map_entry_on_syscall_exit(
     return 0;
 }
 
-static int send_send_map_entry_on_syscall_exit(void)
+static int send_send_recv_map_entry_on_syscall_exit(void)
 {
-    if (!is_send_event_auditable())
+    if (!is_send_recv_event_auditable())
         return 0;
 
     struct map_key_process_record map_key;
-    init_send_map_key(&map_key);
+    init_send_recv_map_key(&map_key);
 
-    struct record_send *map_val = bpf_map_lookup_elem(&process_record_map_send, &map_key);
+    struct record_send_recv *map_val = bpf_map_lookup_elem(&process_record_map_send_recv, &map_key);
     if (!map_val)
         return 0;
 
-    ameba_write_record_send_to_output_buffer(map_val);
+    ameba_write_record_send_recv_to_output_buffer(map_val);
 
     return 0;
 }
@@ -165,7 +165,7 @@ int BPF_PROG(
     fentry__sys_sendto
 )
 {
-    return insert_send_map_entry_at_syscall_enter(SYS_ID_SENDTO);
+    return insert_send_recv_map_entry_at_syscall_enter(SYS_ID_SENDTO);
 }
 
 SEC("fexit/__sys_sendto")
@@ -182,12 +182,12 @@ int BPF_PROG(
 {
     if (ret < 0)
     {
-        delete_send_map_entry();
+        delete_send_recv_map_entry();
         return 0;
     }
-    update_send_map_entry_on_syscall_exit(fd, addr, addr_len, ret);
-    send_send_map_entry_on_syscall_exit();
-    delete_send_map_entry();
+    update_send_recv_map_entry_on_syscall_exit(fd, addr, addr_len, ret);
+    send_send_recv_map_entry_on_syscall_exit();
+    delete_send_recv_map_entry();
     return 0;
 }
 // End syscall sys_sendto
@@ -199,7 +199,7 @@ int BPF_PROG(
     fentry__sys_sendmsg
 )
 {
-    return insert_send_map_entry_at_syscall_enter(SYS_ID_SENDMSG);
+    return insert_send_recv_map_entry_at_syscall_enter(SYS_ID_SENDMSG);
 }
 
 SEC("fexit/__sys_sendmsg")
@@ -214,7 +214,7 @@ int BPF_PROG(
 {
     if (ret < 0)
     {
-        delete_send_map_entry();
+        delete_send_recv_map_entry();
         return 0;
     }
 
@@ -225,9 +225,9 @@ int BPF_PROG(
         addr = (struct sockaddr *)BPF_CORE_READ(msg, msg_name);
         addrlen = BPF_CORE_READ(msg, msg_namelen);
     }
-    update_send_map_entry_on_syscall_exit(fd, addr, addrlen, ret);
-    send_send_map_entry_on_syscall_exit();
-    delete_send_map_entry();
+    update_send_recv_map_entry_on_syscall_exit(fd, addr, addrlen, ret);
+    send_send_recv_map_entry_on_syscall_exit();
+    delete_send_recv_map_entry();
     return 0;
 }
 // End syscall sys_sendmsg
@@ -243,11 +243,11 @@ int BPF_PROG(
 {
     if (ret < 0)
     {
-        delete_send_map_entry();
+        delete_send_recv_map_entry();
         return 0;
     }
 
-    update_send_map_entry_with_local_saddr(sock);
+    update_send_recv_map_entry_with_local_saddr(sock);
 
     return 0;
 }

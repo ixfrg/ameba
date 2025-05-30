@@ -147,32 +147,32 @@ int recordhelper_zero_out_record_connect(
     return 0;
 }
 
-int recordhelper_init_record_send(
-   struct record_send *r_send,
+int recordhelper_init_record_send_recv(
+   struct record_send_recv *r_send_recv,
     pid_t pid, int fd, ssize_t ret
 )
 {
-    if (!r_send)
+    if (!r_send_recv)
         return 0;
-    recordhelper_init_elem_common(&(r_send->e_common), RECORD_TYPE_SEND);
-    recordhelper_init_elem_timestamp(&(r_send->e_ts), 0);
+    recordhelper_init_elem_common(&(r_send_recv->e_common), RECORD_TYPE_SEND_RECV);
+    recordhelper_init_elem_timestamp(&(r_send_recv->e_ts), 0);
 
-    r_send->pid = pid;
-    r_send->fd = fd;
-    r_send->ret = ret;
+    r_send_recv->pid = pid;
+    r_send_recv->fd = fd;
+    r_send_recv->ret = ret;
 
     return 0;
 }
 
-int recordhelper_zero_out_record_send(
-    struct record_send *r_send
+int recordhelper_zero_out_record_send_recv(
+    struct record_send_recv *r_send_recv
 )
 {
-    if (!r_send)
+    if (!r_send_recv)
         return 0;
-    recordhelper_init_record_send(r_send, 0, 0, 0);
-    r_send->local.addrlen = 0;
-    r_send->remote.addrlen = 0;
+    recordhelper_init_record_send_recv(r_send_recv, 0, 0, 0);
+    r_send_recv->local.addrlen = 0;
+    r_send_recv->remote.addrlen = 0;
     return 0;
 }
 

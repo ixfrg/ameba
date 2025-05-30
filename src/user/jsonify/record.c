@@ -77,11 +77,11 @@ int jsonify_record_cred(struct json_buffer *s, struct record_cred *data)
     return total;
 }
 
-int jsonify_record_send(struct json_buffer *s, struct record_send *data)
+int jsonify_record_send_recv(struct json_buffer *s, struct record_send_recv *data)
 {
     int total = 0;
 
-    total += jsonify_types_write_common(s, &(data->e_common), &(data->e_ts), "record_send");
+    total += jsonify_types_write_common(s, &(data->e_common), &(data->e_ts), "record_send_recv");
     total += jsonify_types_write_pid(s, "pid", data->pid);
     total += jsonify_types_write_sys_id(s, data->sys_id);
     total += jsonify_types_write_fd(s, "fd", data->fd);

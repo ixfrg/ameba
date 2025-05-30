@@ -57,10 +57,10 @@ int convert_data_to_json(char *dst, unsigned int dst_len, void *data, size_t dat
                 return ERR_DATA_SIZE_MISMATCH;
             jsonify_record_cred(&s, (struct record_cred *)data);
             break;
-        case RECORD_TYPE_SEND:
-            if (data_len != sizeof(struct record_send))
+        case RECORD_TYPE_SEND_RECV:
+            if (data_len != sizeof(struct record_send_recv))
                 return ERR_DATA_SIZE_MISMATCH;
-            jsonify_record_send(&s, (struct record_send *)data);
+            jsonify_record_send_recv(&s, (struct record_send_recv *)data);
             break;
         default:
             // Quietly ignore any expected record.

@@ -21,7 +21,7 @@ typedef enum {
     RECORD_TYPE_NAMESPACE,
     RECORD_TYPE_CONNECT,
     RECORD_TYPE_ACCEPT,
-    RECORD_TYPE_SEND
+    RECORD_TYPE_SEND_RECV
 } record_type_t;
 
 typedef enum {
@@ -31,7 +31,9 @@ typedef enum {
     SYS_ID_SETNS,
     SYS_ID_UNSHARE,
     SYS_ID_SENDTO,
-    SYS_ID_SENDMSG
+    SYS_ID_SENDMSG,
+    SYS_ID_RECVFROM,
+    SYS_ID_RECVMSG
 } sys_id_t;
 
 typedef enum {
@@ -143,7 +145,7 @@ struct record_accept
     struct elem_sockaddr remote;
 };
 
-struct record_send
+struct record_send_recv
 {
     struct elem_common e_common;
     struct elem_timestamp e_ts;
@@ -161,5 +163,5 @@ typedef enum {
     RECORD_SIZE_NAMESPACE = sizeof(struct record_namespace),
     RECORD_SIZE_CONNECT = sizeof(struct record_connect),
     RECORD_SIZE_ACCEPT = sizeof(struct record_accept),
-    RECORD_SIZE_SEND = sizeof(struct record_send)
+    RECORD_SIZE_SEND_RECV = sizeof(struct record_send_recv)
 } record_size_t;

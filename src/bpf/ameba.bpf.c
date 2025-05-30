@@ -75,12 +75,12 @@ long ameba_write_record_accept_to_output_buffer(struct record_accept *ptr)
     return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_ACCEPT, 0);
 }
 
-long ameba_write_record_send_to_output_buffer(struct record_send *ptr)
+long ameba_write_record_send_recv_to_output_buffer(struct record_send_recv *ptr)
 {
     if (ptr == NULL){
         return 0;
     }
-    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_SEND, 0);
+    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_SEND_RECV, 0);
 }
 
 long ameba_write_record_to_output_buffer(struct bpf_dynptr *ptr, record_type_t record_type){
