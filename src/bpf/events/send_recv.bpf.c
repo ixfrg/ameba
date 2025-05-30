@@ -232,12 +232,105 @@ int BPF_PROG(
 }
 // End syscall sys_sendmsg
 
-// Intermediate state update function
+// Begin syscall sys_recvfrom
+// hooks
+SEC("fentry/__sys_recvfrom")
+int BPF_PROG(
+    fentry__sys_recvfrom
+)
+{
+    return insert_send_recv_map_entry_at_syscall_enter(SYS_ID_RECVFROM);
+}
+
+SEC("fexit/__sys_recvfrom")
+int BPF_PROG(
+    fexit__sys_recvfrom,
+    int fd, 
+    void *buff, 
+    size_t len, 
+    unsigned int flags,
+	struct sockaddr *addr,
+    int addr_len,
+    ssize_t ret
+)
+{
+    if (ret < 0)
+    {
+        delete_send_recv_map_entry();
+        return 0;
+    }
+    update_send_recv_map_entry_on_syscall_exit(fd, addr, addr_len, ret);
+    send_send_recv_map_entry_on_syscall_exit();
+    delete_send_recv_map_entry();
+    return 0;
+}
+// End syscall sys_recvfrom
+
+// Begin syscall sys_recvmsg
+// hooks
+SEC("fentry/__sys_recvmsg")
+int BPF_PROG(
+    fentry__sys_recvmsg
+)
+{
+    return insert_send_recv_map_entry_at_syscall_enter(SYS_ID_RECVMSG);
+}
+
+SEC("fexit/__sys_recvmsg")
+int BPF_PROG(
+    fexit__sys_recvmsg,
+    int fd, 
+    struct user_msghdr *msg, 
+    unsigned int flags,
+    long ret
+)
+{
+    if (ret < 0)
+    {
+        delete_send_recv_map_entry();
+        return 0;
+    }
+
+    struct sockaddr *addr = NULL;
+    int addrlen = 0;
+    if (msg)
+    {
+        addr = (struct sockaddr *)BPF_CORE_READ(msg, msg_name);
+        addrlen = BPF_CORE_READ(msg, msg_namelen);
+    }
+    update_send_recv_map_entry_on_syscall_exit(fd, addr, addrlen, ret);
+    send_send_recv_map_entry_on_syscall_exit();
+    delete_send_recv_map_entry();
+    return 0;
+}
+// End syscall sys_recvmsg
+
+// Intermediate state update functions
 SEC("fexit/__sock_sendmsg")
 int BPF_PROG(
     fexit__sock_sendmsg,
     struct socket *sock,
     struct msghdr *msg,
+    int ret
+)
+{
+    if (ret < 0)
+    {
+        delete_send_recv_map_entry();
+        return 0;
+    }
+
+    update_send_recv_map_entry_with_local_saddr(sock);
+
+    return 0;
+}
+
+SEC("fexit/sock_recvmsg")
+int BPF_PROG(
+    fexit__sock_recvmsg,
+    struct socket *sock,
+    struct msghdr *msg,
+    int flags,
     int ret
 )
 {
