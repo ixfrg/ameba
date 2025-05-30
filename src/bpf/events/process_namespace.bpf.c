@@ -8,7 +8,7 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/maps/map.bpf.h"
 #include "bpf/helpers/event_context.bpf.h"
-#include "bpf/helpers/record_helper.bpf.h"
+#include "bpf/helpers/datatype.bpf.h"
 #include "bpf/ameba.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 
@@ -25,7 +25,7 @@ static int send_record_cred(
     }
 
     struct record_cred r_c;
-    recordhelper_init_record_cred(
+    datatype_init_record_cred(
         &r_c,
         ameba_increment_event_id(),
         BPF_CORE_READ(task, pid),
@@ -58,7 +58,7 @@ static int send_record_namespace(
     }
 
     struct record_namespace r_ns;
-    recordhelper_init_record_namespace(
+    datatype_init_record_namespace(
         &r_ns,
         ameba_increment_event_id(),
         BPF_CORE_READ(task, pid),
@@ -89,7 +89,7 @@ static int send_record_new_process(
     const struct task_struct *parent_task = (struct task_struct *)bpf_get_current_task_btf();
 
     struct record_new_process r_np;
-    recordhelper_init_record_new_process(
+    datatype_init_record_new_process(
         &r_np,
         ameba_increment_event_id(),
         BPF_CORE_READ(task, pid),

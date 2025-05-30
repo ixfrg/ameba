@@ -1,3 +1,5 @@
+#pragma once
+
 #include "common/vmlinux.h"
 #include "common/types.h"
 

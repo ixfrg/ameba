@@ -8,7 +8,7 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/maps/map.bpf.h"
 #include "bpf/helpers/event_context.bpf.h"
-#include "bpf/helpers/record_helper.bpf.h"
+#include "bpf/helpers/datatype.bpf.h"
 #include "bpf/ameba.bpf.h"
 #include "bpf/maps/constants.h"
 #include "bpf/helpers/copy.bpf.h"
@@ -57,7 +57,7 @@ static int insert_send_recv_map_entry_at_syscall_enter(sys_id_t sys_id)
     init_send_recv_map_key(&map_key);
 
     struct record_send_recv map_val;
-    recordhelper_zero_out_record_send_recv(&map_val);
+    datatype_zero_out_record_send_recv(&map_val);
     map_val.sys_id = sys_id;
     long result = bpf_map_update_elem(&process_record_map_send_recv, &map_key, (void *)&map_val, BPF_ANY);
     if (result != 0)
@@ -127,7 +127,7 @@ static int update_send_recv_map_entry_on_syscall_exit(
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
-    recordhelper_init_record_send_recv(map_val, pid, fd, ret);
+    datatype_init_record_send_recv(map_val, pid, fd, ret);
     map_val->e_ts.event_id = ameba_increment_event_id();
 
     if (addr)

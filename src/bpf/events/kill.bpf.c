@@ -8,7 +8,7 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/maps/map.bpf.h"
 #include "bpf/helpers/event_context.bpf.h"
-#include "bpf/helpers/record_helper.bpf.h"
+#include "bpf/helpers/datatype.bpf.h"
 #include "bpf/ameba.bpf.h"
 #include "bpf/maps/constants.h"
 #include "bpf/helpers/copy.bpf.h"
@@ -69,7 +69,7 @@ static int insert_kill_map_entry_at_syscall_enter(pid_t target_pid, int sig)
     const pid_t acting_pid = BPF_CORE_READ(current_task, pid);
 
     struct record_kill map_val;
-    recordhelper_init_record_kill(
+    datatype_init_record_kill(
         &map_val, 
         acting_pid, 
         target_pid,

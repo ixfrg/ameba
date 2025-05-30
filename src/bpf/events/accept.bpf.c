@@ -9,7 +9,7 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/maps/map.bpf.h"
 #include "bpf/helpers/event_context.bpf.h"
-#include "bpf/helpers/record_helper.bpf.h"
+#include "bpf/helpers/datatype.bpf.h"
 #include "bpf/maps/constants.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
@@ -68,7 +68,7 @@ static int insert_accept_map_entry_at_syscall_enter(accept_type_fd_t fd_type)
     init_accept_map_key(&map_key, fd_type);
 
     struct record_accept map_val;
-    recordhelper_zero_out_record_accept(&map_val);
+    datatype_zero_out_record_accept(&map_val);
     long result = bpf_map_update_elem(&process_record_map_accept, &map_key, (void *)&map_val, BPF_ANY);
     if (result != 0)
     {

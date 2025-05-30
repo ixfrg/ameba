@@ -8,7 +8,7 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/maps/map.bpf.h"
 #include "bpf/helpers/event_context.bpf.h"
-#include "bpf/helpers/record_helper.bpf.h"
+#include "bpf/helpers/datatype.bpf.h"
 #include "bpf/ameba.bpf.h"
 #include "bpf/maps/constants.h"
 #include "bpf/helpers/copy.bpf.h"
@@ -59,7 +59,7 @@ static int insert_bind_map_entry_at_syscall_enter(void)
     init_bind_map_key(&map_key);
 
     struct record_bind map_val;
-    recordhelper_zero_out_record_bind(&map_val);
+    datatype_zero_out_record_bind(&map_val);
     long result = bpf_map_update_elem(&process_record_map_bind, &map_key, (void *)&map_val, BPF_ANY);
     if (result != 0)
     {
@@ -135,7 +135,7 @@ static int update_bind_map_entry_on_syscall_exit(
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
-    recordhelper_init_record_bind(map_val, pid, fd);
+    datatype_init_record_bind(map_val, pid, fd);
     map_val->e_ts.event_id = ameba_increment_event_id();
 
     struct elem_sockaddr *remote_sa = (struct elem_sockaddr *)&(map_val->remote);
@@ -265,7 +265,7 @@ int BPF_PROG(
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
     struct record_bind r_bind;
-    recordhelper_init_record_bind(&r_bind, pid, fd);
+    datatype_init_record_bind(&r_bind, pid, fd);
     r_bind.e_ts.event_id = ameba_increment_event_id();
 
     struct elem_sockaddr *local_sa = (struct elem_sockaddr *)&(r_bind.local);
