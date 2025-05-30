@@ -159,9 +159,16 @@ static int jsonify_types_write_ip6_sockaddr_in(struct json_buffer *s, struct soc
 
 static int jsonify_types_write_sockaddr_un(struct json_buffer *s, struct sockaddr_un *sa_un)
 {
+    int path_start = 0;
+    if (sa_un->sun_path[0])
+    {
+        path_start = 0;
+    } else {
+        path_start = 1;
+    }
     int total = 0;
     total += jsonify_core_write_uint(s, "family", sa_un->sun_family);
-    total += jsonify_core_write_str(s, "sun_path", &sa_un->sun_path[0]);
+    total += jsonify_core_write_str(s, "sun_path", &sa_un->sun_path[path_start]);
     return total;
 }
 
