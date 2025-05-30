@@ -165,7 +165,7 @@ struct record_bind
     pid_t pid;
     int fd;
     struct elem_sockaddr local;
-    struct elem_sockaddr remote;
+    // struct elem_sockaddr remote;
 };
 
 typedef enum {

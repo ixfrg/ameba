@@ -18,7 +18,7 @@
 static const record_type_t bind_record_type = RECORD_TYPE_BIND;
 // static const record_size_t bind_record_size = RECORD_SIZE_BIND;
 
-
+/*
 // maps
 struct
 {
@@ -27,7 +27,7 @@ struct
     __type(key, struct map_key_process_record);
     __type(value, struct record_bind);
 } process_record_map_bind SEC(".maps");
-
+*/
 
 static int is_bind_event_auditable(void)
 {
@@ -35,7 +35,7 @@ static int is_bind_event_auditable(void)
     event_context_init_event_context(&e_ctx, bind_record_type);
     return ameba_is_event_auditable(&e_ctx);
 }
-
+/*
 static int init_bind_map_key(struct map_key_process_record *map_key)
 {
     if (!map_key)
@@ -47,7 +47,8 @@ static int init_bind_map_key(struct map_key_process_record *map_key)
     maphelper_init_map_key_process_record(map_key, pid, bind_record_type);
     return 0;
 }
-
+*/
+/*
 static int insert_bind_map_entry_at_syscall_enter(void)
 {
     if (!is_bind_event_auditable())
@@ -66,7 +67,8 @@ static int insert_bind_map_entry_at_syscall_enter(void)
 
     return 0;
 }
-
+*/
+/*
 static int delete_bind_map_entry(void)
 {
     struct map_key_process_record map_key;
@@ -76,7 +78,8 @@ static int delete_bind_map_entry(void)
 
     return 0;
 }
-
+*/
+/*
 static int update_bind_map_entry_with_local_saddr(struct socket *sock)
 {
     if (!is_bind_event_auditable())
@@ -112,7 +115,8 @@ static int update_bind_map_entry_with_local_saddr(struct socket *sock)
 
     return 0;
 }
-
+*/
+/*
 static int update_bind_map_entry_on_syscall_exit(
     int fd, struct sockaddr *addr, int addrlen
 )
@@ -140,7 +144,8 @@ static int update_bind_map_entry_on_syscall_exit(
 
     return 0;
 }
-
+*/
+/*
 static int send_bind_map_entry_on_syscall_exit(void)
 {
     if (!is_bind_event_auditable())
@@ -157,7 +162,8 @@ static int send_bind_map_entry_on_syscall_exit(void)
 
     return 0;
 }
-
+*/
+/*
 // hooks
 SEC("fentry/__sys_bind")
 int BPF_PROG(
@@ -169,7 +175,8 @@ int BPF_PROG(
 {
     return insert_bind_map_entry_at_syscall_enter();
 }
-
+*/
+/*
 SEC("fexit/__sys_bind")
 int BPF_PROG(
     fexit__sys_bind,
@@ -193,7 +200,8 @@ int BPF_PROG(
 
     return 0;
 }
-
+*/
+/*
 SEC("fexit/inet_bind")
 int BPF_PROG(
     fexit__inet_bind,
@@ -230,6 +238,41 @@ int BPF_PROG(
     }
 
     update_bind_map_entry_with_local_saddr(sock);
+
+    return 0;
+}
+*/
+
+SEC("fexit/__sys_bind")
+int BPF_PROG(
+    fexit__sys_bind,
+    int fd,
+    struct sockaddr *sockaddr,
+    int addrlen,
+    int ret
+)
+{
+    if (ret == -1)
+    {
+        return 0;
+    }
+
+    if (!is_bind_event_auditable())
+        return 0;
+
+    const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    const pid_t pid = BPF_CORE_READ(current_task, pid);
+
+    struct record_bind r_bind;
+    recordhelper_init_record_bind(&r_bind, pid, fd);
+    r_bind.e_ts.event_id = ameba_increment_event_id();
+
+    struct elem_sockaddr *local_sa = (struct elem_sockaddr *)&(r_bind.local);
+    local_sa->byte_order = BYTE_ORDER_NETWORK;
+    local_sa->addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
+    bpf_probe_read_user(&(local_sa->addr[0]), local_sa->addrlen, sockaddr);
+
+    ameba_write_record_bind_to_output_buffer(&r_bind);
 
     return 0;
 }
