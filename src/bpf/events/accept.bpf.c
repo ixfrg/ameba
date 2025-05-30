@@ -251,29 +251,34 @@ int BPF_PROG(
     return 0;
 }
 
-SEC("fentry/__sys_accept4")
-int BPF_PROG(
-    fentry__sys_accept4,
-    int fd,
-    struct sockaddr *sockaddr,
-    int addrlen,
-    int flags
-)
+SEC("tracepoint/syscalls/sys_enter_accept")
+int trace_accept_enter(struct trace_event_raw_sys_enter *ctx)
 {
+    int fd = BPF_CORE_READ(ctx, args[0]);
+    sys_accept_enter(SYS_ID_ACCEPT, fd);
+    return 0;
+}
+
+SEC("tracepoint/syscalls/sys_enter_accept4")
+int trace_accept4_enter(struct trace_event_raw_sys_enter *ctx)
+{
+    int fd = BPF_CORE_READ(ctx, args[0]);
     sys_accept_enter(SYS_ID_ACCEPT4, fd);
     return 0;
 }
 
-SEC("fexit/__sys_accept4")
-int BPF_PROG(
-    exit__sys_accept4,
-    int fd,
-    struct sockaddr *sockaddr,
-    int addrlen,
-    int flags,
-    int ret_fd
-)
+SEC("tracepoint/syscalls/sys_exit_accept")
+int trace_accept_exit(struct trace_event_raw_sys_exit *ctx)
 {
+    int ret_fd = ctx->ret;
+    sys_accept_exit(ret_fd);
+    return 0;
+}
+
+SEC("tracepoint/syscalls/sys_exit_accept4")
+int trace_accept4_exit(struct trace_event_raw_sys_exit *ctx)
+{
+    int ret_fd = ctx->ret;
     sys_accept_exit(ret_fd);
     return 0;
 }
