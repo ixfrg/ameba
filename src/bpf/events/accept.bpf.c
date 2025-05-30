@@ -11,6 +11,7 @@
 #include "bpf/helpers/event_context.bpf.h"
 #include "bpf/helpers/record_helper.bpf.h"
 #include "bpf/maps/constants.h"
+#include "bpf/helpers/data_copy.bpf.h"
 
 
 // defs
@@ -104,37 +105,11 @@ static int update_accept_map_entry_with_file(accept_type_fd_t fd_type, struct fi
     if (sock) {
         struct sock_common sk_c = BPF_CORE_READ(sock, sk, __sk_common);
         if (sk_c.skc_family == AF_INET) {
-            // local
-            map_val->local.byte_order = BYTE_ORDER_HOST;
-            map_val->local.addrlen = sizeof(struct sockaddr_in);
-            struct sockaddr_in *sin_local = (struct sockaddr_in *)(&map_val->local.addr);
-            sin_local->sin_family = sk_c.skc_family;
-            sin_local->sin_port = sk_c.skc_num;
-            sin_local->sin_addr.s_addr = sk_c.skc_rcv_saddr;
-
-            // remote
-            map_val->remote.byte_order = BYTE_ORDER_NETWORK;
-            map_val->remote.addrlen = sizeof(struct sockaddr_in);
-            struct sockaddr_in *sin_remote = (struct sockaddr_in *)(&map_val->remote.addr);
-            sin_remote->sin_family = sk_c.skc_family;
-            sin_remote->sin_port = sk_c.skc_dport;
-            sin_remote->sin_addr.s_addr = sk_c.skc_daddr;
+            data_copy_sockaddr_in_local_from_skc(&(map_val->local), &sk_c);
+            data_copy_sockaddr_in_remote_from_skc(&(map_val->remote), &sk_c);
         } else if (sk_c.skc_family == AF_INET6) {
-            // local
-            map_val->local.byte_order = BYTE_ORDER_HOST;
-            map_val->local.addrlen = sizeof(struct sockaddr_in6);
-            struct sockaddr_in6 *sin6_local = (struct sockaddr_in6 *)(&map_val->local.addr);
-            sin6_local->sin6_family = sk_c.skc_family;
-            sin6_local->sin6_port = sk_c.skc_num;
-            sin6_local->sin6_addr = sk_c.skc_v6_rcv_saddr;
-
-            // remote
-            map_val->remote.byte_order = BYTE_ORDER_NETWORK;
-            map_val->remote.addrlen = sizeof(struct sockaddr_in6);
-            struct sockaddr_in6 *sin6_remote = (struct sockaddr_in6 *)(&map_val->remote.addr);
-            sin6_remote->sin6_family = sk_c.skc_family;
-            sin6_remote->sin6_port = sk_c.skc_dport;
-            sin6_remote->sin6_addr = sk_c.skc_v6_daddr;
+            data_copy_sockaddr_in6_local_from_skc(&(map_val->local), &sk_c);
+            data_copy_sockaddr_in6_remote_from_skc(&(map_val->remote), &sk_c);
         }
     }
     return 0;

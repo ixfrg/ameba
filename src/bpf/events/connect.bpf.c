@@ -11,6 +11,7 @@
 #include "bpf/helpers/record_helper.bpf.h"
 #include "bpf/ameba.bpf.h"
 #include "bpf/maps/constants.h"
+#include "bpf/helpers/data_copy.bpf.h"
 
 
 // local globals
@@ -101,20 +102,10 @@ static int update_connect_map_entry_with_local_saddr(struct file *connect_sock_f
     switch (sk_c.skc_family)
     {
         case AF_INET:
-            map_val->local.byte_order = BYTE_ORDER_HOST;
-            map_val->local.addrlen = sizeof(struct sockaddr_in);
-            struct sockaddr_in *sin = (struct sockaddr_in *)(&map_val->local.addr);
-            sin->sin_family = sk_c.skc_family;
-            sin->sin_port = sk_c.skc_num;
-            sin->sin_addr.s_addr = sk_c.skc_rcv_saddr;
+            data_copy_sockaddr_in_local_from_skc(&(map_val->local), &sk_c);
             break;
         case AF_INET6:
-            map_val->local.byte_order = BYTE_ORDER_HOST;
-            map_val->local.addrlen = sizeof(struct sockaddr_in6);
-            struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)(&map_val->local.addr);
-            sin6->sin6_family = sk_c.skc_family;
-            sin6->sin6_port = sk_c.skc_num;
-            sin6->sin6_addr = sk_c.skc_v6_rcv_saddr;
+            data_copy_sockaddr_in6_local_from_skc(&(map_val->local), &sk_c);
             break;
         default:
             break;
