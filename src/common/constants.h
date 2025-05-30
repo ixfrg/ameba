@@ -6,6 +6,9 @@
 #define AMEBA_MAGIC 0x616D6562
 
 
+#define OUTPUT_RINGBUF_MAP_NAME "ameba_output_ringbuf"
+
+
 // sizes
 #define SOCKADDR_MAX_SIZE 128
 #define COMM_MAX_SIZE 16

@@ -13,14 +13,6 @@
 char _license[] SEC("license") = "GPL";
 
 
-// maps
-struct
-{
-    __uint(type, BPF_MAP_TYPE_RINGBUF);
-    __uint(max_entries, 1 << 12);
-} ameba_ringbuf SEC(".maps");
-
-
 // local globals
 static event_id_t current_event_id = 0;
 
@@ -41,96 +33,5 @@ int ameba_is_event_auditable(struct event_context *e_ctx)
     //     return uid == 0;
     // }
     return uid == 1001;
-}
-
-long ameba_write_record_cred_to_output_buffer(struct record_cred *ptr)
-{
-    if (ptr == NULL){
-        return 0;
-    }
-    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_CRED, 0);
-}
-
-long ameba_write_record_namespace_to_output_buffer(struct record_namespace *ptr)
-{
-    if (ptr == NULL){
-        return 0;
-    }
-    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_NAMESPACE, 0);
-}
-
-long ameba_write_record_new_process_to_output_buffer(struct record_new_process *ptr)
-{
-    if (ptr == NULL){
-        return 0;
-    }
-    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_NEW_PROCESS, 0);
-}
-
-long ameba_write_record_accept_to_output_buffer(struct record_accept *ptr)
-{
-    if (ptr == NULL){
-        return 0;
-    }
-    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_ACCEPT, 0);
-}
-
-long ameba_write_record_bind_to_output_buffer(struct record_bind *ptr)
-{
-    if (ptr == NULL){
-        return 0;
-    }
-    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_BIND, 0);
-}
-
-long ameba_write_record_kill_to_output_buffer(struct record_kill *ptr)
-{
-    if (ptr == NULL){
-        return 0;
-    }
-    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_KILL, 0);
-}
-
-long ameba_write_record_send_recv_to_output_buffer(struct record_send_recv *ptr)
-{
-    if (ptr == NULL){
-        return 0;
-    }
-    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_SEND_RECV, 0);
-}
-
-long ameba_write_record_to_output_buffer(struct bpf_dynptr *ptr, record_type_t record_type){
-    if (ptr != NULL){
-        void *data = NULL;
-        size_t size = 0;
-        switch(record_type)
-        {
-            case RECORD_TYPE_CONNECT:
-                size = RECORD_SIZE_CONNECT;
-                data = bpf_dynptr_data(ptr, 0, RECORD_SIZE_CONNECT);
-                break;
-            case RECORD_TYPE_ACCEPT:
-                size = RECORD_SIZE_ACCEPT;
-                data = bpf_dynptr_data(ptr, 0, RECORD_SIZE_ACCEPT);
-                break;
-            case RECORD_TYPE_NAMESPACE:
-                size = RECORD_SIZE_NAMESPACE;
-                data = bpf_dynptr_data(ptr, 0, RECORD_SIZE_NAMESPACE);
-                break;
-            case RECORD_TYPE_NEW_PROCESS:
-                size = RECORD_SIZE_NEW_PROCESS;
-                data = bpf_dynptr_data(ptr, 0, RECORD_SIZE_NEW_PROCESS);
-                break;
-            default: break;
-        }
-        if (data != NULL){
-            return bpf_ringbuf_output(&ameba_ringbuf, data, size, 0);
-        } else {
-            LOG_WARN("Unknown record to output ring buffer. Type = %d", record_type);
-            return 0;
-        }
-    } else {
-        return 0;
-    }
 }
 

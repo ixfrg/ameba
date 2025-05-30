@@ -12,6 +12,7 @@
 #include "bpf/ameba.bpf.h"
 #include "bpf/maps/constants.h"
 #include "bpf/helpers/data_copy.bpf.h"
+#include "bpf/helpers/output.bpf.h"
 
 
 // local globals
@@ -272,7 +273,7 @@ int BPF_PROG(
     local_sa->addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
     bpf_probe_read_user(&(local_sa->addr[0]), local_sa->addrlen, sockaddr);
 
-    ameba_write_record_bind_to_output_buffer(&r_bind);
+    output_record_bind(&r_bind);
 
     return 0;
 }

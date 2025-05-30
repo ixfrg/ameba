@@ -12,6 +12,7 @@
 #include "bpf/ameba.bpf.h"
 #include "bpf/maps/constants.h"
 #include "bpf/helpers/data_copy.bpf.h"
+#include "bpf/helpers/output.bpf.h"
 
 
 // local globals
@@ -157,7 +158,7 @@ static int send_connect_map_entry_on_syscall_exit(void)
     struct bpf_dynptr ptr;
     long dynptr_result = bpf_dynptr_from_mem(map_val, connect_record_size, 0, &ptr);
     if (dynptr_result == 0){
-        ameba_write_record_to_output_buffer(&ptr, connect_record_type);
+        output_record_as_dynptr(&ptr, connect_record_type);
     } else {
         LOG_WARN("[send_connect_map_entry_on_syscall_exit] Failed to create dynptr for record. Error = %ld", dynptr_result);
     }

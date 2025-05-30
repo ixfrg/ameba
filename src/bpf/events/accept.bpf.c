@@ -12,6 +12,7 @@
 #include "bpf/helpers/record_helper.bpf.h"
 #include "bpf/maps/constants.h"
 #include "bpf/helpers/data_copy.bpf.h"
+#include "bpf/helpers/output.bpf.h"
 
 
 // defs
@@ -196,7 +197,7 @@ static int send_accept_map_entry_on_syscall_exit(accept_type_fd_t fd_type)
     if (!map_val)
         return 0;
 
-    ameba_write_record_accept_to_output_buffer(map_val);
+    output_record_accept(map_val);
     return 0;
 }
 

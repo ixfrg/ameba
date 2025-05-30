@@ -12,6 +12,7 @@
 #include "bpf/ameba.bpf.h"
 #include "bpf/maps/constants.h"
 #include "bpf/helpers/data_copy.bpf.h"
+#include "bpf/helpers/output.bpf.h"
 
 
 // UBSI kill values
@@ -144,7 +145,7 @@ static int send_kill_map_entry_on_syscall_exit(void)
     if (!map_val)
         return 0;
 
-    ameba_write_record_kill_to_output_buffer(map_val);
+    output_record_kill(map_val);
 
     return 0;
 }

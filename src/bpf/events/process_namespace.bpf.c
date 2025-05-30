@@ -10,6 +10,7 @@
 #include "bpf/helpers/event_context.bpf.h"
 #include "bpf/helpers/record_helper.bpf.h"
 #include "bpf/ameba.bpf.h"
+#include "bpf/helpers/output.bpf.h"
 
 
 static int send_record_cred(
@@ -40,7 +41,7 @@ static int send_record_cred(
     r_c.sgid = BPF_CORE_READ(task, cred, sgid).val;
     r_c.fsgid = BPF_CORE_READ(task, cred, fsgid).val;
 
-    ameba_write_record_cred_to_output_buffer(&r_c);
+    output_record_cred(&r_c);
     return 0;
 }
 
@@ -70,7 +71,7 @@ static int send_record_namespace(
     r_ns.ns_pid_children = BPF_CORE_READ(task, nsproxy, pid_ns_for_children, ns).inum;
     r_ns.ns_usr = BPF_CORE_READ(task, cred, user_ns, ns).inum;
 
-    ameba_write_record_namespace_to_output_buffer(&r_ns);
+    output_record_namespace(&r_ns);
     return 0;
 }
 
@@ -98,7 +99,7 @@ static int send_record_new_process(
 
     // bpf_probe_read_kernel(&r_np.comm[0], COMM_MAX_SIZE, &(BPF_CORE_READ(task, comm)[0]));
 
-    ameba_write_record_new_process_to_output_buffer(&r_np);
+    output_record_new_process(&r_np);
     return 0;
 }
 

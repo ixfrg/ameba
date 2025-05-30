@@ -12,6 +12,7 @@
 #include <time.h>
 #include <signal.h>
 
+#include "common/constants.h"
 #include "user/convert_data.h"
 #include "user/error.h"
 #include "user/writer.h"
@@ -90,7 +91,7 @@ int main(int argc, char *argv[])
     }
 
     // Locate ring buffer
-    ringbuf_map_fd = bpf_object__find_map_fd_by_name(skel->obj, "ameba_ringbuf");
+    ringbuf_map_fd = bpf_object__find_map_fd_by_name(skel->obj, OUTPUT_RINGBUF_MAP_NAME);
     if (ringbuf_map_fd < 0)
     {
         syslog(LOG_ERR, "%s : Failed to find ring buffer map object\n", log_prefix);
