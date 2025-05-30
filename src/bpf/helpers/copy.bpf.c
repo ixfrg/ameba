@@ -1,11 +1,11 @@
-#include "bpf/helpers/data_copy.bpf.h"
+#include "bpf/helpers/copy.bpf.h"
 
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
 #include <bpf/bpf_helpers.h>
 
 
-int data_copy_sockaddr_in_local_from_skc(struct elem_sockaddr *dst, struct sock_common *sk_c)
+int copy_sockaddr_in_local_from_skc(struct elem_sockaddr *dst, struct sock_common *sk_c)
 {
     if (!dst || !sk_c)
         return 0;
@@ -21,7 +21,7 @@ int data_copy_sockaddr_in_local_from_skc(struct elem_sockaddr *dst, struct sock_
     return 0;
 }
 
-int data_copy_sockaddr_in_remote_from_skc(struct elem_sockaddr *dst, struct sock_common *sk_c)
+int copy_sockaddr_in_remote_from_skc(struct elem_sockaddr *dst, struct sock_common *sk_c)
 {
     if (!dst || !sk_c)
         return 0;
@@ -37,7 +37,7 @@ int data_copy_sockaddr_in_remote_from_skc(struct elem_sockaddr *dst, struct sock
     return 0;
 }
 
-int data_copy_sockaddr_in6_local_from_skc(struct elem_sockaddr *dst, struct sock_common *sk_c)
+int copy_sockaddr_in6_local_from_skc(struct elem_sockaddr *dst, struct sock_common *sk_c)
 {
     if (!dst || !sk_c)
         return 0;
@@ -53,7 +53,7 @@ int data_copy_sockaddr_in6_local_from_skc(struct elem_sockaddr *dst, struct sock
     return 0;
 }
 
-int data_copy_sockaddr_in6_remote_from_skc(struct elem_sockaddr *dst, struct sock_common *sk_c)
+int copy_sockaddr_in6_remote_from_skc(struct elem_sockaddr *dst, struct sock_common *sk_c)
 {
     if (!dst || !sk_c)
         return 0;

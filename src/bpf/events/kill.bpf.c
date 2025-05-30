@@ -11,7 +11,7 @@
 #include "bpf/helpers/record_helper.bpf.h"
 #include "bpf/ameba.bpf.h"
 #include "bpf/maps/constants.h"
-#include "bpf/helpers/data_copy.bpf.h"
+#include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 
 

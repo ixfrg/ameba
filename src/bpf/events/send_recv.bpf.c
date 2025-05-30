@@ -11,7 +11,7 @@
 #include "bpf/helpers/record_helper.bpf.h"
 #include "bpf/ameba.bpf.h"
 #include "bpf/maps/constants.h"
-#include "bpf/helpers/data_copy.bpf.h"
+#include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 
 
@@ -100,11 +100,11 @@ static int update_send_recv_map_entry_with_local_saddr(struct socket *sock)
 
     struct sock_common sk_c = BPF_CORE_READ(sock, sk, __sk_common);
     if (sk_c.skc_family == AF_INET) {
-        data_copy_sockaddr_in_local_from_skc(&(map_val->local), &sk_c);
-        data_copy_sockaddr_in_remote_from_skc(&(map_val->remote), &sk_c);
+        copy_sockaddr_in_local_from_skc(&(map_val->local), &sk_c);
+        copy_sockaddr_in_remote_from_skc(&(map_val->remote), &sk_c);
     } else if (sk_c.skc_family == AF_INET6) {
-        data_copy_sockaddr_in6_local_from_skc(&(map_val->local), &sk_c);
-        data_copy_sockaddr_in6_remote_from_skc(&(map_val->remote), &sk_c);
+        copy_sockaddr_in6_local_from_skc(&(map_val->local), &sk_c);
+        copy_sockaddr_in6_remote_from_skc(&(map_val->remote), &sk_c);
     }
 
     return 0;

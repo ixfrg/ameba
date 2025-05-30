@@ -11,7 +11,7 @@
 #include "bpf/helpers/event_context.bpf.h"
 #include "bpf/helpers/record_helper.bpf.h"
 #include "bpf/maps/constants.h"
-#include "bpf/helpers/data_copy.bpf.h"
+#include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 
 
@@ -106,11 +106,11 @@ static int update_accept_map_entry_with_file(accept_type_fd_t fd_type, struct fi
     if (sock) {
         struct sock_common sk_c = BPF_CORE_READ(sock, sk, __sk_common);
         if (sk_c.skc_family == AF_INET) {
-            data_copy_sockaddr_in_local_from_skc(&(map_val->local), &sk_c);
-            data_copy_sockaddr_in_remote_from_skc(&(map_val->remote), &sk_c);
+            copy_sockaddr_in_local_from_skc(&(map_val->local), &sk_c);
+            copy_sockaddr_in_remote_from_skc(&(map_val->remote), &sk_c);
         } else if (sk_c.skc_family == AF_INET6) {
-            data_copy_sockaddr_in6_local_from_skc(&(map_val->local), &sk_c);
-            data_copy_sockaddr_in6_remote_from_skc(&(map_val->remote), &sk_c);
+            copy_sockaddr_in6_local_from_skc(&(map_val->local), &sk_c);
+            copy_sockaddr_in6_remote_from_skc(&(map_val->remote), &sk_c);
         }
     }
     return 0;
