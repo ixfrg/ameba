@@ -11,3 +11,4 @@ int jsonify_record_new_process(struct json_buffer *s, struct record_new_process 
 int jsonify_record_cred(struct json_buffer *s, struct record_cred *data);
 int jsonify_record_send_recv(struct json_buffer *s, struct record_send_recv *data);
 int jsonify_record_bind(struct json_buffer *s, struct record_bind *data);
+int jsonify_record_kill(struct json_buffer *s, struct record_kill *data);

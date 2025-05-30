@@ -21,3 +21,4 @@ int recordhelper_init_record_send_recv(struct record_send_recv *r_send_recv, pid
 int recordhelper_zero_out_record_send_recv(struct record_send_recv *r_send_recv);
 int recordhelper_init_record_bind(struct record_bind *r_bind, pid_t pid, int fd);
 int recordhelper_zero_out_record_bind(struct record_bind *r_bind);
+int recordhelper_init_record_kill(struct record_kill *r_kill, pid_t acting_pid, pid_t target_pid, int sig);

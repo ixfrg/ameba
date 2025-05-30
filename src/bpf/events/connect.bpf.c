@@ -174,7 +174,8 @@ int BPF_PROG(
     int addrlen
 )
 {
-    return insert_connect_map_entry_at_syscall_enter();
+    insert_connect_map_entry_at_syscall_enter();
+    return 0;
 }
 
 SEC("fexit/__sys_connect")

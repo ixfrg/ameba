@@ -230,6 +230,26 @@ int recordhelper_zero_out_record_bind(
         return 0;
     recordhelper_init_record_bind(r_bind, 0, 0);
     r_bind->local.addrlen = 0;
-    r_bind->remote.addrlen = 0;
+    return 0;
+}
+
+int recordhelper_init_record_kill(
+    struct record_kill *r_kill, 
+    pid_t acting_pid,
+    pid_t target_pid, 
+    int sig
+)
+{
+    if (!r_kill)
+        return 0;
+
+    recordhelper_init_elem_common(&(r_kill->e_common), RECORD_TYPE_KILL);
+    recordhelper_init_elem_timestamp(&(r_kill->e_ts), 0);
+
+    r_kill->acting_pid = acting_pid;
+    r_kill->target_pid = target_pid;
+    r_kill->sig = sig;
+    r_kill->ret = 0;
+
     return 0;
 }

@@ -162,7 +162,8 @@ int BPF_PROG(
 
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     sys_id_t sys_id = SYS_ID_UNSHARE;
-    return send_record_namespace(current_task, sys_id);
+    send_record_namespace(current_task, sys_id);
+    return 0;
 }
 
 SEC("tracepoint/syscalls/sys_exit_setns")
@@ -175,5 +176,6 @@ int trace_setns_exit(struct trace_event_raw_sys_exit *ctx)
 
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     sys_id_t sys_id = SYS_ID_SETNS;
-    return send_record_namespace(current_task, sys_id);
+    send_record_namespace(current_task, sys_id);
+    return 0;
 }

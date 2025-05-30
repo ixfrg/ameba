@@ -23,6 +23,7 @@ typedef enum {
     RECORD_TYPE_ACCEPT,
     RECORD_TYPE_SEND_RECV,
     RECORD_TYPE_BIND,
+    RECORD_TYPE_KILL,
 } record_type_t;
 
 typedef enum {
@@ -168,6 +169,16 @@ struct record_bind
     // struct elem_sockaddr remote;
 };
 
+struct record_kill
+{
+    struct elem_common e_common;
+    struct elem_timestamp e_ts;
+    pid_t acting_pid;
+    int sig;
+    pid_t target_pid;
+    int ret;
+};
+
 typedef enum {
     RECORD_SIZE_NEW_PROCESS = sizeof(struct record_new_process),
     RECORD_SIZE_CRED = sizeof(struct record_cred),
@@ -175,5 +186,6 @@ typedef enum {
     RECORD_SIZE_CONNECT = sizeof(struct record_connect),
     RECORD_SIZE_ACCEPT = sizeof(struct record_accept),
     RECORD_SIZE_SEND_RECV = sizeof(struct record_send_recv),
-    RECORD_SIZE_BIND = sizeof(struct record_bind)
+    RECORD_SIZE_BIND = sizeof(struct record_bind),
+    RECORD_SIZE_KILL = sizeof(struct record_kill)
 } record_size_t;

@@ -67,6 +67,11 @@ int convert_data_to_json(char *dst, unsigned int dst_len, void *data, size_t dat
                 return ERR_DATA_SIZE_MISMATCH;
             jsonify_record_bind(&s, (struct record_bind *)data);
             break;
+        case RECORD_TYPE_KILL:
+            if (data_len != sizeof(struct record_kill))
+                return ERR_DATA_SIZE_MISMATCH;
+            jsonify_record_kill(&s, (struct record_kill *)data);
+            break;
         default:
             // Quietly ignore any expected record.
             return ERR_DATA_UNKNOWN;

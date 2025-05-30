@@ -104,3 +104,16 @@ int jsonify_record_bind(struct json_buffer *s, struct record_bind *data)
 
     return total;
 }
+
+int jsonify_record_kill(struct json_buffer *s, struct record_kill *data)
+{
+    int total = 0;
+
+    total += jsonify_types_write_common(s, &(data->e_common), &(data->e_ts), "record_kill");
+    total += jsonify_types_write_pid(s, "acting_pid", data->acting_pid);
+    total += jsonify_core_write_int(s, "sig", data->sig);
+    total += jsonify_types_write_pid(s, "target_pid", data->target_pid);
+    total += jsonify_types_write_return(s, "ret", data->ret);
+
+    return total;
+}

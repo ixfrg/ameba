@@ -83,6 +83,14 @@ long ameba_write_record_bind_to_output_buffer(struct record_bind *ptr)
     return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_BIND, 0);
 }
 
+long ameba_write_record_kill_to_output_buffer(struct record_kill *ptr)
+{
+    if (ptr == NULL){
+        return 0;
+    }
+    return bpf_ringbuf_output(&ameba_ringbuf, ptr, RECORD_SIZE_KILL, 0);
+}
+
 long ameba_write_record_send_recv_to_output_buffer(struct record_send_recv *ptr)
 {
     if (ptr == NULL){

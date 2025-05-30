@@ -165,7 +165,8 @@ int BPF_PROG(
     fentry__sys_sendto
 )
 {
-    return insert_send_recv_map_entry_at_syscall_enter(SYS_ID_SENDTO);
+    insert_send_recv_map_entry_at_syscall_enter(SYS_ID_SENDTO);
+    return 0;
 }
 
 SEC("fexit/__sys_sendto")
@@ -199,7 +200,8 @@ int BPF_PROG(
     fentry__sys_sendmsg
 )
 {
-    return insert_send_recv_map_entry_at_syscall_enter(SYS_ID_SENDMSG);
+    insert_send_recv_map_entry_at_syscall_enter(SYS_ID_SENDMSG);
+    return 0;
 }
 
 SEC("fexit/__sys_sendmsg")
@@ -239,7 +241,8 @@ int BPF_PROG(
     fentry__sys_recvfrom
 )
 {
-    return insert_send_recv_map_entry_at_syscall_enter(SYS_ID_RECVFROM);
+    insert_send_recv_map_entry_at_syscall_enter(SYS_ID_RECVFROM);
+    return 0;
 }
 
 SEC("fexit/__sys_recvfrom")
@@ -273,7 +276,8 @@ int BPF_PROG(
     fentry__sys_recvmsg
 )
 {
-    return insert_send_recv_map_entry_at_syscall_enter(SYS_ID_RECVMSG);
+    insert_send_recv_map_entry_at_syscall_enter(SYS_ID_RECVMSG);
+    return 0;
 }
 
 SEC("fexit/__sys_recvmsg")
