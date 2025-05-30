@@ -204,3 +204,32 @@ int recordhelper_zero_out_record_accept(
     r_accept->remote.addrlen = 0;
     return 0;
 }
+
+int recordhelper_init_record_bind(
+    struct record_bind *r_bind,
+    pid_t pid, int fd
+)
+{
+    if (!r_bind)
+        return 0;
+
+    recordhelper_init_elem_common(&(r_bind->e_common), RECORD_TYPE_BIND);
+    recordhelper_init_elem_timestamp(&(r_bind->e_ts), 0);
+
+    r_bind->pid = pid;
+    r_bind->fd = fd;
+
+    return 0;
+}
+
+int recordhelper_zero_out_record_bind(
+    struct record_bind *r_bind
+)
+{
+    if (!r_bind)
+        return 0;
+    recordhelper_init_record_bind(r_bind, 0, 0);
+    r_bind->local.addrlen = 0;
+    r_bind->remote.addrlen = 0;
+    return 0;
+}

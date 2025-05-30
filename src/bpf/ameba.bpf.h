@@ -12,4 +12,5 @@ long ameba_write_record_new_process_to_output_buffer(struct record_new_process *
 long ameba_write_record_accept_to_output_buffer(struct record_accept *ptr);
 long ameba_write_record_send_recv_to_output_buffer(struct record_send_recv *ptr);
 long ameba_write_record_to_output_buffer(struct bpf_dynptr *ptr, record_type_t record_type);
+long ameba_write_record_bind_to_output_buffer(struct record_bind *ptr);
 
