@@ -206,6 +206,14 @@ int datatype_zero_out_record_accept(
     return 0;
 }
 
+int datatype_init_fd_record_accept(struct record_accept *r_accept, int fd)
+{
+    if (!r_accept)
+        return 0;
+    r_accept->fd = fd;
+    return 0;
+}
+
 int datatype_init_record_bind(
     struct record_bind *r_bind,
     pid_t pid, int fd

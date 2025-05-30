@@ -17,6 +17,7 @@ int datatype_init_record_connect(struct record_connect *r_connect, pid_t pid, in
 int datatype_zero_out_record_connect(struct record_connect *r_connect);
 int datatype_init_record_accept(struct record_accept *r_accept, pid_t pid, int fd);
 int datatype_zero_out_record_accept(struct record_accept *r_accept, sys_id_t sys_id);
+int datatype_init_fd_record_accept(struct record_accept *r_accept, int fd);
 int datatype_init_record_send_recv(struct record_send_recv *r_send_recv, pid_t pid, int fd, ssize_t ret);
 int datatype_zero_out_record_send_recv(struct record_send_recv *r_send_recv);
 int datatype_init_record_bind(struct record_bind *r_bind, pid_t pid, int fd);

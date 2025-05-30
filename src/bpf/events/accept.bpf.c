@@ -60,7 +60,7 @@ static int init_accept_map_key(struct map_key_process_record_accept *map_key, ac
     return 0;
 }
 
-static int insert_accept_map_entry_at_syscall_enter(sys_id_t sys_id, accept_type_fd_t fd_type)
+static struct record_accept * insert_accept_map_entry_at_syscall_enter(sys_id_t sys_id, accept_type_fd_t fd_type)
 {
     struct map_key_process_record_accept map_key;
     init_accept_map_key(&map_key, fd_type);
@@ -71,18 +71,26 @@ static int insert_accept_map_entry_at_syscall_enter(sys_id_t sys_id, accept_type
     if (result != 0)
     {
         LOG_WARN("[insert_accept_map_entry_at_syscall_enter] Failed to insert map for fd type: %u. Error = %ld", fd_type, result);
+        return NULL;
+    }
+    return bpf_map_lookup_elem(&process_record_map_accept, &map_key);
+}
+
+static int insert_accept_local_map_entry_at_syscall_enter(sys_id_t sys_id, int fd)
+{
+    struct record_accept * r_accept = insert_accept_map_entry_at_syscall_enter(sys_id, LOCAL);
+    if (r_accept)
+    {
+        datatype_init_fd_record_accept(r_accept, fd);
     }
     return 0;
 }
 
-static int insert_accept_local_map_entry_at_syscall_enter(sys_id_t sys_id)
-{
-    return insert_accept_map_entry_at_syscall_enter(sys_id, LOCAL);
-}
-
 static int insert_accept_remote_map_entry_at_syscall_enter(sys_id_t sys_id)
 {
-    return insert_accept_map_entry_at_syscall_enter(sys_id, REMOTE);
+    // Don't know yet since it is returned on sys exit.
+    insert_accept_map_entry_at_syscall_enter(sys_id, REMOTE);
+    return 0;
 }
 
 static int update_accept_map_entry_with_file(accept_type_fd_t fd_type, struct file *file)
@@ -126,11 +134,11 @@ static int update_accept_remote_map_entry_with_file(struct file *file)
     return 0;
 }
 
-static int insert_accept_map_entries_at_syscall_enter(sys_id_t sys_id)
+static int insert_accept_map_entries_at_syscall_enter(sys_id_t sys_id, int fd)
 {
     if (!is_accept_event_auditable())
         return 0;
-    insert_accept_local_map_entry_at_syscall_enter(sys_id);
+    insert_accept_local_map_entry_at_syscall_enter(sys_id, fd);
     insert_accept_remote_map_entry_at_syscall_enter(sys_id);
     return 0;
 }
@@ -163,10 +171,10 @@ static int delete_accept_map_entries(void)
     return 0;
 }
 
-static int update_accept_map_entry_on_syscall_exit(event_id_t event_id, int fd, accept_type_fd_t fd_type)
+static struct record_accept * update_accept_map_entry_on_syscall_exit(event_id_t event_id, accept_type_fd_t fd_type)
 {
     if (!is_accept_event_auditable()){
-        return 0;
+        return NULL;
     }
 
     struct map_key_process_record_accept map_key;
@@ -174,28 +182,49 @@ static int update_accept_map_entry_on_syscall_exit(event_id_t event_id, int fd, 
 
     struct record_accept *map_val = bpf_map_lookup_elem(&process_record_map_accept, &map_key);
     if (!map_val)
-        return 0;
+        return NULL;
 
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
-    map_val->fd = fd;
     map_val->pid = pid;
     map_val->e_ts.event_id = event_id;
 
+    return map_val;
+}
+
+static int sys_accept_enter(sys_id_t sys_id, int fd)
+{
+    insert_accept_map_entries_at_syscall_enter(sys_id, fd);
     return 0;
 }
 
-static int send_accept_map_entry_on_syscall_exit(accept_type_fd_t fd_type)
+static int sys_accept_exit(int ret_fd)
 {
-    struct map_key_process_record_accept map_key;
-    init_accept_map_key(&map_key, fd_type);
-
-    struct record_accept *map_val = bpf_map_lookup_elem(&process_record_map_accept, &map_key);
-    if (!map_val)
+    if (ret_fd == -1)
+    {
+        delete_accept_map_entries();
         return 0;
+    }
 
-    output_record_accept(map_val);
+    event_id_t event_id = event_increment_id();
+
+    struct record_accept * accept_local = update_accept_map_entry_on_syscall_exit(event_id, LOCAL);
+    if (accept_local)
+    {
+        // fd for accept_local already set on sys_enter
+        output_record_accept(accept_local);
+    }
+
+    struct record_accept * accept_remote = update_accept_map_entry_on_syscall_exit(event_id, REMOTE);
+    if (accept_remote)
+    {
+        datatype_init_fd_record_accept(accept_remote, ret_fd);
+        output_record_accept(accept_remote);
+    }
+
+    delete_accept_map_entries();
+
     return 0;
 }
 
@@ -231,7 +260,7 @@ int BPF_PROG(
     int flags
 )
 {
-    insert_accept_map_entries_at_syscall_enter(SYS_ID_ACCEPT4);
+    sys_accept_enter(SYS_ID_ACCEPT4, fd);
     return 0;
 }
 
@@ -242,24 +271,9 @@ int BPF_PROG(
     struct sockaddr *sockaddr,
     int addrlen,
     int flags,
-    int ret
+    int ret_fd
 )
 {
-    if (ret == -1)
-    {
-        delete_accept_map_entries();
-        return 0;
-    }
-
-    event_id_t event_id = event_increment_id();
-
-    update_accept_map_entry_on_syscall_exit(event_id, fd, LOCAL);
-    update_accept_map_entry_on_syscall_exit(event_id, ret, REMOTE);
-
-    send_accept_map_entry_on_syscall_exit(LOCAL);
-    send_accept_map_entry_on_syscall_exit(REMOTE);
-
-    delete_accept_map_entries();
-
+    sys_accept_exit(ret_fd);
     return 0;
 }
