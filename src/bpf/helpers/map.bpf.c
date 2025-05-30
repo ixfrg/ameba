@@ -1,8 +1,8 @@
-#include "bpf/maps/map.bpf.h"
+#include "bpf/helpers/map.bpf.h"
 
 
 // external functions
-long maphelper_init_map_key_process_record(
+long map_init_map_key_process_record(
     struct map_key_process_record *map_key,
     pid_t pid, record_type_t record_type 
 )

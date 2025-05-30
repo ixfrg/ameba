@@ -6,10 +6,9 @@
 
 #include "common/types.h"
 #include "bpf/helpers/log.bpf.h"
-#include "bpf/maps/map.bpf.h"
+#include "bpf/helpers/map.bpf.h"
 #include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
-#include "bpf/maps/constants.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 
@@ -56,7 +55,7 @@ static int init_accept_map_key(struct map_key_process_record_accept *map_key, ac
 
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
-    maphelper_init_map_key_process_record(&(map_key->map_key), pid, accept_record_type);
+    map_init_map_key_process_record(&(map_key->map_key), pid, accept_record_type);
     map_key->fd_type = fd_type;
     return 0;
 }

@@ -6,10 +6,9 @@
 
 #include "common/types.h"
 #include "bpf/helpers/log.bpf.h"
-#include "bpf/maps/map.bpf.h"
+#include "bpf/helpers/map.bpf.h"
 #include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
-#include "bpf/maps/constants.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 
