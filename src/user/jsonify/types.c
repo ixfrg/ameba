@@ -88,6 +88,12 @@ int jsonify_types_write_sys_id(struct json_buffer *s, sys_id_t sys_id)
     case SYS_ID_RECVMSG:
         sys_name = "recvmsg";
         break;
+    case SYS_ID_ACCEPT:
+        sys_name = "accept";
+        break;
+    case SYS_ID_ACCEPT4:
+        sys_name = "accept4";
+        break;
     default:
         sys_name = "UNKNOWN";
         break;

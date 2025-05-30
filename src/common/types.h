@@ -35,7 +35,9 @@ typedef enum {
     SYS_ID_SENDTO,
     SYS_ID_SENDMSG,
     SYS_ID_RECVFROM,
-    SYS_ID_RECVMSG
+    SYS_ID_RECVMSG,
+    SYS_ID_ACCEPT,
+    SYS_ID_ACCEPT4
 } sys_id_t;
 
 typedef enum {
@@ -142,6 +144,7 @@ struct record_accept
     struct elem_common e_common;
     struct elem_timestamp e_ts;
     pid_t pid;
+    sys_id_t sys_id;
     int fd;
     struct elem_sockaddr local;
     struct elem_sockaddr remote;

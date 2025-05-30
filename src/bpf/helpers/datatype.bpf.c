@@ -194,7 +194,7 @@ int datatype_init_record_accept(
 }
 
 int datatype_zero_out_record_accept(
-    struct record_accept *r_accept
+    struct record_accept *r_accept, sys_id_t sys_id
 )
 {
     if (!r_accept)
@@ -202,6 +202,7 @@ int datatype_zero_out_record_accept(
     datatype_init_record_accept(r_accept, 0, 0);
     r_accept->local.addrlen = 0;
     r_accept->remote.addrlen = 0;
+    r_accept->sys_id = sys_id;
     return 0;
 }
 

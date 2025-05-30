@@ -60,13 +60,13 @@ static int init_accept_map_key(struct map_key_process_record_accept *map_key, ac
     return 0;
 }
 
-static int insert_accept_map_entry_at_syscall_enter(accept_type_fd_t fd_type)
+static int insert_accept_map_entry_at_syscall_enter(sys_id_t sys_id, accept_type_fd_t fd_type)
 {
     struct map_key_process_record_accept map_key;
     init_accept_map_key(&map_key, fd_type);
 
     struct record_accept map_val;
-    datatype_zero_out_record_accept(&map_val);
+    datatype_zero_out_record_accept(&map_val, sys_id);
     long result = bpf_map_update_elem(&process_record_map_accept, &map_key, (void *)&map_val, BPF_ANY);
     if (result != 0)
     {
@@ -75,14 +75,14 @@ static int insert_accept_map_entry_at_syscall_enter(accept_type_fd_t fd_type)
     return 0;
 }
 
-static int insert_accept_local_map_entry_at_syscall_enter(void)
+static int insert_accept_local_map_entry_at_syscall_enter(sys_id_t sys_id)
 {
-    return insert_accept_map_entry_at_syscall_enter(LOCAL);
+    return insert_accept_map_entry_at_syscall_enter(sys_id, LOCAL);
 }
 
-static int insert_accept_remote_map_entry_at_syscall_enter(void)
+static int insert_accept_remote_map_entry_at_syscall_enter(sys_id_t sys_id)
 {
-    return insert_accept_map_entry_at_syscall_enter(REMOTE);
+    return insert_accept_map_entry_at_syscall_enter(sys_id, REMOTE);
 }
 
 static int update_accept_map_entry_with_file(accept_type_fd_t fd_type, struct file *file)
@@ -126,12 +126,12 @@ static int update_accept_remote_map_entry_with_file(struct file *file)
     return 0;
 }
 
-static int insert_accept_map_entries_at_syscall_enter(void)
+static int insert_accept_map_entries_at_syscall_enter(sys_id_t sys_id)
 {
     if (!is_accept_event_auditable())
         return 0;
-    insert_accept_local_map_entry_at_syscall_enter();
-    insert_accept_remote_map_entry_at_syscall_enter();
+    insert_accept_local_map_entry_at_syscall_enter(sys_id);
+    insert_accept_remote_map_entry_at_syscall_enter(sys_id);
     return 0;
 }
 
@@ -199,19 +199,6 @@ static int send_accept_map_entry_on_syscall_exit(accept_type_fd_t fd_type)
     return 0;
 }
 
-SEC("fentry/__sys_accept4")
-int BPF_PROG(
-    fentry__sys_accept4,
-    int fd,
-    struct sockaddr *sockaddr,
-    int addrlen,
-    int flags
-)
-{
-    insert_accept_map_entries_at_syscall_enter();
-    return 0;
-}
-
 struct proto_accept_arg;
 SEC("fexit/do_accept")
 int BPF_PROG(
@@ -235,6 +222,18 @@ int BPF_PROG(
     return 0;
 }
 
+SEC("fentry/__sys_accept4")
+int BPF_PROG(
+    fentry__sys_accept4,
+    int fd,
+    struct sockaddr *sockaddr,
+    int addrlen,
+    int flags
+)
+{
+    insert_accept_map_entries_at_syscall_enter(SYS_ID_ACCEPT4);
+    return 0;
+}
 
 SEC("fexit/__sys_accept4")
 int BPF_PROG(
