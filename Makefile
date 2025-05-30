@@ -31,9 +31,9 @@ DIR_BUILD_B_E = $(DIR_BUILD_B)/events
 DIR_BUILD_B_H = $(DIR_BUILD_B)/helpers
 DIR_BUILD_B_M = $(DIR_BUILD_B)/maps
 
-BPF_OBJS_B = $(DIR_BUILD_B)/ameba.bpf.o
+BPF_OBJS_B = $(DIR_BUILD_B)/license.bpf.o
 BPF_OBJS_B_E = $(DIR_BUILD_B_E)/accept.bpf.o $(DIR_BUILD_B_E)/connect.bpf.o $(DIR_BUILD_B_E)/process_namespace.bpf.o $(DIR_BUILD_B_E)/send_recv.bpf.o $(DIR_BUILD_B_E)/bind.bpf.o $(DIR_BUILD_B_E)/kill.bpf.o
-BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event_context.bpf.o $(DIR_BUILD_B_H)/datatype.bpf.o $(DIR_BUILD_B_H)/copy.bpf.o $(DIR_BUILD_B_H)/output.bpf.o
+BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event.bpf.o $(DIR_BUILD_B_H)/datatype.bpf.o $(DIR_BUILD_B_H)/copy.bpf.o $(DIR_BUILD_B_H)/output.bpf.o
 BPF_OBJS_B_M = $(DIR_BUILD_B_M)/map_helper.bpf.o
 BPF_OBJS_ALL = $(BPF_OBJS_B) $(BPF_OBJS_B_E) $(BPF_OBJS_B_H) $(BPF_OBJS_B_M)
 # END: Construction of BPF_OBJS_ALL

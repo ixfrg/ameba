@@ -7,9 +7,8 @@
 #include "common/types.h"
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/maps/map.bpf.h"
-#include "bpf/helpers/event_context.bpf.h"
+#include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
-#include "bpf/ameba.bpf.h"
 #include "bpf/maps/constants.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
@@ -33,8 +32,8 @@ struct
 static int is_connect_event_auditable(void)
 {
     struct event_context e_ctx;
-    event_context_init_event_context(&e_ctx, connect_record_type);
-    return ameba_is_event_auditable(&e_ctx);
+    event_init_context(&e_ctx, connect_record_type);
+    return event_is_auditable(&e_ctx);
 }
 
 static int init_connect_map_key(struct map_key_process_record *map_key)
@@ -133,7 +132,7 @@ static int update_connect_map_entry_on_syscall_exit(
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
     datatype_init_record_connect(map_val, pid, fd, ret);
-    map_val->e_ts.event_id = ameba_increment_event_id();
+    map_val->e_ts.event_id = event_increment_id();
 
     struct elem_sockaddr *remote_sa = (struct elem_sockaddr *)&(map_val->remote);
     remote_sa->byte_order = BYTE_ORDER_NETWORK;

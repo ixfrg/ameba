@@ -4,11 +4,10 @@
 #include <bpf/bpf_core_read.h>
 #include <bpf/bpf_helpers.h>
 
-#include "bpf/ameba.bpf.h"
 #include "common/types.h"
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/maps/map.bpf.h"
-#include "bpf/helpers/event_context.bpf.h"
+#include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/maps/constants.h"
 #include "bpf/helpers/copy.bpf.h"
@@ -46,8 +45,8 @@ struct
 static int is_accept_event_auditable(void)
 {
     struct event_context e_ctx;
-    event_context_init_event_context(&e_ctx, accept_record_type);
-    return ameba_is_event_auditable(&e_ctx);
+    event_init_context(&e_ctx, accept_record_type);
+    return event_is_auditable(&e_ctx);
 }
 
 static int init_accept_map_key(struct map_key_process_record_accept *map_key, accept_type_fd_t fd_type)
@@ -254,7 +253,7 @@ int BPF_PROG(
         return 0;
     }
 
-    event_id_t event_id = ameba_increment_event_id();
+    event_id_t event_id = event_increment_id();
 
     update_accept_map_entry_on_syscall_exit(event_id, fd, LOCAL);
     update_accept_map_entry_on_syscall_exit(event_id, ret, REMOTE);

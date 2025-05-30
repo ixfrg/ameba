@@ -7,9 +7,8 @@
 #include "common/types.h"
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/maps/map.bpf.h"
-#include "bpf/helpers/event_context.bpf.h"
+#include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
-#include "bpf/ameba.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 
 
@@ -19,15 +18,15 @@ static int send_record_cred(
 )
 {
     struct event_context e_ctx;
-    event_context_init_event_context(&e_ctx, RECORD_TYPE_CRED);
-    if (!ameba_is_event_auditable(&e_ctx)){
+    event_init_context(&e_ctx, RECORD_TYPE_CRED);
+    if (!event_is_auditable(&e_ctx)){
         return 0;
     }
 
     struct record_cred r_c;
     datatype_init_record_cred(
         &r_c,
-        ameba_increment_event_id(),
+        event_increment_id(),
         BPF_CORE_READ(task, pid),
         sys_id
     );
@@ -52,15 +51,15 @@ static int send_record_namespace(
 )
 {
     struct event_context e_ctx;
-    event_context_init_event_context(&e_ctx, RECORD_TYPE_NAMESPACE);
-    if (!ameba_is_event_auditable(&e_ctx)){
+    event_init_context(&e_ctx, RECORD_TYPE_NAMESPACE);
+    if (!event_is_auditable(&e_ctx)){
         return 0;
     }
 
     struct record_namespace r_ns;
     datatype_init_record_namespace(
         &r_ns,
-        ameba_increment_event_id(),
+        event_increment_id(),
         BPF_CORE_READ(task, pid),
         sys_id
     );
@@ -81,8 +80,8 @@ static int send_record_new_process(
 )
 {
     struct event_context e_ctx;
-    event_context_init_event_context(&e_ctx, RECORD_TYPE_NEW_PROCESS);
-    if (!ameba_is_event_auditable(&e_ctx)){
+    event_init_context(&e_ctx, RECORD_TYPE_NEW_PROCESS);
+    if (!event_is_auditable(&e_ctx)){
         return 0;
     }
 
@@ -91,7 +90,7 @@ static int send_record_new_process(
     struct record_new_process r_np;
     datatype_init_record_new_process(
         &r_np,
-        ameba_increment_event_id(),
+        event_increment_id(),
         BPF_CORE_READ(task, pid),
         BPF_CORE_READ(parent_task, pid),
         sys_id
