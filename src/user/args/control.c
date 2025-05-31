@@ -121,22 +121,26 @@ static error_t validate_control_input(struct control_input *input, struct argp_s
         argp_failure(state, -1, -1, "Required option -%c is missing", OPT_GLOBAL_MODE);
         return ARGP_ERR_UNKNOWN;
     }
-    // if (input->netio_mode == NOT_SET)
-    // {
-    //     argp_error(state, "Required option -%c is missing", OPT_NETIO_MODE);
-    // }
-    // if (input->pid_mode == NOT_SET)
-    // {
-    //     argp_error(state, "Required option -%c is missing", OPT_PID_MODE);
-    // }
-    // if (input->ppid_mode == NOT_SET)
-    // {
-    //     argp_error(state, "Required option -%c is missing", OPT_PPID_MODE);
-    // }
-    // if (input->uid_mode == NOT_SET)
-    // {
-    //     argp_error(state, "Required option -%c is missing", OPT_UID_MODE);
-    // }
+    if (input->netio_mode == NOT_SET)
+    {
+        argp_failure(state, -1, -1, "Required option -%c is missing", OPT_NETIO_MODE);
+        return ARGP_ERR_UNKNOWN;
+    }
+    if (input->pid_mode == NOT_SET)
+    {
+        argp_failure(state, -1, -1, "Required option -%c is missing", OPT_PID_MODE);
+        return ARGP_ERR_UNKNOWN;
+    }
+    if (input->ppid_mode == NOT_SET)
+    {
+        argp_failure(state, -1, -1, "Required option -%c is missing", OPT_PPID_MODE);
+        return ARGP_ERR_UNKNOWN;
+    }
+    if (input->uid_mode == NOT_SET)
+    {
+        argp_failure(state, -1, -1, "Required option -%c is missing", OPT_UID_MODE);
+        return ARGP_ERR_UNKNOWN;
+    }
     return 0;
 }
 
@@ -200,13 +204,13 @@ static struct argp argp = {
 static void init_control_input(struct control_input *input)
 {
     input->global_mode = NOT_SET;
-    input->uid_mode = NOT_SET;
+    input->uid_mode = IGNORE;
     input->uids_len = 0;
-    input->pid_mode = NOT_SET;
+    input->pid_mode = IGNORE;
     input->pids_len = 0;
-    input->ppid_mode = NOT_SET;
+    input->ppid_mode = IGNORE;
     input->ppids_len = 0;
-    input->netio_mode = NOT_SET;
+    input->netio_mode = IGNORE;
 }
 
 static void print_control_input(struct control_input *val)
