@@ -10,7 +10,8 @@
 
 static event_id_t current_event_id = 0;
 
-static int is_global_control_input_set = 0;
+static volatile control_lock_t global_control_lock = FREE;
+static volatile int global_control_input_is_set = 0;
 static struct control_input global_control_input;
 
 
@@ -22,126 +23,48 @@ struct {
 } control_input_map SEC(".maps");
 
 
-static void log_trace_mode(char *key, trace_mode_t t)
-{
-    char *p;
-    switch (t)
-    {
-        case IGNORE:
-            p = "ignore";
-            break;
-        case CAPTURE:
-            p = "capture";
-            break;
-        default:
-            p = "unknown";
-            break;
-    }
-    LOG_WARN("%s: %s", key, p);
-}
-
-static void log_control_lock(char *key, control_lock_t t)
-{
-    char *p;
-    switch (t)
-    {
-        case FREE:
-            p = "free";
-            break;
-        case TAKEN:
-            p = "taken";
-            break;
-        default:
-            p = "unknown";
-            break;
-    }
-    LOG_WARN("%s: %s", key, p);
-}
-
-static void log_global_control_input(void) {
-    struct control_input *ctrl = &global_control_input;
-    if (!ctrl) {
-        LOG_WARN("global_control_input is NULL");
-        return;
-    }
-
-    LOG_WARN("=== Control Input Configuration ===");
-    log_trace_mode("global_mode", ctrl->global_mode);
-
-    log_trace_mode("uid_mode", ctrl->uid_mode);
-    LOG_WARN("uids_len: %d", ctrl->uids_len);
-    if (ctrl->uids_len > 0) {
-        for (int i = 0; i < ctrl->uids_len && i < MAX_LIST_ITEMS; i++) {
-            LOG_WARN("  uid[%d]: %u", i, ctrl->uids[i]);
-        }
-    }
-
-    log_trace_mode("pid_mode", ctrl->pid_mode);
-    LOG_WARN("pids_len: %d", ctrl->pids_len);
-    if (ctrl->pids_len > 0) {
-        for (int i = 0; i < ctrl->pids_len && i < MAX_LIST_ITEMS; i++) {
-            LOG_WARN("  pid[%d]: %d", i, ctrl->pids[i]);
-        }
-    }
-
-    log_trace_mode("ppid_mode", ctrl->ppid_mode);
-    LOG_WARN("ppids_len: %d", ctrl->ppids_len);
-    if (ctrl->ppids_len > 0) {
-        for (int i = 0; i < ctrl->ppids_len && i < MAX_LIST_ITEMS; i++) {
-            LOG_WARN("  ppid[%d]: %d", i, ctrl->ppids[i]);
-        }
-    }
-
-    log_trace_mode("netio_mode", ctrl->netio_mode);
-    
-    log_control_lock("lock", ctrl->lock);
-    
-    LOG_WARN("=== End Control Input ===");
-}
-
 static int set_global_control_input_from_map(void){
     int key;
     key = 0;
 
-    struct control_input *val;
-    val = bpf_map_lookup_elem(&control_input_map, &key);
-    if (val)
+    if (__sync_val_compare_and_swap(&global_control_lock, FREE, TAKEN) == FREE)
     {
-        if (
-            is_global_control_input_set == 0
-            && __sync_val_compare_and_swap(&(val->lock), FREE, TAKEN) == FREE
-        )
+        if (global_control_input_is_set == 0)
         {
-            global_control_input.uid_mode = val->uid_mode;
-            global_control_input.uids_len = val->uids_len;
-            for (int i = 0; i < MAX_LIST_ITEMS; i++){
-                global_control_input.uids[i] = val->uids[i];
+            struct control_input *val;
+            val = bpf_map_lookup_elem(&control_input_map, &key);
+            if (val)
+            {
+                global_control_input.uid_mode = val->uid_mode;
+                global_control_input.uids_len = val->uids_len;
+                for (int i = 0; i < MAX_LIST_ITEMS; i++){
+                    global_control_input.uids[i] = val->uids[i];
+                }
+                
+                global_control_input.pid_mode = val->pid_mode;
+                global_control_input.pids_len = val->pids_len;
+                for (int i = 0; i < MAX_LIST_ITEMS; i++){
+                    global_control_input.pids[i] = val->pids[i];
+                }
+
+                global_control_input.ppid_mode = val->ppid_mode;
+                global_control_input.ppids_len = val->ppids_len;
+                for (int i = 0; i < MAX_LIST_ITEMS; i++){
+                    global_control_input.ppids[i] = val->ppids[i];
+                }
+
+                global_control_input.netio_mode = val->netio_mode;
+
+                global_control_input.global_mode = val->global_mode;
+
+                global_control_input.lock = val->lock;
+
+                log_control_input(&global_control_input);
+
+                global_control_input_is_set = 1;
             }
-            
-            global_control_input.pid_mode = val->pid_mode;
-            global_control_input.pids_len = val->pids_len;
-            for (int i = 0; i < MAX_LIST_ITEMS; i++){
-                global_control_input.pids[i] = val->pids[i];
-            }
-
-            global_control_input.ppid_mode = val->ppid_mode;
-            global_control_input.ppids_len = val->ppids_len;
-            for (int i = 0; i < MAX_LIST_ITEMS; i++){
-                global_control_input.ppids[i] = val->ppids[i];
-            }
-
-            global_control_input.netio_mode = val->netio_mode;
-
-            global_control_input.global_mode = val->global_mode;
-
-            global_control_input.lock = val->lock;
-
-            log_global_control_input();
-
-            is_global_control_input_set = 1;
-
-            __sync_val_compare_and_swap(&(val->lock), TAKEN, FREE);
         }
+        __sync_val_compare_and_swap(&global_control_lock, TAKEN, FREE);
     }
     return 0;
 }
