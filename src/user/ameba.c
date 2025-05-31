@@ -19,6 +19,8 @@
 #include "user/jsonify/record.h"
 #include "ameba.skel.h"
 
+#include "user/args/control.h"
+
 
 static const char *log_prefix = "[ameba] [user]";
 
@@ -65,6 +67,12 @@ static void sig_handler(int sig)
 
 int main(int argc, char *argv[])
 {
+    struct control_input input;
+
+    return user_args_control_must_parse_control_input(
+        &input, argc, argv
+    ); 
+
     int result;
     struct ring_buffer *ringbuf = NULL;
     int err, ringbuf_map_fd;

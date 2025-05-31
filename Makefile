@@ -10,13 +10,16 @@ BPF_SKEL_NAME = ameba
 # BEGIN: Construction of USER_OBJS_ALL
 DIR_SRC_U = $(DIR_SRC)/user
 DIR_SRC_U_J = $(DIR_SRC_U)/jsonify
+DIR_SRC_U_A = $(DIR_SRC_U)/args
 
 DIR_BUILD_U = $(DIR_BUILD)/user
 DIR_BUILD_U_J = $(DIR_BUILD_U)/jsonify
+DIR_BUILD_U_A = $(DIR_BUILD_U)/args
 
 USER_OBJS_U = $(DIR_BUILD_U)/ameba.o $(DIR_BUILD_U)/convert_data.o $(DIR_BUILD_U)/writer.o
-USER_OBJS_U_J = $(DIR_BUILD_U_J)/core.o $(DIR_BUILD_U_J)/record.o $(DIR_BUILD_U_J)/types.o
-USER_OBJS_ALL = $(USER_OBJS_U_J) $(USER_OBJS_U)	
+USER_OBJS_U_J = $(DIR_BUILD_U_J)/core.o $(DIR_BUILD_U_J)/record.o $(DIR_BUILD_U_J)/types.o $(DIR_BUILD_U_J)/control.o
+USER_OBJS_U_A = $(DIR_BUILD_U_A)/control.o
+USER_OBJS_ALL = $(USER_OBJS_U_J) $(USER_OBJS_U)	$(USER_OBJS_U_A)
 # END: Construction of USER_OBJS_ALL
 
 
@@ -31,7 +34,7 @@ DIR_BUILD_B_H = $(DIR_BUILD_B)/helpers
 
 BPF_OBJS_B = $(DIR_BUILD_B)/license.bpf.o
 BPF_OBJS_B_E = $(DIR_BUILD_B_E)/accept.bpf.o $(DIR_BUILD_B_E)/connect.bpf.o $(DIR_BUILD_B_E)/process_namespace.bpf.o $(DIR_BUILD_B_E)/send_recv.bpf.o $(DIR_BUILD_B_E)/bind.bpf.o $(DIR_BUILD_B_E)/kill.bpf.o
-BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event.bpf.o $(DIR_BUILD_B_H)/datatype.bpf.o $(DIR_BUILD_B_H)/copy.bpf.o $(DIR_BUILD_B_H)/output.bpf.o $(DIR_BUILD_B_H)/map.bpf.o
+BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event.bpf.o $(DIR_BUILD_B_H)/datatype.bpf.o $(DIR_BUILD_B_H)/copy.bpf.o $(DIR_BUILD_B_H)/output.bpf.o $(DIR_BUILD_B_H)/map.bpf.o $(DIR_BUILD_B_H)/control.bpf.o
 BPF_OBJS_ALL = $(BPF_OBJS_B) $(BPF_OBJS_B_E) $(BPF_OBJS_B_H)
 # END: Construction of BPF_OBJS_ALL
 
