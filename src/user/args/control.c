@@ -41,12 +41,12 @@ static int find_string_index(const char *haystack, const char *needle)
 
 static error_t parse_mode(trace_mode_t *dst, char *mode_str, struct argp_state *state)
 {
-    if (find_string_index("ignore", mode_str) == 0)
+    if (find_string_index("ignore", mode_str) == 0 && strlen(mode_str) <= strlen("ignore"))
     {
         *dst = IGNORE;
         return 0;
     }
-    else if (find_string_index("capture", mode_str) == 0)
+    else if (find_string_index("capture", mode_str) == 0 && strlen(mode_str) <= strlen("capture"))
     {
         *dst = CAPTURE;
         return 0;
@@ -115,32 +115,14 @@ static error_t parse_int_list(
 static error_t validate_control_input(struct control_input *input, struct argp_state *state)
 {
     // TODO
+    /*
     if (input->global_mode == NOT_SET)
     {
         // argp_error(state, "Required option -%c is missing", OPT_GLOBAL_MODE);
         argp_failure(state, -1, -1, "Required option -%c is missing", OPT_GLOBAL_MODE);
         return ARGP_ERR_UNKNOWN;
     }
-    if (input->netio_mode == NOT_SET)
-    {
-        argp_failure(state, -1, -1, "Required option -%c is missing", OPT_NETIO_MODE);
-        return ARGP_ERR_UNKNOWN;
-    }
-    if (input->pid_mode == NOT_SET)
-    {
-        argp_failure(state, -1, -1, "Required option -%c is missing", OPT_PID_MODE);
-        return ARGP_ERR_UNKNOWN;
-    }
-    if (input->ppid_mode == NOT_SET)
-    {
-        argp_failure(state, -1, -1, "Required option -%c is missing", OPT_PPID_MODE);
-        return ARGP_ERR_UNKNOWN;
-    }
-    if (input->uid_mode == NOT_SET)
-    {
-        argp_failure(state, -1, -1, "Required option -%c is missing", OPT_UID_MODE);
-        return ARGP_ERR_UNKNOWN;
-    }
+    */
     return 0;
 }
 
@@ -203,7 +185,8 @@ static struct argp argp = {
 
 static void init_control_input(struct control_input *input)
 {
-    input->global_mode = NOT_SET;
+    input->lock = FREE;
+    input->global_mode = IGNORE;
     input->uid_mode = IGNORE;
     input->uids_len = 0;
     input->pid_mode = IGNORE;

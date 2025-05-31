@@ -78,9 +78,7 @@ static int update_control_input_map(struct control_input *input)
     int update_flags;
 
     update_flags = BPF_ANY;
-    #ifdef USE_BPF_SPIN_LOCK
-    update_flags |= BPF_F_LOCK;
-    #endif
+    // update_flags |= BPF_F_LOCK;
 
     int key = 0;
     int ret = bpf_map__update_elem(
@@ -97,9 +95,7 @@ static int get_control_input_from_map(struct control_input *result)
 {
     int lookup_flags;
     lookup_flags = BPF_ANY;
-    #ifdef USE_BPF_SPIN_LOCK
-    lookup_flags |= BPF_F_LOCK;
-    #endif
+    // lookup_flags |= BPF_F_LOCK;
 
     int key = 0;
     int ret = bpf_map__lookup_elem(

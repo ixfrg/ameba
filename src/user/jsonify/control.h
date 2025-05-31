@@ -1,7 +1,6 @@
 #pragma once
 
 #include "user/jsonify/core.h"
-#define USERSPACE_CODE
 #include "common/control.h"
 
 

@@ -10,10 +10,8 @@
 
 static event_id_t current_event_id = 0;
 
-
-static struct control_input global_control_input = {
-    .global_mode = NOT_SET
-};
+static int is_global_control_input_set = 0;
+static struct control_input global_control_input;
 
 
 struct {
@@ -24,42 +22,79 @@ struct {
 } control_input_map SEC(".maps");
 
 
+static void log_trace_mode(char *key, trace_mode_t t)
+{
+    char *p;
+    switch (t)
+    {
+        case IGNORE:
+            p = "ignore";
+            break;
+        case CAPTURE:
+            p = "capture";
+            break;
+        default:
+            p = "unknown";
+            break;
+    }
+    LOG_WARN("%s: %s", key, p);
+}
+
+static void log_control_lock(char *key, control_lock_t t)
+{
+    char *p;
+    switch (t)
+    {
+        case FREE:
+            p = "free";
+            break;
+        case TAKEN:
+            p = "taken";
+            break;
+        default:
+            p = "unknown";
+            break;
+    }
+    LOG_WARN("%s: %s", key, p);
+}
+
 static void log_global_control_input() {
     struct control_input *ctrl = &global_control_input;
     if (!ctrl) {
-        LOG_WARN("control_input is NULL");
+        LOG_WARN("global_control_input is NULL");
         return;
     }
 
     LOG_WARN("=== Control Input Configuration ===");
-    LOG_WARN("global_mode: %d", ctrl->global_mode);
+    log_trace_mode("global_mode", ctrl->global_mode);
 
-    LOG_WARN("uid_mode: %d, uids_len: %d", ctrl->uid_mode, ctrl->uids_len);
+    log_trace_mode("uid_mode", ctrl->uid_mode);
+    LOG_WARN("uids_len: %d", ctrl->uids_len);
     if (ctrl->uids_len > 0) {
         for (int i = 0; i < ctrl->uids_len && i < MAX_LIST_ITEMS; i++) {
             LOG_WARN("  uid[%d]: %u", i, ctrl->uids[i]);
         }
     }
 
-    LOG_WARN("pid_mode: %d, pids_len: %d", ctrl->pid_mode, ctrl->pids_len);
+    log_trace_mode("pid_mode", ctrl->pid_mode);
+    LOG_WARN("pids_len: %d", ctrl->pids_len);
     if (ctrl->pids_len > 0) {
         for (int i = 0; i < ctrl->pids_len && i < MAX_LIST_ITEMS; i++) {
             LOG_WARN("  pid[%d]: %d", i, ctrl->pids[i]);
         }
     }
 
-    LOG_WARN("ppid_mode: %d, ppids_len: %d", ctrl->ppid_mode, ctrl->ppids_len);
+    log_trace_mode("ppid_mode", ctrl->ppid_mode);
+    LOG_WARN("ppids_len: %d", ctrl->ppids_len);
     if (ctrl->ppids_len > 0) {
         for (int i = 0; i < ctrl->ppids_len && i < MAX_LIST_ITEMS; i++) {
             LOG_WARN("  ppid[%d]: %d", i, ctrl->ppids[i]);
         }
     }
 
-    LOG_WARN("netio_mode: %d", ctrl->netio_mode);
+    log_trace_mode("netio_mode", ctrl->netio_mode);
     
-#ifdef USE_BPF_SPIN_LOCK
-    LOG_WARN("spin_lock configured");
-#endif
+    log_control_lock("lock", ctrl->lock);
     
     LOG_WARN("=== End Control Input ===");
 }
@@ -68,23 +103,15 @@ static int set_global_control_input_from_map(){
     int key;
     key = 0;
 
-    if (
-        // Only do if first event i.e. event id is 0.
-        current_event_id == 0
-        // Only do if not already set.
-        // Set to ignore so that events are ignored until properly updated.
-        && __sync_val_compare_and_swap(&(global_control_input.global_mode), NOT_SET, IGNORE) != IGNORE
-        // && __sync_lock_test_and_set(&global_control_input.global_mode, IGNORE) == NOT_SET
-    )
+    struct control_input *val;
+    val = bpf_map_lookup_elem(&control_input_map, &key);
+    if (val)
     {
-        struct control_input *val;
-        val = bpf_map_lookup_elem(&control_input_map, &key);
-        if (val)
+        if (
+            is_global_control_input_set == 0
+            && __sync_val_compare_and_swap(&(val->lock), FREE, TAKEN) == FREE
+        )
         {
-            #ifdef USE_BPF_SPIN_LOCK
-            bpf_spin_lock(&val->lock);
-            #endif
-
             global_control_input.uid_mode = val->uid_mode;
             global_control_input.uids_len = val->uids_len;
             for (int i = 0; i < MAX_LIST_ITEMS; i++){
@@ -105,14 +132,15 @@ static int set_global_control_input_from_map(){
 
             global_control_input.netio_mode = val->netio_mode;
 
+            global_control_input.global_mode = val->global_mode;
+
+            global_control_input.lock = val->lock;
+
             log_global_control_input();
 
-            // Last.. after updating the rest of the struct.
-            __sync_lock_test_and_set(&global_control_input.global_mode, val->global_mode);
+            is_global_control_input_set = 1;
 
-            #ifdef USE_BPF_SPIN_LOCK
-            bpf_spin_unlock(&val->lock);
-            #endif
+            __sync_val_compare_and_swap(&(val->lock), TAKEN, FREE);
         }
     }
     return 0;
