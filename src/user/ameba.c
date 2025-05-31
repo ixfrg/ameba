@@ -21,6 +21,7 @@
 
 #include "user/args/control.h"
 
+#include "user/jsonify/control.h"
 
 static const char *log_prefix = "[ameba] [user]";
 
@@ -72,24 +73,67 @@ static int parse_user_input(struct control_input *input, int argc, char *argv[])
     );
 }
 
-int main(int argc, char *argv[])
+static int update_control_input_map(struct control_input *input)
 {
-    struct control_input input;
-    
-    if (parse_user_input(&input, argc, argv) != 0)
+    int key = 0;
+    int ret = bpf_map__update_elem(
+        skel->maps.control_input_map, 
+        &key, sizeof(key),
+        input, sizeof(struct control_input),
+        BPF_ANY|BPF_F_LOCK
+    );
+    return ret;
+}
+
+static int get_control_input_from_map(struct control_input *result)
+{
+    int key = 0;
+    int ret = bpf_map__lookup_elem(
+        skel->maps.control_input_map, 
+        &key, sizeof(key),
+        result, sizeof(struct control_input),
+        BPF_ANY|BPF_F_LOCK
+    );
+    return ret;
+}
+
+static void print_current_control_input()
+{
+    struct control_input result;
+    int dst_len = 512;
+    char dst[dst_len];
+
+    if (get_control_input_from_map(&result) != 0)
     {
-        // error
-        return -1;
-    } else {
-        printf("Existing safely\n");
-        return 0;
+        printf("Failed to get control input entry from map\n");
+        return;
     }
 
+    struct json_buffer s;
+    jsonify_core_init(&s, dst, dst_len);
+    jsonify_core_open_obj(&s);
+
+    jsonify_control_write_control_input(&s, &result);
+
+    jsonify_core_close_obj(&s);
+
+    printf("Control Input set in EBPF map:\n");
+    printf("%s\n", dst);
+}
+
+int main(int argc, char *argv[])
+{
     int result;
     struct ring_buffer *ringbuf = NULL;
     int err, ringbuf_map_fd;
+    struct control_input input;
+    
+    result = parse_user_input(&input, argc, argv);
 
-    result = 0;
+    if (result != 0)
+    {
+        return result;
+    }
 
     syslog(LOG_INFO, "%s : Registering signal handler...\n", log_prefix);
     signal(SIGTERM, sig_handler);
@@ -101,6 +145,16 @@ int main(int argc, char *argv[])
         result = 1;
         return result;
     }
+
+    result = update_control_input_map(&input);
+    if (result != 0)
+    {
+        syslog(LOG_ERR, "%s : Error updaing control input\n", log_prefix);
+        result = 1;
+        goto skel_destroy;
+    }
+
+    print_current_control_input();
 
     err = ameba__attach(skel);
     if (err != 0)
