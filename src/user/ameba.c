@@ -75,24 +75,38 @@ static int parse_user_input(struct control_input *input, int argc, char *argv[])
 
 static int update_control_input_map(struct control_input *input)
 {
+    int update_flags;
+
+    update_flags = BPF_ANY;
+    #ifdef USE_BPF_SPIN_LOCK
+    update_flags |= BPF_F_LOCK;
+    #endif
+
     int key = 0;
     int ret = bpf_map__update_elem(
         skel->maps.control_input_map, 
         &key, sizeof(key),
         input, sizeof(struct control_input),
-        BPF_ANY|BPF_F_LOCK
+        update_flags
     );
+
     return ret;
 }
 
 static int get_control_input_from_map(struct control_input *result)
 {
+    int lookup_flags;
+    lookup_flags = BPF_ANY;
+    #ifdef USE_BPF_SPIN_LOCK
+    lookup_flags |= BPF_F_LOCK;
+    #endif
+
     int key = 0;
     int ret = bpf_map__lookup_elem(
         skel->maps.control_input_map, 
         &key, sizeof(key),
         result, sizeof(struct control_input),
-        BPF_ANY|BPF_F_LOCK
+        lookup_flags
     );
     return ret;
 }

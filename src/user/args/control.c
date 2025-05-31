@@ -213,20 +213,6 @@ static void init_control_input(struct control_input *input)
     input->netio_mode = IGNORE;
 }
 
-// static void print_control_input(struct control_input *val)
-// {
-//     int dst_len = 512;
-//     char dst[dst_len];
-
-//     struct json_buffer s;
-//     jsonify_core_init(&s, dst, dst_len);
-//     jsonify_core_open_obj(&s);
-//     jsonify_control_write_control_input(&s, val);
-//     jsonify_core_close_obj(&s);
-
-//     printf("%s\n", dst);
-// }
-
 int user_args_control_must_parse_control_input(struct control_input *dst, int argc, char **argv)
 {
     init_control_input(dst);

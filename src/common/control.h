@@ -33,9 +33,11 @@ struct control_input
 
     trace_mode_t netio_mode;
 
+    #ifdef USE_BPF_SPIN_LOCK
     #ifdef USERSPACE_CODE
     unsigned int lock;
     #else
     struct bpf_spin_lock lock;
+    #endif
     #endif
 };

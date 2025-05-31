@@ -57,7 +57,9 @@ int jsonify_control_write_control_input(struct json_buffer *s, struct control_in
     int total = 0;
 
     total += jsonify_control_write_trace_mode(s, "global_mode", val->global_mode);
+    #ifdef USE_BPF_SPIN_LOCK
     total += jsonify_core_write_uint(s, "lock", val->lock);
+    #endif
     total += jsonify_control_write_trace_mode(s, "netio_mode", val->netio_mode);
     total += jsonify_control_write_trace_mode(s, "pid_mode", val->pid_mode);
     total += jsonify_control_write_trace_mode(s, "ppid_mode", val->ppid_mode);
