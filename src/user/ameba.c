@@ -65,13 +65,25 @@ static void sig_handler(int sig)
     }
 }
 
+static int parse_user_input(struct control_input *input, int argc, char *argv[])
+{
+    return user_args_control_must_parse_control_input(
+        input, argc, argv
+    );
+}
+
 int main(int argc, char *argv[])
 {
     struct control_input input;
-
-    return user_args_control_must_parse_control_input(
-        &input, argc, argv
-    ); 
+    
+    if (parse_user_input(&input, argc, argv) != 0)
+    {
+        // error
+        return -1;
+    } else {
+        printf("Existing safely\n");
+        return 0;
+    }
 
     int result;
     struct ring_buffer *ringbuf = NULL;
