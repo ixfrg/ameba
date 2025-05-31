@@ -58,7 +58,7 @@ static void log_control_lock(char *key, control_lock_t t)
     LOG_WARN("%s: %s", key, p);
 }
 
-static void log_global_control_input() {
+static void log_global_control_input(void) {
     struct control_input *ctrl = &global_control_input;
     if (!ctrl) {
         LOG_WARN("global_control_input is NULL");
@@ -99,7 +99,7 @@ static void log_global_control_input() {
     LOG_WARN("=== End Control Input ===");
 }
 
-static int set_global_control_input_from_map(){
+static int set_global_control_input_from_map(void){
     int key;
     key = 0;
 
