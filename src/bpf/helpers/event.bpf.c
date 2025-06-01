@@ -30,6 +30,12 @@ int event_init_context(struct event_context *e_ctx, record_type_t r_type)
 
     e_ctx->record_type = r_type;
 
+    if (global_control_input_is_set == 1)
+    {
+        e_ctx->use_global_control_input = 1;
+        return 0;
+    }
+
     if (__sync_val_compare_and_swap(&global_control_lock, FREE, TAKEN) == FREE)
     {   
         if (global_control_input_is_set == 0)
@@ -44,11 +50,6 @@ int event_init_context(struct event_context *e_ctx, record_type_t r_type)
 
                 global_control_input_is_set = 1;
             }
-        }
-
-        if (global_control_input_is_set == 1)
-        {
-            e_ctx->use_global_control_input = 1;
         }
         __sync_val_compare_and_swap(&global_control_lock, TAKEN, FREE);
     }
