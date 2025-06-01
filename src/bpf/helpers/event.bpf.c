@@ -49,8 +49,12 @@ int event_init_context(struct event_context *e_ctx, record_type_t r_type)
                 log_control_input(&global_control_input);
 
                 global_control_input_is_set = 1;
+
+                // Use it for this event since it is set.
+                e_ctx->use_global_control_input = 1;
             }
         }
+
         __sync_val_compare_and_swap(&global_control_lock, TAKEN, FREE);
     }
 
