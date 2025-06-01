@@ -123,6 +123,21 @@ static error_t validate_control_input(struct control_input *input, struct argp_s
         return ARGP_ERR_UNKNOWN;
     }
     */
+    if (input->uid_mode == CAPTURE && input->uids_len == 0)
+    {
+        argp_failure(state, -1, -1, "Must specify uids to capture in capture mode");
+        return ARGP_ERR_UNKNOWN;
+    }
+    if (input->pid_mode == CAPTURE && input->pids_len == 0)
+    {
+        argp_failure(state, -1, -1, "Must specify pids to capture in capture mode");
+        return ARGP_ERR_UNKNOWN;
+    }
+    if (input->ppid_mode == CAPTURE && input->ppids_len == 0)
+    {
+        argp_failure(state, -1, -1, "Must specify ppids to capture in capture mode");
+        return ARGP_ERR_UNKNOWN;
+    }
     return 0;
 }
 

@@ -23,57 +23,36 @@ struct {
 } control_input_map SEC(".maps");
 
 
-static int set_global_control_input_from_map(void){
-    int key;
-    key = 0;
+int event_init_context(struct event_context *e_ctx, record_type_t r_type)
+{
+    if (!e_ctx)
+        return 0;
+
+    e_ctx->record_type = r_type;
 
     if (__sync_val_compare_and_swap(&global_control_lock, FREE, TAKEN) == FREE)
-    {
+    {   
         if (global_control_input_is_set == 0)
         {
-            struct control_input *val;
-            val = bpf_map_lookup_elem(&control_input_map, &key);
+            int key = 0;
+            struct control_input *val = bpf_map_lookup_elem(&control_input_map, &key);
             if (val)
             {
-                global_control_input.uid_mode = val->uid_mode;
-                global_control_input.uids_len = val->uids_len;
-                for (int i = 0; i < MAX_LIST_ITEMS; i++){
-                    global_control_input.uids[i] = val->uids[i];
-                }
-                
-                global_control_input.pid_mode = val->pid_mode;
-                global_control_input.pids_len = val->pids_len;
-                for (int i = 0; i < MAX_LIST_ITEMS; i++){
-                    global_control_input.pids[i] = val->pids[i];
-                }
-
-                global_control_input.ppid_mode = val->ppid_mode;
-                global_control_input.ppids_len = val->ppids_len;
-                for (int i = 0; i < MAX_LIST_ITEMS; i++){
-                    global_control_input.ppids[i] = val->ppids[i];
-                }
-
-                global_control_input.netio_mode = val->netio_mode;
-
-                global_control_input.global_mode = val->global_mode;
-
-                global_control_input.lock = val->lock;
+                __builtin_memcpy(&global_control_input, val, sizeof(struct control_input));
 
                 log_control_input(&global_control_input);
 
                 global_control_input_is_set = 1;
             }
         }
+
+        if (global_control_input_is_set == 1)
+        {
+            e_ctx->use_global_control_input = 1;
+        }
         __sync_val_compare_and_swap(&global_control_lock, TAKEN, FREE);
     }
-    return 0;
-}
 
-int event_init_context(struct event_context *e_ctx, record_type_t r_type)
-{
-    if (!e_ctx)
-        return 0;
-    e_ctx->record_type = r_type;
     return 0;
 }
 
@@ -82,18 +61,106 @@ event_id_t event_increment_id(void)
     return __sync_fetch_and_add(&current_event_id, 1);
 }
 
+static int is_int_in_control_input_id_list(int needle, int *haystack, const int haystack_len)
+{
+    for (int i = 0; i < haystack_len; i++)
+    {
+        if (haystack[i] == needle)
+            return 1;
+    }
+    return 0;
+}
+
+static int is_task_auditable(struct task_struct *current, struct control_input *runtime_control)
+{
+    if (!current || !runtime_control)
+    {
+        return 0;
+    }
+    
+    const uid_t uid = BPF_CORE_READ(current, real_cred, uid).val;
+    const pid_t pid = BPF_CORE_READ(current, pid);
+    const pid_t ppid = BPF_CORE_READ(current, real_parent, pid);
+
+    int is_uid_in_list = is_int_in_control_input_id_list(
+        uid, &(runtime_control->uids[0]), (runtime_control->uids_len & (MAX_LIST_ITEMS - 1))
+    );
+    int is_pid_in_list = is_int_in_control_input_id_list(
+        pid, &(runtime_control->pids[0]), (runtime_control->pids_len & (MAX_LIST_ITEMS - 1))
+    );
+    int is_ppid_in_list = is_int_in_control_input_id_list(
+        ppid, &(runtime_control->ppids[0]), (runtime_control->ppids_len & (MAX_LIST_ITEMS - 1))
+    );
+
+    if (runtime_control->uid_mode == IGNORE)
+    {
+        if (is_uid_in_list)
+            return 0;
+    }
+    if (runtime_control->uid_mode == CAPTURE)
+    {
+        if (!is_uid_in_list)
+            return 0;
+    }
+
+    if (runtime_control->pid_mode == IGNORE)
+    {
+        if (is_pid_in_list)
+            return 0;
+    }
+    if (runtime_control->pid_mode == CAPTURE)
+    {
+        if (!is_pid_in_list)
+            return 0;
+    }
+
+    if (runtime_control->ppid_mode == IGNORE)
+    {
+        if (is_ppid_in_list)
+            return 0;
+    }
+    if (runtime_control->ppid_mode == CAPTURE)
+    {
+        if (!is_ppid_in_list)
+            return 0;
+    }
+
+    // We audit if have escaped all kill paths above.
+    return 1;
+}
+
+int is_record_of_type_network_io(record_type_t t)
+{
+    switch(t)
+    {
+        case RECORD_TYPE_SEND_RECV:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
 int event_is_auditable(struct event_context *e_ctx)
 {
-    set_global_control_input_from_map();
+    if (!e_ctx)
+        return 0;
+
+    if (e_ctx->use_global_control_input == 0)
+        return 0;
+
+    struct control_input *ci = &global_control_input;
+
+    trace_mode_t global_mode = ci->global_mode;
+    if (global_mode == IGNORE)
+        return 0;
+
+    if (is_record_of_type_network_io(e_ctx->record_type))
+    {
+        if (ci->netio_mode == IGNORE)
+            return 0;
+    }
 
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    // const pid_t pid = BPF_CORE_READ(current_task, pid);
-    uid_t uid = BPF_CORE_READ(current_task, real_cred, uid).val;
 
-    // "uid=1001(audited_user) gid=1001(audited_user) groups=1001(audited_user),100(users)"
-    // if (record_type == RECORD_TYPE_NAMESPACE)
-    // {
-    //     return uid == 0;
-    // }
-    return uid == 1001;
+    return is_task_auditable(current_task, ci);
 }

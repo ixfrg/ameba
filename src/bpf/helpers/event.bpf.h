@@ -2,9 +2,11 @@
 
 #include "common/vmlinux.h"
 #include "common/types.h"
+#include "common/control.h"
 
 
 struct event_context {
+    int use_global_control_input;
     record_type_t record_type;
 };
 
