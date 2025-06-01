@@ -24,6 +24,7 @@ typedef enum {
     RECORD_TYPE_SEND_RECV,
     RECORD_TYPE_BIND,
     RECORD_TYPE_KILL,
+    RECORD_TYPE_AUDIT_LOG_EXIT
 } record_type_t;
 
 typedef enum {
@@ -182,6 +183,14 @@ struct record_kill
     int ret;
 };
 
+struct record_audit_log_exit
+{
+    struct elem_common e_common;
+    struct elem_timestamp e_ts;
+    pid_t pid;
+    int syscall_number;
+};
+
 typedef enum {
     RECORD_SIZE_NEW_PROCESS = sizeof(struct record_new_process),
     RECORD_SIZE_CRED = sizeof(struct record_cred),
@@ -190,5 +199,6 @@ typedef enum {
     RECORD_SIZE_ACCEPT = sizeof(struct record_accept),
     RECORD_SIZE_SEND_RECV = sizeof(struct record_send_recv),
     RECORD_SIZE_BIND = sizeof(struct record_bind),
-    RECORD_SIZE_KILL = sizeof(struct record_kill)
+    RECORD_SIZE_KILL = sizeof(struct record_kill),
+    RECORD_SIZE_AUDIT_LOG_EXIT = sizeof(struct record_audit_log_exit)
 } record_size_t;

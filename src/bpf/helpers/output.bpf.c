@@ -66,6 +66,13 @@ long output_record_send_recv(struct record_send_recv *ptr)
     return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_SEND_RECV, 0);
 }
 
+long output_record_audit_log_exit(struct record_audit_log_exit *ptr)
+{
+    if (!ptr)
+        return 0;
+    return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_AUDIT_LOG_EXIT, 0);
+}
+
 long output_record_as_dynptr(struct bpf_dynptr *ptr, record_type_t record_type){
     if (!ptr)
         return 0;

@@ -33,7 +33,7 @@ DIR_BUILD_B_E = $(DIR_BUILD_B)/events
 DIR_BUILD_B_H = $(DIR_BUILD_B)/helpers
 
 BPF_OBJS_B = $(DIR_BUILD_B)/license.bpf.o
-BPF_OBJS_B_E = $(DIR_BUILD_B_E)/accept.bpf.o $(DIR_BUILD_B_E)/connect.bpf.o $(DIR_BUILD_B_E)/process_namespace.bpf.o $(DIR_BUILD_B_E)/send_recv.bpf.o $(DIR_BUILD_B_E)/bind.bpf.o $(DIR_BUILD_B_E)/kill.bpf.o
+BPF_OBJS_B_E = $(DIR_BUILD_B_E)/accept.bpf.o $(DIR_BUILD_B_E)/connect.bpf.o $(DIR_BUILD_B_E)/process_namespace.bpf.o $(DIR_BUILD_B_E)/send_recv.bpf.o $(DIR_BUILD_B_E)/bind.bpf.o $(DIR_BUILD_B_E)/kill.bpf.o $(DIR_BUILD_B_E)/audit_log_exit.bpf.o
 BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event.bpf.o $(DIR_BUILD_B_H)/datatype.bpf.o $(DIR_BUILD_B_H)/copy.bpf.o $(DIR_BUILD_B_H)/output.bpf.o $(DIR_BUILD_B_H)/map.bpf.o $(DIR_BUILD_B_H)/log.bpf.o
 BPF_OBJS_ALL = $(BPF_OBJS_B) $(BPF_OBJS_B_E) $(BPF_OBJS_B_H)
 # END: Construction of BPF_OBJS_ALL

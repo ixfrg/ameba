@@ -262,3 +262,21 @@ int datatype_init_record_kill(
 
     return 0;
 }
+
+int datatype_init_record_audit_log_exit(
+    struct record_audit_log_exit *r_ale,
+    pid_t pid,
+    event_id_t event_id,
+    int syscall_number
+)
+{
+    if (!r_ale)
+        return 0;
+
+    datatype_init_elem_common(&(r_ale->e_common), RECORD_TYPE_AUDIT_LOG_EXIT);
+    datatype_init_elem_timestamp(&(r_ale->e_ts), event_id);
+
+    r_ale->pid = pid;
+    r_ale->syscall_number = syscall_number;
+    return 0;
+}
