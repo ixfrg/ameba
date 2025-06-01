@@ -28,12 +28,6 @@ struct
 } process_record_map_bind SEC(".maps");
 */
 
-static int is_bind_event_auditable(void)
-{
-    struct event_context e_ctx;
-    event_init_context(&e_ctx, bind_record_type);
-    return event_is_auditable(&e_ctx);
-}
 /*
 static int init_bind_map_key(struct map_key_process_record *map_key)
 {
@@ -242,9 +236,10 @@ int BPF_PROG(
 }
 */
 
-SEC("fexit/__sys_bind")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/__sys_bind",
     fexit__sys_bind,
+    RECORD_TYPE_BIND,
     int fd,
     struct sockaddr *sockaddr,
     int addrlen,
@@ -252,11 +247,6 @@ int BPF_PROG(
 )
 {
     if (ret == -1)
-    {
-        return 0;
-    }
-
-    if (!is_bind_event_auditable())
         return 0;
 
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
