@@ -63,6 +63,8 @@ int event_init_context(struct event_context *e_ctx, record_type_t r_type)
 
 event_id_t event_increment_id(void)
 {
+    // struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    // return BPF_CORE_READ(current_task, audit_context, stamp).serial;
     return __sync_fetch_and_add(&current_event_id, 1);
 }
 
