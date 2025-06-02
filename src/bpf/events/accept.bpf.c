@@ -41,13 +41,6 @@ struct
 } process_record_map_accept SEC(".maps");
 
 
-static int is_accept_event_auditable(void)
-{
-    struct event_context e_ctx;
-    event_init_context(&e_ctx, accept_record_type);
-    return event_is_auditable(&e_ctx);
-}
-
 static int init_accept_map_key(struct map_key_process_record_accept *map_key, accept_type_fd_t fd_type)
 {
     if (!map_key)
@@ -95,7 +88,7 @@ static int insert_accept_remote_map_entry_at_syscall_enter(sys_id_t sys_id)
 
 static int update_accept_map_entry_with_file(accept_type_fd_t fd_type, struct file *file)
 {
-    if (!file || !is_accept_event_auditable()){
+    if (!file){
         return 0;
     }
 
@@ -136,8 +129,6 @@ static int update_accept_remote_map_entry_with_file(struct file *file)
 
 static int insert_accept_map_entries_at_syscall_enter(sys_id_t sys_id, int fd)
 {
-    if (!is_accept_event_auditable())
-        return 0;
     insert_accept_local_map_entry_at_syscall_enter(sys_id, fd);
     insert_accept_remote_map_entry_at_syscall_enter(sys_id);
     return 0;
@@ -173,10 +164,6 @@ static int delete_accept_map_entries(void)
 
 static struct record_accept * update_accept_map_entry_on_syscall_exit(event_id_t event_id, accept_type_fd_t fd_type)
 {
-    if (!is_accept_event_auditable()){
-        return NULL;
-    }
-
     struct map_key_process_record_accept map_key;
     init_accept_map_key(&map_key, fd_type);
 
