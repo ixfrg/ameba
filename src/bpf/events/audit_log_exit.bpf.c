@@ -31,22 +31,12 @@ typedef enum
 } syscall_number_t;
 
 
-static int is_audit_log_exit_event_auditable(void)
-{
-    struct event_context e_ctx;
-    event_init_context(&e_ctx, RECORD_TYPE_AUDIT_LOG_EXIT);
-    return event_is_auditable(&e_ctx);
-}
-
-
-SEC("fexit/audit_log_exit")
-int BPF_PROG(
-    fexit__audit_log_exit
+int AMEBA_HOOK(
+    "fexit/audit_log_exit",
+    fexit__audit_log_exit,
+    RECORD_TYPE_AUDIT_LOG_EXIT
 )
 {
-    if (!is_audit_log_exit_event_auditable())
-        return 0;
-
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     int syscall_number = BPF_CORE_READ(current_task, audit_context, major);
 
