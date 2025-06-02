@@ -23,3 +23,4 @@ int datatype_zero_out_record_send_recv(struct record_send_recv *r_send_recv);
 int datatype_init_record_bind(struct record_bind *r_bind, pid_t pid, int fd);
 int datatype_zero_out_record_bind(struct record_bind *r_bind);
 int datatype_init_record_kill(struct record_kill *r_kill, pid_t acting_pid, pid_t target_pid, int sig);
+int datatype_init_record_audit_log_exit(struct record_audit_log_exit *r_ale, pid_t pid, event_id_t event_id, int syscall_number);
