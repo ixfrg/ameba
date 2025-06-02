@@ -28,13 +28,6 @@ struct
 } process_record_map SEC(".maps");
 
 
-static int is_connect_event_auditable(void)
-{
-    struct event_context e_ctx;
-    event_init_context(&e_ctx, connect_record_type);
-    return event_is_auditable(&e_ctx);
-}
-
 static int init_connect_map_key(struct map_key_process_record *map_key)
 {
     if (!map_key)
@@ -49,9 +42,6 @@ static int init_connect_map_key(struct map_key_process_record *map_key)
 
 static int insert_connect_map_entry_at_syscall_enter(void)
 {
-    if (!is_connect_event_auditable())
-        return 0;
-
     struct map_key_process_record map_key;
     init_connect_map_key(&map_key);
 
@@ -78,9 +68,6 @@ static int delete_connect_map_entry(void)
 
 static int update_connect_map_entry_with_local_saddr(struct file *connect_sock_file)
 {
-    if (!is_connect_event_auditable())
-        return 0;
-
     struct map_key_process_record map_key;
     init_connect_map_key(&map_key);
 
@@ -117,9 +104,6 @@ static int update_connect_map_entry_on_syscall_exit(
     int fd, struct sockaddr *addr, int addrlen, int ret
 )
 {
-    if (!is_connect_event_auditable())
-        return 0;
-
     struct map_key_process_record map_key;
     init_connect_map_key(&map_key);
 
@@ -143,9 +127,6 @@ static int update_connect_map_entry_on_syscall_exit(
 
 static int send_connect_map_entry_on_syscall_exit(void)
 {
-    if (!is_connect_event_auditable())
-        return 0;
-
     struct map_key_process_record map_key;
     init_connect_map_key(&map_key);
 
@@ -165,9 +146,10 @@ static int send_connect_map_entry_on_syscall_exit(void)
 }
 
 // hooks
-SEC("fentry/__sys_connect")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fentry/__sys_connect",
     fentry__sys_connect,
+    connect_record_type,
     int fd,
     struct sockaddr *sockaddr,
     int addrlen
@@ -177,9 +159,10 @@ int BPF_PROG(
     return 0;
 }
 
-SEC("fexit/__sys_connect")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/__sys_connect",
     fexit__sys_connect,
+    connect_record_type,
     int fd,
     struct sockaddr *sockaddr,
     int addrlen,
@@ -202,9 +185,10 @@ int BPF_PROG(
 }
 
 struct sockaddr_storage;
-SEC("fexit/__sys_connect_file")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/__sys_connect_file",
     fexit__sys_connect_file,
+    connect_record_type,
     struct file *file,
     struct sockaddr_storage *address,
     int addrlen,
