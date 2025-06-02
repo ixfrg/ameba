@@ -36,12 +36,6 @@ struct
     __type(value, struct record_kill);
 } process_record_map_kill SEC(".maps");
 
-static int is_kill_event_auditable(void)
-{
-    struct event_context e_ctx;
-    event_init_context(&e_ctx, kill_record_type);
-    return event_is_auditable(&e_ctx);
-}
 
 static int init_kill_map_key(struct map_key_process_record *map_key)
 {
@@ -57,8 +51,6 @@ static int init_kill_map_key(struct map_key_process_record *map_key)
 
 static int insert_kill_map_entry_at_syscall_enter(pid_t target_pid, int sig)
 {
-    if (!is_kill_event_auditable())
-        return 0;
 
     struct map_key_process_record map_key;
     init_kill_map_key(&map_key);
@@ -94,8 +86,6 @@ static int delete_kill_map_entry(void)
 
 static int update_kill_map_entry_on_syscall_exit(int ret)
 {
-    if (!is_kill_event_auditable())
-        return 0;
 
     struct map_key_process_record map_key;
     init_kill_map_key(&map_key);
@@ -133,8 +123,6 @@ static int update_kill_map_entry_on_syscall_exit(int ret)
 
 static int send_kill_map_entry_on_syscall_exit(void)
 {
-    if (!is_kill_event_auditable())
-        return 0;
 
     struct map_key_process_record map_key;
     init_kill_map_key(&map_key);
@@ -148,8 +136,12 @@ static int send_kill_map_entry_on_syscall_exit(void)
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_enter_kill")
-int trace_kill_enter(struct trace_event_raw_sys_enter *ctx)
+int AMEBA_HOOK_TP(
+    "tracepoint/syscalls/sys_enter_kill",
+    trace_kill_enter,
+    kill_record_type,
+    struct trace_event_raw_sys_enter *, ctx
+)
 {
     pid_t target_pid = BPF_CORE_READ(ctx, args[0]);
     int sig = BPF_CORE_READ(ctx, args[1]);
@@ -159,8 +151,12 @@ int trace_kill_enter(struct trace_event_raw_sys_enter *ctx)
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_exit_kill")
-int trace_kill_exit(struct trace_event_raw_sys_exit *ctx)
+int AMEBA_HOOK_TP(
+    "tracepoint/syscalls/sys_exit_kill",
+    trace_kill_exit,
+    kill_record_type,
+    struct trace_event_raw_sys_exit *, ctx
+)
 {
     long int ret = ctx->ret;
 
