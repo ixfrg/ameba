@@ -229,9 +229,10 @@ static int sys_accept_exit(int ret_fd)
 }
 
 struct proto_accept_arg;
-SEC("fexit/do_accept")
-int BPF_PROG(
-    fexit__do_accept,
+int AMEBA_HOOK(
+    "fexit/do_accept", 
+    fexit__do_accept, 
+    accept_record_type, 
     struct file *file,
     struct proto_accept_arg *arg,
 	struct sockaddr *upeer_sockaddr,
@@ -251,34 +252,50 @@ int BPF_PROG(
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_enter_accept")
-int trace_accept_enter(struct trace_event_raw_sys_enter *ctx)
+int AMEBA_HOOK_TP(
+    "tracepoint/syscalls/sys_enter_accept",
+    trace_accept_enter,
+    accept_record_type,
+    struct trace_event_raw_sys_enter *, sys_ctx
+)
 {
-    int fd = BPF_CORE_READ(ctx, args[0]);
+    int fd = BPF_CORE_READ(sys_ctx, args[0]);
     sys_accept_enter(SYS_ID_ACCEPT, fd);
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_enter_accept4")
-int trace_accept4_enter(struct trace_event_raw_sys_enter *ctx)
+int AMEBA_HOOK_TP(
+    "tracepoint/syscalls/sys_enter_accept4",
+    trace_accept4_enter,
+    accept_record_type,
+    struct trace_event_raw_sys_enter *, sys_ctx
+)
 {
-    int fd = BPF_CORE_READ(ctx, args[0]);
+    int fd = BPF_CORE_READ(sys_ctx, args[0]);
     sys_accept_enter(SYS_ID_ACCEPT4, fd);
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_exit_accept")
-int trace_accept_exit(struct trace_event_raw_sys_exit *ctx)
+int AMEBA_HOOK_TP(
+    "tracepoint/syscalls/sys_exit_accept",
+    trace_accept_exit,
+    accept_record_type,
+    struct trace_event_raw_sys_exit *, sys_ctx
+)
 {
-    int ret_fd = ctx->ret;
+    int ret_fd = BPF_CORE_READ(sys_ctx, ret);
     sys_accept_exit(ret_fd);
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_exit_accept4")
-int trace_accept4_exit(struct trace_event_raw_sys_exit *ctx)
+int AMEBA_HOOK_TP(
+    "tracepoint/syscalls/sys_exit_accept4",
+    trace_accept4_exit,
+    accept_record_type,
+    struct trace_event_raw_sys_exit *, sys_ctx
+)
 {
-    int ret_fd = ctx->ret;
+    int ret_fd = BPF_CORE_READ(sys_ctx, ret);
     sys_accept_exit(ret_fd);
     return 0;
 }
