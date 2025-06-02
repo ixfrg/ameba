@@ -13,10 +13,6 @@
 #include "bpf/helpers/output.bpf.h"
 
 
-// local globals
-static const record_type_t bind_record_type = RECORD_TYPE_BIND;
-// static const record_size_t bind_record_size = RECORD_SIZE_BIND;
-
 /*
 // maps
 struct
