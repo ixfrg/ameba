@@ -62,3 +62,4 @@ bin/bpftool.tar.gz
 *.txt
 
 src/test_main.c
+bin/utils

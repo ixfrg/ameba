@@ -53,6 +53,7 @@ LIBPF_SO = libbpf.so.1
 
 CLANG_BUILD_BPF_FLAGS = -D__TARGET_ARCH_$(ARCH) -O2 -Wall -mcpu=v4 -target bpf -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
 CLANG_BUILD_USER_FLAGS = -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
+CLANG_BUILD_UTILS_FLAGS = -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC)
 
 
 #download_bpftool:
@@ -96,7 +97,12 @@ clean:
 	-rm -r $(DIR_BUILD)
 
 
-all: $(DIR_BIN)/ameba
+build_utils: ./src/utils/types_info.c
+	@mkdir -p ./bin/utils
+	clang $(CLANG_BUILD_UTILS_FLAGS) $^ -o ./bin/utils/types_info
+
+
+all: $(DIR_BIN)/ameba build_utils
 
 ###
 
