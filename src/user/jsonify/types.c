@@ -238,6 +238,27 @@ static int jsonify_types_write_elem_timestamp(struct json_buffer *s, struct elem
     return total;
 }
 
+int jsonify_types_write_elem_las_timestamp(struct json_buffer *s, struct elem_las_timestamp *e_las_ts)
+{
+    char *s_child_buf = (char *)malloc(sizeof(char) * MAX_BUFFER_LEN);
+    if (!s_child_buf)
+        return 0;
+
+    struct json_buffer s_child;
+    jsonify_core_init(&s_child, s_child_buf, MAX_BUFFER_LEN);
+    jsonify_core_open_obj(&s_child);
+
+    jsonify_core_write_ulong(&s_child, "event_id", e_las_ts->event_id);
+    jsonify_core_write_timespec64(&s_child, "time", e_las_ts->tv_sec, e_las_ts->tv_nsec);
+
+    jsonify_core_close_obj(&s_child);
+
+    int total = 0;
+    total = jsonify_core_write_raw(s, "las_audit", &s_child.buf[0]);
+    free(s_child_buf);
+    return total;
+}
+
 int jsonify_types_write_common(
     struct json_buffer *s, struct elem_common *e_common, 
     struct elem_timestamp *e_ts, char *record_type_name

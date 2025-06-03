@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <time.h>
 
 #include "user/error.h"
 
@@ -134,5 +135,13 @@ int jsonify_core_write_long(struct json_buffer *s, const char *key, long val)
     int total = 0;
     total += jsonify_core_write_element_divider(s);
     total += jsonify_core_snprintf(s, "\"%s\":%ld", key, val);
+    return total;
+}
+
+int jsonify_core_write_timespec64(struct json_buffer *s, const char *key, long long tv_sec, long tv_nsec)
+{
+    int total = 0;
+    total += jsonify_core_write_element_divider(s);
+    total += jsonify_core_snprintf(s, "\"%s\":%llu.%03lu", key, (unsigned long long)tv_sec, tv_nsec/1000000);
     return total;
 }

@@ -126,6 +126,7 @@ int jsonify_record_audit_log_exit(struct json_buffer *s, struct record_audit_log
     total += jsonify_types_write_common(s, &(data->e_common), &(data->e_ts), "record_audit_log_exit");
     total += jsonify_types_write_pid(s, "pid", data->pid);
     total += jsonify_core_write_int(s, "syscall_number", data->syscall_number);
+    total += jsonify_types_write_elem_las_timestamp(s, &data->e_las_ts);
 
     return total;
 }

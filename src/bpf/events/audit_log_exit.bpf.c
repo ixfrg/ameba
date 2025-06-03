@@ -61,13 +61,15 @@ int AMEBA_HOOK(
     }
 
     const pid_t pid = BPF_CORE_READ(current_task, pid);
-    unsigned int event_id = BPF_CORE_READ(current_task, audit_context, stamp).serial;   
     
     struct record_audit_log_exit r_ale;
     datatype_init_record_audit_log_exit(
         &r_ale,
-        pid, event_id, syscall_number
+        pid, event_increment_id(), syscall_number
     );
+
+    struct audit_stamp a_s = BPF_CORE_READ(current_task, audit_context, stamp);
+    copy_las_timestamp_from_audit_context_timestamp(&(r_ale.e_las_ts), &a_s);
 
     output_record_audit_log_exit(&r_ale);
     return 0;

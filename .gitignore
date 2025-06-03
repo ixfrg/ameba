@@ -60,3 +60,5 @@ bin/bpftool.tar.gz
 
 *.bk
 *.txt
+
+src/test_main.c

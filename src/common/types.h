@@ -89,6 +89,13 @@ struct elem_sockaddr
     byte_order_t byte_order;
 };
 
+struct elem_las_timestamp
+{
+    unsigned long event_id;
+    long long tv_sec;
+	long tv_nsec;
+};
+
 struct record_new_process
 {
     struct elem_common e_common;
@@ -189,6 +196,7 @@ struct record_audit_log_exit
     struct elem_timestamp e_ts;
     pid_t pid;
     int syscall_number;
+    struct elem_las_timestamp e_las_ts;
 };
 
 typedef enum {

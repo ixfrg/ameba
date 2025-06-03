@@ -68,3 +68,17 @@ int copy_sockaddr_in6_remote_from_skc(struct elem_sockaddr *dst, struct sock_com
 
     return 0;
 }
+
+int copy_las_timestamp_from_audit_context_timestamp(struct elem_las_timestamp *dst, struct audit_stamp *a_s)
+{
+    if (!dst || !a_s)
+        return 0;
+
+    unsigned int las_event_id = BPF_CORE_READ(a_s, serial);   
+    struct timespec64 ctime = BPF_CORE_READ(a_s, ctime);
+    dst->event_id = las_event_id;
+    dst->tv_sec = ctime.tv_sec;
+    dst->tv_nsec = ctime.tv_nsec;
+
+    return 0;
+}
