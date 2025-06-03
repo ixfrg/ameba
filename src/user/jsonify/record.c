@@ -55,6 +55,7 @@ int jsonify_record_new_process(struct json_buffer *s, struct record_new_process 
     total += jsonify_types_write_pid(s, "ppid", data->ppid);
     total += jsonify_types_write_sys_id(s, data->sys_id);
     // total += str_buffer_state_json_write_str(&s, "comm", &data->comm[0]);
+    total += jsonify_types_write_elem_las_timestamp(s, &data->e_las_ts);
 
     return total;
 }

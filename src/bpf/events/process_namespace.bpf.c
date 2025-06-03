@@ -9,6 +9,7 @@
 #include "bpf/helpers/map.bpf.h"
 #include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
+#include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 
 
@@ -95,6 +96,8 @@ static int send_record_new_process(
         BPF_CORE_READ(parent_task, pid),
         sys_id
     );
+
+    copy_las_timestamp_from_current_task(&(r_np.e_las_ts));
 
     // bpf_probe_read_kernel(&r_np.comm[0], COMM_MAX_SIZE, &(BPF_CORE_READ(task, comm)[0]));
 

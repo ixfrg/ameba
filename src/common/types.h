@@ -104,6 +104,7 @@ struct record_new_process
     pid_t pid;
     sys_id_t sys_id;
     // char comm[COMM_MAX_SIZE];
+    struct elem_las_timestamp e_las_ts;
 };
 
 struct record_cred
