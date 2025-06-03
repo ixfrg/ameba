@@ -15,7 +15,7 @@
 
 // local globals
 static const record_type_t connect_record_type = RECORD_TYPE_CONNECT;
-static const record_size_t connect_record_size = RECORD_SIZE_CONNECT;
+// static const record_size_t connect_record_size = RECORD_SIZE_CONNECT;
 
 
 // maps
@@ -134,13 +134,14 @@ static int send_connect_map_entry_on_syscall_exit(void)
     if (!map_val)
         return 0;
 
-    struct bpf_dynptr ptr;
-    long dynptr_result = bpf_dynptr_from_mem(map_val, connect_record_size, 0, &ptr);
-    if (dynptr_result == 0){
-        output_record_as_dynptr(&ptr, connect_record_type);
-    } else {
-        LOG_WARN("[send_connect_map_entry_on_syscall_exit] Failed to create dynptr for record. Error = %ld", dynptr_result);
-    }
+    // struct bpf_dynptr ptr;
+    // long dynptr_result = bpf_dynptr_from_mem(map_val, connect_record_size, 0, &ptr);
+    // if (dynptr_result == 0){
+    //     output_record_as_dynptr(&ptr, connect_record_type);
+    // } else {
+    //     LOG_WARN("[send_connect_map_entry_on_syscall_exit] Failed to create dynptr for record. Error = %ld", dynptr_result);
+    // }
+    output_record_connect(map_val);
 
     return 0;
 }
