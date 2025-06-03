@@ -39,7 +39,7 @@ int writer_init()
     time_str = localtime(&current_time);
     strftime(filename, sizeof(filename), "/tmp/prov_%Y-%m-%d_%H:%M:%S.json", time_str);
 
-    fd = open(filename, O_RDWR | O_CREAT);
+    fd = open(filename, O_RDWR | O_CREAT, 0666);
 
     if (fd == -1)
     {
