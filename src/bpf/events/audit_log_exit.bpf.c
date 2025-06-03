@@ -10,6 +10,7 @@
 #include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
+#include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 
 
@@ -38,7 +39,13 @@ int AMEBA_HOOK(
 )
 {
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    int syscall_number = BPF_CORE_READ(current_task, audit_context, major);
+
+    struct audit_context *audit_context = BPF_CORE_READ(current_task, audit_context);
+
+    if (!audit_context)
+        return 0;
+
+    int syscall_number = BPF_CORE_READ(audit_context, major);
 
     switch (syscall_number)
     {
@@ -47,14 +54,17 @@ int AMEBA_HOOK(
         case SYS_BIND:
         case SYS_CONNECT:
         case SYS_KILL:
-        case SYS_SENDMSG:
-        case SYS_SENDTO:
-        case SYS_RECVMSG:
-        case SYS_RECVFROM:
         case SYS_SETNS:
         case SYS_UNSHARE:
         case SYS_CLONE:
         case SYS_CLONE3:
+            break;
+        case SYS_SENDMSG:
+        case SYS_SENDTO:
+        case SYS_RECVMSG:
+        case SYS_RECVFROM:
+            if (event_is_netio_set_to_ignore())
+                return 0; // do not log
             break;
         default:
             return 0; // do not log

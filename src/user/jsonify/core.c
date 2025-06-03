@@ -130,6 +130,14 @@ int jsonify_core_write_ulong(struct json_buffer *s, const char *key, unsigned lo
     return total;
 }
 
+int jsonify_core_write_ulonglong(struct json_buffer *s, const char *key, unsigned long long val)
+{
+    int total = 0;
+    total += jsonify_core_write_element_divider(s);
+    total += jsonify_core_snprintf(s, "\"%s\":%llu", key, val);
+    return total;
+}
+
 int jsonify_core_write_long(struct json_buffer *s, const char *key, long val)
 {
     int total = 0;

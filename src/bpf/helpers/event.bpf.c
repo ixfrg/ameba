@@ -147,6 +147,11 @@ int is_record_of_type_network_io(record_type_t t)
     }
 }
 
+int event_is_netio_set_to_ignore(void)
+{
+    return global_control_input.netio_mode == IGNORE;
+}
+
 int event_is_auditable(struct event_context *e_ctx)
 {
     if (!e_ctx)

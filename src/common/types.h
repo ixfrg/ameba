@@ -12,6 +12,7 @@ typedef unsigned short major_t;
 typedef unsigned char minor_t;
 typedef unsigned char patch_t;
 typedef unsigned int socklen_t;
+typedef unsigned long long task_ctx_id_t;
 
 
 // enums
@@ -75,6 +76,7 @@ struct elem_common
     magic_t magic;
     record_type_t record_type;
     struct elem_version version;
+    task_ctx_id_t task_ctx_id;
 };
 
 struct elem_timestamp
@@ -103,8 +105,8 @@ struct record_new_process
     pid_t ppid;
     pid_t pid;
     sys_id_t sys_id;
-    // char comm[COMM_MAX_SIZE];
-    struct elem_las_timestamp e_las_ts;
+    char comm[COMM_MAX_SIZE];
+    // struct elem_las_timestamp e_las_ts;
 };
 
 struct record_cred
