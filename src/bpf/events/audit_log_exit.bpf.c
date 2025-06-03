@@ -68,8 +68,7 @@ int AMEBA_HOOK(
         pid, event_increment_id(), syscall_number
     );
 
-    struct audit_stamp a_s = BPF_CORE_READ(current_task, audit_context, stamp);
-    copy_las_timestamp_from_audit_context_timestamp(&(r_ale.e_las_ts), &a_s);
+    copy_las_timestamp_from_current_task(&(r_ale.e_las_ts));
 
     output_record_audit_log_exit(&r_ale);
     return 0;

@@ -69,6 +69,14 @@ int copy_sockaddr_in6_remote_from_skc(struct elem_sockaddr *dst, struct sock_com
     return 0;
 }
 
+int copy_las_timestamp_from_current_task(struct elem_las_timestamp *dst)
+{
+    const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    struct audit_stamp a_s = BPF_CORE_READ(current_task, audit_context, stamp);
+    copy_las_timestamp_from_audit_context_timestamp(dst, &a_s);
+    return 0;
+}
+
 int copy_las_timestamp_from_audit_context_timestamp(struct elem_las_timestamp *dst, struct audit_stamp *a_s)
 {
     if (!dst || !a_s)
