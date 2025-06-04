@@ -32,6 +32,7 @@ DIR_SRC_B_E_A = $(DIR_SRC_B_E)/accept
 DIR_SRC_B_E_A_S = $(DIR_SRC_B_E_A)/storage
 DIR_SRC_B_E_ALE = $(DIR_SRC_B_E)/audit_log_exit
 DIR_SRC_B_E_B = $(DIR_SRC_B_E)/bind
+DIR_SRC_B_E_PN = $(DIR_SRC_B_E)/process_namespace
 DIR_SRC_B_H = $(DIR_SRC_B)/helpers
 
 DIR_BUILD_B = $(DIR_BUILD)/bpf
@@ -42,16 +43,18 @@ DIR_BUILD_B_E_A = $(DIR_BUILD_B_E)/accept
 DIR_BUILD_B_E_A_S = $(DIR_BUILD_B_E_A)/storage
 DIR_BUILD_B_E_ALE = $(DIR_BUILD_B_E)/audit_log_exit
 DIR_BUILD_B_E_B = $(DIR_BUILD_B_E)/bind
+DIR_BUILD_B_E_PN = $(DIR_BUILD_B_E)/process_namespace
 DIR_BUILD_B_H = $(DIR_BUILD_B)/helpers
 
 BPF_OBJS_B = $(DIR_BUILD_B)/license.bpf.o
-BPF_OBJS_B_E = $(DIR_BUILD_B_E)/process_namespace.bpf.o $(DIR_BUILD_B_E)/send_recv.bpf.o $(DIR_BUILD_B_E)/kill.bpf.o
+BPF_OBJS_B_E = $(DIR_BUILD_B_E)/send_recv.bpf.o $(DIR_BUILD_B_E)/kill.bpf.o
 BPF_OBJS_B_E_C = $(DIR_BUILD_B_E_C)/hook.bpf.o $(DIR_BUILD_B_E_C_S)/task.bpf.o
 BPF_OBJS_B_E_A = $(DIR_BUILD_B_E_A)/hook.bpf.o $(DIR_BUILD_B_E_A_S)/task.bpf.o
 BPF_OBJS_B_E_ALE = $(DIR_BUILD_B_E_ALE)/hook.bpf.o
 BPF_OBJS_B_E_B = $(DIR_BUILD_B_E_B)/hook.bpf.o
+BPF_OBJS_B_E_PN = $(DIR_BUILD_B_E_PN)/hook.bpf.o
 BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event.bpf.o $(DIR_BUILD_B_H)/datatype.bpf.o $(DIR_BUILD_B_H)/copy.bpf.o $(DIR_BUILD_B_H)/output.bpf.o $(DIR_BUILD_B_H)/map.bpf.o $(DIR_BUILD_B_H)/log.bpf.o
-BPF_OBJS_ALL = $(BPF_OBJS_B) $(BPF_OBJS_B_E) $(BPF_OBJS_B_H) $(BPF_OBJS_B_E_C) $(BPF_OBJS_B_E_A) $(BPF_OBJS_B_E_ALE) $(BPF_OBJS_B_E_B)
+BPF_OBJS_ALL = $(BPF_OBJS_B) $(BPF_OBJS_B_E) $(BPF_OBJS_B_H) $(BPF_OBJS_B_E_C) $(BPF_OBJS_B_E_A) $(BPF_OBJS_B_E_ALE) $(BPF_OBJS_B_E_B) $(BPF_OBJS_B_E_PN)
 # END: Construction of BPF_OBJS_ALL
 
 
