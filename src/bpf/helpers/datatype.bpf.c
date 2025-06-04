@@ -32,8 +32,10 @@ int datatype_init_elem_common(
     e_common->record_type = record_type;
     datatype_init_elem_version(&(e_common->version));
 
-    // struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    // e_common->task_ctx_id = (task_ctx_id_t)current_task;
+#ifdef INCLUDE_TASK_CTX_ID
+    struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    e_common->task_ctx_id = (task_ctx_id_t)current_task;
+#endif
     return 0;
 }
 
