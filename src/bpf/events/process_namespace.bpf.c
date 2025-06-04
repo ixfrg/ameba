@@ -47,6 +47,7 @@ static int send_record_cred(
 
 
 static int send_record_namespace(
+    struct task_struct *parent_task,
     struct task_struct *task,
     const sys_id_t sys_id
 )
@@ -70,6 +71,8 @@ static int send_record_namespace(
     r_ns.ns_net = BPF_CORE_READ(task, nsproxy, net_ns, ns).inum;
     r_ns.ns_pid_children = BPF_CORE_READ(task, nsproxy, pid_ns_for_children, ns).inum;
     r_ns.ns_usr = BPF_CORE_READ(task, cred, user_ns, ns).inum;
+
+    r_ns.ns_pid = BPF_CORE_READ(parent_task, nsproxy, pid_ns_for_children, ns).inum;
 
     output_record_namespace(&r_ns);
     return 0;
@@ -144,10 +147,12 @@ int BPF_PROG(
     if (ret == NULL)
         return 0;
 
+    const struct task_struct *parent_task = (struct task_struct *)bpf_get_current_task_btf();
+
     sys_id_t sys_id = get_sys_id_from_kernel_clone_args(args);
 
     send_record_new_process(ret, sys_id);
-    send_record_namespace(ret, sys_id);
+    send_record_namespace(parent_task, ret, sys_id);
     send_record_cred(ret, sys_id);
 
     return 0;
@@ -164,8 +169,9 @@ int BPF_PROG(
         return 0;
 
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    struct task_struct *parent_task = BPF_CORE_READ(current_task, real_parent);
     sys_id_t sys_id = SYS_ID_UNSHARE;
-    send_record_namespace(current_task, sys_id);
+    send_record_namespace(parent_task, current_task, sys_id);
     return 0;
 }
 
@@ -178,7 +184,8 @@ int trace_setns_exit(struct trace_event_raw_sys_exit *ctx)
         return 0;
 
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    struct task_struct *parent_task = BPF_CORE_READ(current_task, real_parent);
     sys_id_t sys_id = SYS_ID_SETNS;
-    send_record_namespace(current_task, sys_id);
+    send_record_namespace(parent_task, current_task, sys_id);
     return 0;
 }

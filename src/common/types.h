@@ -133,6 +133,7 @@ struct record_namespace
     sys_id_t sys_id;
     inode_num_t ns_ipc;
     inode_num_t ns_mnt;
+    inode_num_t ns_pid;
     inode_num_t ns_pid_children;
     inode_num_t ns_net;
     inode_num_t ns_cgroup;
@@ -199,6 +200,7 @@ struct record_audit_log_exit
     struct elem_timestamp e_ts;
     pid_t pid;
     int syscall_number;
+    long int ret;
     struct elem_las_timestamp e_las_ts;
 };
 

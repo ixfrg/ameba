@@ -39,6 +39,7 @@ int jsonify_record_namespace(struct json_buffer *s, struct record_namespace *dat
     total += jsonify_types_write_inode(s, "ns_ipc", data->ns_ipc);
     total += jsonify_types_write_inode(s, "ns_mnt", data->ns_mnt);
     total += jsonify_types_write_inode(s, "ns_pid_children", data->ns_pid_children);
+    total += jsonify_types_write_inode(s, "ns_pid", data->ns_pid);
     total += jsonify_types_write_inode(s, "ns_net", data->ns_net);
     total += jsonify_types_write_inode(s, "ns_cgroup", data->ns_cgroup);
     total += jsonify_types_write_inode(s, "ns_usr", data->ns_usr);
@@ -127,6 +128,7 @@ int jsonify_record_audit_log_exit(struct json_buffer *s, struct record_audit_log
     total += jsonify_types_write_common(s, &(data->e_common), &(data->e_ts), "record_audit_log_exit");
     total += jsonify_types_write_pid(s, "pid", data->pid);
     total += jsonify_core_write_int(s, "syscall_number", data->syscall_number);
+    total += jsonify_core_write_long(s, "exit", data->ret);
     total += jsonify_types_write_elem_las_timestamp(s, &data->e_las_ts);
 
     return total;

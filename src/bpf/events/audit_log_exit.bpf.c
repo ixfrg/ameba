@@ -78,6 +78,8 @@ int AMEBA_HOOK(
         pid, event_increment_id(), syscall_number
     );
 
+    r_ale.ret = BPF_CORE_READ(audit_context, return_code);
+
     copy_las_timestamp_from_current_task(&(r_ale.e_las_ts));
 
     output_record_audit_log_exit(&r_ale);
