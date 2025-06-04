@@ -8,6 +8,7 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/helpers/map.bpf.h"
 #include "bpf/helpers/event.bpf.h"
+#include "bpf/helpers/event_id.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/event.bpf.h"
@@ -75,7 +76,7 @@ int AMEBA_HOOK(
     struct record_audit_log_exit r_ale;
     datatype_init_record_audit_log_exit(
         &r_ale,
-        pid, event_increment_id(), syscall_number
+        pid, event_id_increment(), syscall_number
     );
 
     r_ale.ret = BPF_CORE_READ(audit_context, return_code);

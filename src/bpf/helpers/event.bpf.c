@@ -8,8 +8,6 @@
 #include "common/control.h"
 
 
-static event_id_t current_event_id = 0;
-
 static volatile control_lock_t global_control_lock = FREE;
 static volatile int global_control_input_is_set = 0;
 static struct control_input global_control_input;
@@ -59,13 +57,6 @@ int event_init_context(struct event_context *e_ctx, record_type_t r_type)
     }
 
     return 0;
-}
-
-event_id_t event_increment_id(void)
-{
-    // struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    // return BPF_CORE_READ(current_task, audit_context, stamp).serial;
-    return __sync_fetch_and_add(&current_event_id, 1);
 }
 
 static int is_int_in_control_input_id_list(int needle, int *haystack, const int haystack_len)

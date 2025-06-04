@@ -6,6 +6,7 @@
 
 #include "common/types.h"
 #include "bpf/helpers/log.bpf.h"
+#include "bpf/helpers/event_id.bpf.h"
 #include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
@@ -78,7 +79,7 @@ static int update_connect_map_entry_on_syscall_exit(
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
-    connect_storage_set_props_on_sys_exit(pid, fd, ret, event_increment_id());
+    connect_storage_set_props_on_sys_exit(pid, fd, ret, event_id_increment());
 
     struct elem_sockaddr remote;
     remote.byte_order = BYTE_ORDER_NETWORK;

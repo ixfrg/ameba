@@ -8,6 +8,7 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/helpers/map.bpf.h"
 #include "bpf/helpers/event.bpf.h"
+#include "bpf/helpers/event_id.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
@@ -107,7 +108,7 @@ static int sys_accept_exit(int ret_fd)
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
-    event_id_t event_id = event_increment_id();
+    event_id_t event_id = event_id_increment();
 
     accept_storage_set_local_fd_props_on_sys_exit(pid, event_id);
     accept_storage_set_remote_fd_props_on_sys_exit(pid, ret_fd, event_id);

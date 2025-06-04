@@ -8,6 +8,7 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/helpers/map.bpf.h"
 #include "bpf/helpers/event.bpf.h"
+#include "bpf/helpers/event_id.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
@@ -250,7 +251,7 @@ int AMEBA_HOOK(
 
     struct record_bind r_bind;
     datatype_init_record_bind(&r_bind, pid, fd);
-    r_bind.e_ts.event_id = event_increment_id();
+    r_bind.e_ts.event_id = event_id_increment();
 
     struct elem_sockaddr *local_sa = (struct elem_sockaddr *)&(r_bind.local);
     local_sa->byte_order = BYTE_ORDER_NETWORK;

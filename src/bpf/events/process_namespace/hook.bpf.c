@@ -8,6 +8,7 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/helpers/map.bpf.h"
 #include "bpf/helpers/event.bpf.h"
+#include "bpf/helpers/event_id.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
@@ -27,7 +28,7 @@ static __attribute__((unused)) int send_record_cred(
     struct record_cred r_c;
     datatype_init_record_cred(
         &r_c,
-        event_increment_id(),
+        event_id_increment(),
         BPF_CORE_READ(task, pid),
         sys_id
     );
@@ -61,7 +62,7 @@ static int send_record_namespace(
     struct record_namespace r_ns;
     datatype_init_record_namespace(
         &r_ns,
-        event_increment_id(),
+        event_id_increment(),
         BPF_CORE_READ(task, pid),
         sys_id
     );
@@ -94,7 +95,7 @@ static __attribute__((unused)) int send_record_new_process(
     struct record_new_process r_np;
     datatype_init_record_new_process(
         &r_np,
-        event_increment_id(),
+        event_id_increment(),
         BPF_CORE_READ(task, pid),
         BPF_CORE_READ(parent_task, pid),
         sys_id

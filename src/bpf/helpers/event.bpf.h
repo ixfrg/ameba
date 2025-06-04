@@ -17,7 +17,6 @@ struct event_context {
 };
 
 
-event_id_t event_increment_id(void);
 int event_is_auditable(struct event_context *e_ctx);
 int event_init_context(struct event_context *e_ctx, record_type_t r_type);
 int event_is_netio_set_to_ignore(void);

@@ -8,6 +8,7 @@
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/helpers/map.bpf.h"
 #include "bpf/helpers/event.bpf.h"
+#include "bpf/helpers/event_id.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
@@ -58,7 +59,7 @@ static int delete_kill_map_entry(void)
 
 static int update_kill_map_entry_on_syscall_exit(int ret)
 {
-    kill_storage_set_props_on_sys_exit(ret, event_increment_id());
+    kill_storage_set_props_on_sys_exit(ret, event_id_increment());
 
     if (ret == -1)
     {

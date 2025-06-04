@@ -63,7 +63,7 @@ BPF_OBJS_B_E_PN = $(DIR_BUILD_B_E_PN)/hook.bpf.o
 BPF_OBJS_B_E_K = $(DIR_BUILD_B_E_K)/hook.bpf.o $(DIR_BUILD_B_E_K_S)/task.bpf.o
 BPF_OBJS_B_E_SR = $(DIR_BUILD_B_E_SR)/hook.bpf.o $(DIR_BUILD_B_E_SR_S)/task.bpf.o
 BPF_OBJS_B_HOOKS = $(BPF_OBJS_B_E_C) $(BPF_OBJS_B_E_A) $(BPF_OBJS_B_E_ALE) $(BPF_OBJS_B_E_B) $(BPF_OBJS_B_E_PN) $(BPF_OBJS_B_E_K) $(BPF_OBJS_B_E_SR)
-BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event.bpf.o $(DIR_BUILD_B_H)/datatype.bpf.o $(DIR_BUILD_B_H)/copy.bpf.o $(DIR_BUILD_B_H)/output.bpf.o $(DIR_BUILD_B_H)/map.bpf.o $(DIR_BUILD_B_H)/log.bpf.o
+BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event.bpf.o $(DIR_BUILD_B_H)/event_id.bpf.o $(DIR_BUILD_B_H)/datatype.bpf.o $(DIR_BUILD_B_H)/copy.bpf.o $(DIR_BUILD_B_H)/output.bpf.o $(DIR_BUILD_B_H)/map.bpf.o $(DIR_BUILD_B_H)/log.bpf.o
 BPF_OBJS_ALL = $(BPF_OBJS_B) $(BPF_OBJS_B_E) $(BPF_OBJS_B_H) $(BPF_OBJS_B_HOOKS)
 # END: Construction of BPF_OBJS_ALL
 
