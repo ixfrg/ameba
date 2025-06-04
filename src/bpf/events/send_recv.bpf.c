@@ -159,18 +159,20 @@ static int send_send_recv_map_entry_on_syscall_exit(void)
 
 // Begin syscall sys_sendto 
 // hooks
-SEC("fentry/__sys_sendto")
-int BPF_PROG(
-    fentry__sys_sendto
+int AMEBA_HOOK(
+    "fentry/__sys_sendto",
+    fentry__sys_sendto,
+    RECORD_TYPE_SEND_RECV
 )
 {
     insert_send_recv_map_entry_at_syscall_enter(SYS_ID_SENDTO);
     return 0;
 }
 
-SEC("fexit/__sys_sendto")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/__sys_sendto",
     fexit__sys_sendto,
+    RECORD_TYPE_SEND_RECV,
     int fd, 
     void *buff, 
     size_t len, 
@@ -194,18 +196,20 @@ int BPF_PROG(
 
 // Begin syscall sys_sendmsg
 // hooks
-SEC("fentry/__sys_sendmsg")
-int BPF_PROG(
-    fentry__sys_sendmsg
+int AMEBA_HOOK(
+    "fentry/__sys_sendmsg",
+    fentry__sys_sendmsg,
+    RECORD_TYPE_SEND_RECV
 )
 {
     insert_send_recv_map_entry_at_syscall_enter(SYS_ID_SENDMSG);
     return 0;
 }
 
-SEC("fexit/__sys_sendmsg")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/__sys_sendmsg",
     fexit__sys_sendmsg,
+    RECORD_TYPE_SEND_RECV,
     int fd, 
     struct user_msghdr *msg, 
     unsigned int flags,
@@ -235,18 +239,20 @@ int BPF_PROG(
 
 // Begin syscall sys_recvfrom
 // hooks
-SEC("fentry/__sys_recvfrom")
-int BPF_PROG(
-    fentry__sys_recvfrom
+int AMEBA_HOOK(
+    "fentry/__sys_recvfrom",
+    fentry__sys_recvfrom,
+    RECORD_TYPE_SEND_RECV
 )
 {
     insert_send_recv_map_entry_at_syscall_enter(SYS_ID_RECVFROM);
     return 0;
 }
 
-SEC("fexit/__sys_recvfrom")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/__sys_recvfrom",
     fexit__sys_recvfrom,
+    RECORD_TYPE_SEND_RECV,
     int fd, 
     void *buff, 
     size_t len, 
@@ -270,18 +276,20 @@ int BPF_PROG(
 
 // Begin syscall sys_recvmsg
 // hooks
-SEC("fentry/__sys_recvmsg")
-int BPF_PROG(
-    fentry__sys_recvmsg
+int AMEBA_HOOK(
+    "fentry/__sys_recvmsg",
+    fentry__sys_recvmsg,
+    RECORD_TYPE_SEND_RECV
 )
 {
     insert_send_recv_map_entry_at_syscall_enter(SYS_ID_RECVMSG);
     return 0;
 }
 
-SEC("fexit/__sys_recvmsg")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/__sys_recvmsg",
     fexit__sys_recvmsg,
+    RECORD_TYPE_SEND_RECV,
     int fd, 
     struct user_msghdr *msg, 
     unsigned int flags,
@@ -309,9 +317,10 @@ int BPF_PROG(
 // End syscall sys_recvmsg
 
 // Intermediate state update functions
-SEC("fexit/__sock_sendmsg")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/__sock_sendmsg",
     fexit__sock_sendmsg,
+    RECORD_TYPE_SEND_RECV,
     struct socket *sock,
     struct msghdr *msg,
     int ret
@@ -328,9 +337,10 @@ int BPF_PROG(
     return 0;
 }
 
-SEC("fexit/sock_recvmsg")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/sock_recvmsg",
     fexit__sock_recvmsg,
+    RECORD_TYPE_SEND_RECV,
     struct socket *sock,
     struct msghdr *msg,
     int flags,

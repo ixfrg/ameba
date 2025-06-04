@@ -147,7 +147,7 @@ int BPF_PROG(
     if (ret == NULL)
         return 0;
 
-    const struct task_struct *parent_task = (struct task_struct *)bpf_get_current_task_btf();
+    struct task_struct *parent_task = (struct task_struct *)bpf_get_current_task_btf();
 
     sys_id_t sys_id = get_sys_id_from_kernel_clone_args(args);
 
