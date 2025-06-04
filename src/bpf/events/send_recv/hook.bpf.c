@@ -11,56 +11,18 @@
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
+#include "bpf/events/send_recv/storage.bpf.h"
 
-
-// local globals
-static const record_type_t send_recv_record_type = RECORD_TYPE_SEND_RECV;
-
-
-// maps
-struct
-{
-    __uint(type, BPF_MAP_TYPE_HASH);
-    __uint(max_entries, MAPS_HASH_MAP_MAX_ENTRIES); // TODO
-    __type(key, struct map_key_process_record);
-    __type(value, struct record_send_recv);
-} process_record_map_send_recv SEC(".maps");
-
-
-static int is_send_recv_event_auditable(void)
-{
-    struct event_context e_ctx;
-    event_init_context(&e_ctx, RECORD_TYPE_SEND_RECV);
-    return event_is_auditable(&e_ctx);
-}
-
-static int init_send_recv_map_key(struct map_key_process_record *map_key)
-{
-    if (!map_key)
-        return 0;
-
-    const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    const pid_t pid = BPF_CORE_READ(current_task, pid);
-
-    map_init_map_key_process_record(map_key, pid, send_recv_record_type);
-    return 0;
-}
 
 static int insert_send_recv_map_entry_at_syscall_enter(sys_id_t sys_id)
 {
-    if (!is_send_recv_event_auditable())
-        return 0;
-
-    struct map_key_process_record map_key;
-    init_send_recv_map_key(&map_key);
-
     struct record_send_recv map_val;
     datatype_zero_out_record_send_recv(&map_val);
     map_val.sys_id = sys_id;
-    long result = bpf_map_update_elem(&process_record_map_send_recv, &map_key, (void *)&map_val, BPF_ANY);
-    if (result != 0)
+
+    if (!send_recv_storage_insert(&map_val))
     {
-        LOG_WARN("[insert_send_recv_map_entry_at_syscall_enter] Failed to do map insert. Error = %ld", result);
+        LOG_WARN("[insert_send_recv_map_entry_at_syscall_enter] Failed to do map insert.");
     }
 
     return 0;
@@ -68,27 +30,13 @@ static int insert_send_recv_map_entry_at_syscall_enter(sys_id_t sys_id)
 
 static int delete_send_recv_map_entry(void)
 {
-    struct map_key_process_record map_key;
-    init_send_recv_map_key(&map_key);
-
-    bpf_map_delete_elem(&process_record_map_send_recv, &map_key);
+    send_recv_storage_delete();
 
     return 0;
 }
 
 static int update_send_recv_map_entry_with_local_saddr(struct socket *sock)
 {
-    if (!is_send_recv_event_auditable())
-        return 0;
-
-    struct map_key_process_record map_key;
-    init_send_recv_map_key(&map_key);
-
-    struct record_send_recv *map_val = bpf_map_lookup_elem(&process_record_map_send_recv, &map_key);
-    if (!map_val)
-    {
-        return 0;
-    }
 
     if (!sock)
     {
@@ -96,13 +44,23 @@ static int update_send_recv_map_entry_with_local_saddr(struct socket *sock)
         return 0;
     }
 
+    int sockaddrs_are_set = 0;
+    struct elem_sockaddr local, remote;
+
     struct sock_common sk_c = BPF_CORE_READ(sock, sk, __sk_common);
     if (sk_c.skc_family == AF_INET) {
-        copy_sockaddr_in_local_from_skc(&(map_val->local), &sk_c);
-        copy_sockaddr_in_remote_from_skc(&(map_val->remote), &sk_c);
+        copy_sockaddr_in_local_from_skc(&(local), &sk_c);
+        copy_sockaddr_in_remote_from_skc(&(remote), &sk_c);
+        sockaddrs_are_set = 1;
     } else if (sk_c.skc_family == AF_INET6) {
-        copy_sockaddr_in6_local_from_skc(&(map_val->local), &sk_c);
-        copy_sockaddr_in6_remote_from_skc(&(map_val->remote), &sk_c);
+        copy_sockaddr_in6_local_from_skc(&(local), &sk_c);
+        copy_sockaddr_in6_remote_from_skc(&(remote), &sk_c);
+        sockaddrs_are_set = 1;
+    }
+
+    if (sockaddrs_are_set)
+    {
+        send_recv_storage_set_saddrs(&local, &remote);
     }
 
     return 0;
@@ -112,48 +70,27 @@ static int update_send_recv_map_entry_on_syscall_exit(
     int fd, struct sockaddr *addr, int addrlen, ssize_t ret
 )
 {
-    if (!is_send_recv_event_auditable())
-        return 0;
-
-    struct map_key_process_record map_key;
-    init_send_recv_map_key(&map_key);
-
-    struct record_send_recv *map_val = bpf_map_lookup_elem(&process_record_map_send_recv, &map_key);
-    if (!map_val)
-        return 0;
-
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
-    datatype_init_record_send_recv(map_val, pid, fd, ret);
-    map_val->e_ts.event_id = event_increment_id();
+    send_recv_storage_set_props_on_sys_exit(pid, fd, ret, event_increment_id());
 
-    if (addr)
-    {
-        // Sometimes NULL like in send/sendmsg syscall.
-        struct elem_sockaddr *remote_sa = (struct elem_sockaddr *)&(map_val->remote);
-        remote_sa->byte_order = BYTE_ORDER_NETWORK;
-        remote_sa->addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
-        bpf_probe_read_user(&(remote_sa->addr[0]), remote_sa->addrlen, addr);
-    }
+    // Shouldn't have to do the following since we got it from another hook
+    // if (addr)
+    // {
+    //     // Sometimes NULL like in send/sendmsg syscall.
+    //     struct elem_sockaddr *remote_sa = (struct elem_sockaddr *)&(map_val->remote);
+    //     remote_sa->byte_order = BYTE_ORDER_NETWORK;
+    //     remote_sa->addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
+    //     bpf_probe_read_user(&(remote_sa->addr[0]), remote_sa->addrlen, addr);
+    // }
 
     return 0;
 }
 
 static int send_send_recv_map_entry_on_syscall_exit(void)
 {
-    if (!is_send_recv_event_auditable())
-        return 0;
-
-    struct map_key_process_record map_key;
-    init_send_recv_map_key(&map_key);
-
-    struct record_send_recv *map_val = bpf_map_lookup_elem(&process_record_map_send_recv, &map_key);
-    if (!map_val)
-        return 0;
-
-    output_record_send_recv(map_val);
-
+    send_recv_storage_output();
     return 0;
 }
 
