@@ -11,6 +11,7 @@
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
+#include "bpf/helpers/task_storage/connect.bpf.h"
 
 
 // local globals
@@ -18,36 +19,11 @@ static const record_type_t connect_record_type = RECORD_TYPE_CONNECT;
 // static const record_size_t connect_record_size = RECORD_SIZE_CONNECT;
 
 
-// maps
-struct
-{
-    __uint(type, BPF_MAP_TYPE_HASH);
-    __uint(max_entries, MAPS_HASH_MAP_MAX_ENTRIES); // TODO
-    __type(key, struct map_key_process_record);
-    __type(value, struct record_connect);
-} process_record_map SEC(".maps");
-
-
-static int init_connect_map_key(struct map_key_process_record *map_key)
-{
-    if (!map_key)
-        return 0;
-
-    const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    const pid_t pid = BPF_CORE_READ(current_task, pid);
-
-    map_init_map_key_process_record(map_key, pid, connect_record_type);
-    return 0;
-}
-
 static int insert_connect_map_entry_at_syscall_enter(void)
 {
-    struct map_key_process_record map_key;
-    init_connect_map_key(&map_key);
-
     struct record_connect map_val;
     datatype_zero_out_record_connect(&map_val);
-    long result = bpf_map_update_elem(&process_record_map, &map_key, (void *)&map_val, BPF_ANY);
+    int result = task_storage_connect_insert(&map_val);
     if (result != 0)
     {
         LOG_WARN("[insert_connect_map_entry_at_syscall_enter] Failed to do map insert. Error = %ld", result);
@@ -58,25 +34,13 @@ static int insert_connect_map_entry_at_syscall_enter(void)
 
 static int delete_connect_map_entry(void)
 {
-    struct map_key_process_record map_key;
-    init_connect_map_key(&map_key);
-
-    bpf_map_delete_elem(&process_record_map, &map_key);
+    task_storage_connect_delete();
 
     return 0;
 }
 
 static int update_connect_map_entry_with_local_saddr(struct file *connect_sock_file)
 {
-    struct map_key_process_record map_key;
-    init_connect_map_key(&map_key);
-
-    struct record_connect *map_val = bpf_map_lookup_elem(&process_record_map, &map_key);
-    if (!map_val)
-    {
-        return 0;
-    }
-
     struct socket *sock = bpf_sock_from_file(connect_sock_file);
     if (!sock)
     {
@@ -84,18 +48,26 @@ static int update_connect_map_entry_with_local_saddr(struct file *connect_sock_f
         return 0;
     }
 
+    int local_is_set = 0;
+    struct elem_sockaddr local;
+
     struct sock_common sk_c = BPF_CORE_READ(sock, sk, __sk_common);
     switch (sk_c.skc_family)
     {
         case AF_INET:
-            copy_sockaddr_in_local_from_skc(&(map_val->local), &sk_c);
+            copy_sockaddr_in_local_from_skc(&local, &sk_c);
+            local_is_set = 1;
             break;
         case AF_INET6:
-            copy_sockaddr_in6_local_from_skc(&(map_val->local), &sk_c);
+            copy_sockaddr_in6_local_from_skc(&local, &sk_c);
+            local_is_set = 1;
             break;
         default:
             break;
     }
+
+    if (local_is_set)
+        task_storage_connect_set_local(&local);
 
     return 0;
 }
@@ -104,44 +76,23 @@ static int update_connect_map_entry_on_syscall_exit(
     int fd, struct sockaddr *addr, int addrlen, int ret
 )
 {
-    struct map_key_process_record map_key;
-    init_connect_map_key(&map_key);
-
-    struct record_connect *map_val = bpf_map_lookup_elem(&process_record_map, &map_key);
-    if (!map_val)
-        return 0;
-
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
-    datatype_init_record_connect(map_val, pid, fd, ret);
-    map_val->e_ts.event_id = event_increment_id();
+    task_storage_connect_set_props_on_sys_exit(pid, fd, ret, event_increment_id());
 
-    struct elem_sockaddr *remote_sa = (struct elem_sockaddr *)&(map_val->remote);
-    remote_sa->byte_order = BYTE_ORDER_NETWORK;
-    remote_sa->addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
-    bpf_probe_read_user(&(remote_sa->addr[0]), remote_sa->addrlen, addr);
+    struct elem_sockaddr remote;
+    remote.byte_order = BYTE_ORDER_NETWORK;
+    remote.addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
+    bpf_probe_read_user(&(remote.addr[0]), remote.addrlen, addr);
+    task_storage_connect_set_remote(&remote);
 
     return 0;
 }
 
 static int send_connect_map_entry_on_syscall_exit(void)
 {
-    struct map_key_process_record map_key;
-    init_connect_map_key(&map_key);
-
-    struct record_connect *map_val = bpf_map_lookup_elem(&process_record_map, &map_key);
-    if (!map_val)
-        return 0;
-
-    // struct bpf_dynptr ptr;
-    // long dynptr_result = bpf_dynptr_from_mem(map_val, connect_record_size, 0, &ptr);
-    // if (dynptr_result == 0){
-    //     output_record_as_dynptr(&ptr, connect_record_type);
-    // } else {
-    //     LOG_WARN("[send_connect_map_entry_on_syscall_exit] Failed to create dynptr for record. Error = %ld", dynptr_result);
-    // }
-    output_record_connect(map_val);
+    task_storage_connect_output();
 
     return 0;
 }
