@@ -17,7 +17,7 @@ struct
 } task_map_connect SEC(".maps");
 
 
-int task_storage_connect_insert(struct record_connect *map_val)
+int connect_storage_insert(struct record_connect *map_val)
 {
     if (!map_val)
         return 0;
@@ -26,13 +26,13 @@ int task_storage_connect_insert(struct record_connect *map_val)
     return result != NULL;
 }
 
-int task_storage_connect_delete(void)
+int connect_storage_delete(void)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     return bpf_task_storage_delete(&task_map_connect, current_task);
 }
 
-int task_storage_connect_set_props_on_sys_exit(pid_t pid, int fd, int ret, event_id_t event_id)
+int connect_storage_set_props_on_sys_exit(pid_t pid, int fd, int ret, event_id_t event_id)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     struct record_connect *result = bpf_task_storage_get(&task_map_connect, current_task, NULL, 0);
@@ -45,7 +45,7 @@ int task_storage_connect_set_props_on_sys_exit(pid_t pid, int fd, int ret, event
     return 0;
 }
 
-int task_storage_connect_set_local(struct elem_sockaddr *local)
+int connect_storage_set_local(struct elem_sockaddr *local)
 {
     if (!local)
         return 0;
@@ -57,7 +57,7 @@ int task_storage_connect_set_local(struct elem_sockaddr *local)
     return 0;
 }
 
-int task_storage_connect_set_remote(struct elem_sockaddr *remote)
+int connect_storage_set_remote(struct elem_sockaddr *remote)
 {
     if (!remote)
         return 0;
@@ -69,7 +69,7 @@ int task_storage_connect_set_remote(struct elem_sockaddr *remote)
     return 0;
 }
 
-int task_storage_connect_output(void)
+int connect_storage_output(void)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     struct record_connect *result = bpf_task_storage_get(&task_map_connect, current_task, NULL, 0);

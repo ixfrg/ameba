@@ -6,12 +6,11 @@
 
 #include "common/types.h"
 #include "bpf/helpers/log.bpf.h"
-#include "bpf/helpers/map.bpf.h"
 #include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
-#include "bpf/helpers/task_storage/connect.bpf.h"
+#include "bpf/events/connect/storage.bpf.h"
 
 
 // local globals
@@ -23,7 +22,7 @@ static int insert_connect_map_entry_at_syscall_enter(void)
 {
     struct record_connect map_val;
     datatype_zero_out_record_connect(&map_val);
-    int result = task_storage_connect_insert(&map_val);
+    int result = connect_storage_insert(&map_val);
     if (result != 0)
     {
         LOG_WARN("[insert_connect_map_entry_at_syscall_enter] Failed to do map insert. Error = %ld", result);
@@ -34,7 +33,7 @@ static int insert_connect_map_entry_at_syscall_enter(void)
 
 static int delete_connect_map_entry(void)
 {
-    task_storage_connect_delete();
+    connect_storage_delete();
 
     return 0;
 }
@@ -67,7 +66,7 @@ static int update_connect_map_entry_with_local_saddr(struct file *connect_sock_f
     }
 
     if (local_is_set)
-        task_storage_connect_set_local(&local);
+        connect_storage_set_local(&local);
 
     return 0;
 }
@@ -79,20 +78,20 @@ static int update_connect_map_entry_on_syscall_exit(
     const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
-    task_storage_connect_set_props_on_sys_exit(pid, fd, ret, event_increment_id());
+    connect_storage_set_props_on_sys_exit(pid, fd, ret, event_increment_id());
 
     struct elem_sockaddr remote;
     remote.byte_order = BYTE_ORDER_NETWORK;
     remote.addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
     bpf_probe_read_user(&(remote.addr[0]), remote.addrlen, addr);
-    task_storage_connect_set_remote(&remote);
+    connect_storage_set_remote(&remote);
 
     return 0;
 }
 
 static int send_connect_map_entry_on_syscall_exit(void)
 {
-    task_storage_connect_output();
+    connect_storage_output();
 
     return 0;
 }
