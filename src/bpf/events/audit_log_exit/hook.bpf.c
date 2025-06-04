@@ -73,10 +73,16 @@ int AMEBA_HOOK(
 
     const pid_t pid = BPF_CORE_READ(current_task, pid);
     
+    event_id_t event_id = event_id_increment();
+    // if (!event_id_get_last_from_task_map(&event_id))
+    // {
+    //     LOG_WARN("[fexit__audit_log_exit] Failed to get event id");
+    // }
+
     struct record_audit_log_exit r_ale;
     datatype_init_record_audit_log_exit(
         &r_ale,
-        pid, event_id_increment(), syscall_number
+        pid, event_id, syscall_number
     );
 
     r_ale.ret = BPF_CORE_READ(audit_context, return_code);
