@@ -13,7 +13,7 @@
 #include "bpf/helpers/output.bpf.h"
 
 
-static int send_record_cred(
+static __attribute__((unused)) int send_record_cred(
     struct task_struct *task,
     const sys_id_t sys_id
 )
@@ -78,7 +78,7 @@ static int send_record_namespace(
     return 0;
 }
 
-static int send_record_new_process(
+static __attribute__((unused)) int send_record_new_process(
     struct task_struct *task,
     sys_id_t sys_id
 )
@@ -128,15 +128,10 @@ static sys_id_t get_sys_id_from_kernel_clone_args(struct kernel_clone_args *args
     return sys_id;
 }
 
-// SEC("fexit/kernel_clone")
-// int BPF_PROG(
-//     fexit__kernel_clone,
-//     struct kernel_clone_args *args,
-//     pid_t ret
-// )
-SEC("fexit/copy_process")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/copy_process",
     fexit__copy_process,
+    RECORD_TYPE_NAMESPACE,
     struct pid *s_pid,
     int trace,
     int node,
@@ -151,16 +146,17 @@ int BPF_PROG(
 
     sys_id_t sys_id = get_sys_id_from_kernel_clone_args(args);
 
-    send_record_new_process(ret, sys_id);
+    // send_record_new_process(ret, sys_id);
     send_record_namespace(parent_task, ret, sys_id);
-    send_record_cred(ret, sys_id);
+    // send_record_cred(ret, sys_id);
 
     return 0;
 }
 
-SEC("fexit/ksys_unshare")
-int BPF_PROG(
+int AMEBA_HOOK(
+    "fexit/ksys_unshare",
     fexit__ksys_unshare,
+    RECORD_TYPE_NAMESPACE,
     unsigned long unshare_flags,
     int ret
 )
@@ -175,8 +171,12 @@ int BPF_PROG(
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_exit_setns")
-int trace_setns_exit(struct trace_event_raw_sys_exit *ctx)
+int AMEBA_HOOK_TP(
+    "tracepoint/syscalls/sys_exit_setns",
+    trace_setns_exit,
+    RECORD_TYPE_NAMESPACE,
+    struct trace_event_raw_sys_exit *, ctx
+)
 {
     long int ret = ctx->ret;
 
