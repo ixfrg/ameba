@@ -269,7 +269,7 @@ int jsonify_types_write_common(
     total += jsonify_types_write_record_type(s, "record_type", e_common->record_type);
     total += jsonify_types_write_version(s, "record_version", &e_common->version);
     total += jsonify_types_write_elem_timestamp(s, e_ts);
-    total += jsonify_core_write_ulonglong(s, "task_ctx_id", e_common->task_ctx_id);
+    // total += jsonify_core_write_ulonglong(s, "task_ctx_id", e_common->task_ctx_id);
     return total;
 }
 

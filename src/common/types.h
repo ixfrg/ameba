@@ -76,7 +76,7 @@ struct elem_common
     magic_t magic;
     record_type_t record_type;
     struct elem_version version;
-    task_ctx_id_t task_ctx_id;
+    // task_ctx_id_t task_ctx_id;
 };
 
 struct elem_timestamp
