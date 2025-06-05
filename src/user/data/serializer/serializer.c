@@ -2,10 +2,10 @@
 #include <sys/types.h>
 
 #include "common/types.h"
-#include "user/data/converter/converter.h"
+#include "user/data/serializer/serializer.h"
 
 
-long data_converter_common(void *dst, size_t dst_len, void *data, size_t data_len)
+long data_serializer_common(void *dst, size_t dst_len, void *data, size_t data_len)
 {
     if (dst == NULL)
         return ERR_DST_INVALID;

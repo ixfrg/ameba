@@ -1,11 +1,11 @@
 #include <stddef.h>
-#include "user/data/converter/converter.h"
+#include "user/data/serializer/serializer.h"
 #include "user/jsonify/record.h"
 
 
-static long data_converter_json_convert(void *dst, size_t dst_len, void *data, size_t data_len)
+static long data_serializer_json_serialize(void *dst, size_t dst_len, void *data, size_t data_len)
 {
-    int err = data_converter_common(dst, dst_len, data, data_len);
+    int err = data_serializer_common(dst, dst_len, data, data_len);
     if (err != 0)
         return err;
 
@@ -35,6 +35,6 @@ static long data_converter_json_convert(void *dst, size_t dst_len, void *data, s
 }
 
 
-const struct data_converter data_converter_json = {
-    .convert = data_converter_json_convert
+const struct data_serializer data_serializer_json = {
+    .serialize = data_serializer_json_serialize
 };

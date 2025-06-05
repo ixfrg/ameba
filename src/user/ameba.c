@@ -20,18 +20,18 @@
 #include "common/constants.h"
 #include "user/error.h"
 
-#include "user/data/converter/converter.h"
+#include "user/data/serializer/serializer.h"
 #include "user/data/writer/writer.h"
 
 #include "ameba.skel.h"
 
 
-extern const struct data_converter data_converter_json;
+extern const struct data_serializer data_serializer_json;
 extern const struct data_writer data_writer_file;
 
 static const char *log_prefix = "[ameba] [user]";
 
-static const struct data_converter *default_data_converter;
+static const struct data_serializer *default_data_serializer;
 static const struct data_writer *default_data_writer;
 
 static struct ameba *skel = NULL;
@@ -41,7 +41,7 @@ static int init_output_writer(){
     const char *prov_output_json_path = "/tmp/current_log.json";
     const char *prov_output_bin_path = "/tmp/current_log.bin";
 
-    default_data_converter = &data_converter_json;
+    default_data_serializer = &data_serializer_json;
     default_data_writer = &data_writer_file;
 
     int writer_init_error = default_data_writer->set_init_args(
@@ -74,7 +74,7 @@ static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
     if (!dst)
         goto exit;
 
-    long data_copied_to_dst = default_data_converter->convert(dst, dst_len, data, data_len);
+    long data_copied_to_dst = default_data_serializer->serialize(dst, dst_len, data, data_len);
     if (data_copied_to_dst <= 0)
     {
         printf("%s : Failed data conversion. Error: %lu\n", log_prefix, data_copied_to_dst);

@@ -25,10 +25,10 @@
         0    -> No error
         +ive -> Undefined
 */
-long data_converter_common(void *dst, size_t dst_len, void *data, size_t data_len);
+long data_serializer_common(void *dst, size_t dst_len, void *data, size_t data_len);
 
 
-struct data_converter {
+struct data_serializer {
 
     /*
         Convert the 'data' to a different format.
@@ -40,6 +40,6 @@ struct data_converter {
             0    -> Undefined
 
     */
-    long (*convert)(void *dst, size_t dst_len, void *data, size_t data_len);
+    long (*serialize)(void *dst, size_t dst_len, void *data, size_t data_len);
 
 };
