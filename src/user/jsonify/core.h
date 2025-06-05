@@ -26,4 +26,5 @@ int jsonify_core_write_raw(struct json_buffer *s, const char *key, const char *v
 int jsonify_core_write_ulong(struct json_buffer *s, const char *key, unsigned long val);
 int jsonify_core_write_ulonglong(struct json_buffer *s, const char *key, unsigned long long val);
 int jsonify_core_write_long(struct json_buffer *s, const char *key, long val);
+int jsonify_core_write_short(struct json_buffer *s, const char *key, short int val);
 int jsonify_core_write_timespec64(struct json_buffer *s, const char *key, long long tv_sec, long tv_nsec);

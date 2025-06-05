@@ -146,6 +146,14 @@ int jsonify_core_write_long(struct json_buffer *s, const char *key, long val)
     return total;
 }
 
+int jsonify_core_write_short(struct json_buffer *s, const char *key, short int val)
+{
+    int total = 0;
+    total += jsonify_core_write_element_divider(s);
+    total += jsonify_core_snprintf(s, "\"%s\":%hd", key, val);
+    return total;
+}
+
 int jsonify_core_write_timespec64(struct json_buffer *s, const char *key, long long tv_sec, long tv_nsec)
 {
     int total = 0;

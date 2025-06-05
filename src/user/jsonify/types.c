@@ -203,6 +203,7 @@ int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, st
     jsonify_core_open_obj(&s_child);
 
     struct sockaddr *sa = (struct sockaddr *)(e_sa->addr);
+    // jsonify_types_write_elem_sockaddr_generic(&s_child, e_sa);
 
     switch (sa->sa_family)
     {

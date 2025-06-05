@@ -61,7 +61,10 @@ static int update_send_recv_map_entry_with_local_saddr(struct socket *sock)
 
     if (sockaddrs_are_set)
     {
-        send_recv_storage_set_saddrs(&local, &remote);
+        send_recv_storage_set_saddrs(
+            BPF_CORE_READ(sock, type),
+            &local, &remote
+        );
     }
 
     return 0;

@@ -172,6 +172,7 @@ struct record_send_recv
     sys_id_t sys_id;
     int fd;
     ssize_t ret;
+    short int sock_type;
     struct elem_sockaddr local;
     struct elem_sockaddr remote;
 };

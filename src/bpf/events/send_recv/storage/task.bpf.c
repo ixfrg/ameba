@@ -32,12 +32,13 @@ int send_recv_storage_delete(void)
     return bpf_task_storage_delete(&task_map_send_recv, current_task);
 }
 
-int send_recv_storage_set_saddrs(struct elem_sockaddr *local, struct elem_sockaddr *remote)
+int send_recv_storage_set_saddrs(short int sock_type, struct elem_sockaddr *local, struct elem_sockaddr *remote)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     struct record_send_recv *result = bpf_task_storage_get(&task_map_send_recv, current_task, 0, 0);
     if (!result)
         return 0;
+    result->sock_type = sock_type;
     if (local)
         result->local = *local;
     if (remote)
