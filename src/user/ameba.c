@@ -12,16 +12,14 @@
 #include <time.h>
 #include <signal.h>
 
-#include "common/constants.h"
-#include "user/convert_data.h"
-#include "user/error.h"
-#include "user/writer.h"
-#include "user/jsonify/record.h"
-#include "ameba.skel.h"
-
 #include "user/args/control.h"
-
 #include "user/jsonify/control.h"
+#include "common/constants.h"
+#include "user/error.h"
+#include "user/writer/writer.h"
+#include "ameba.skel.h"
+#include "common/types.h"
+
 
 static const char *log_prefix = "[ameba] [user]";
 
@@ -30,26 +28,27 @@ static struct ameba *skel = NULL;
 
 static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
 {
-    int dst_len = MAX_BUFFER_LEN;
-    char *dst = (char *)malloc(sizeof(char) * dst_len);
+    if (data == NULL)
+        return ERR_DATA_INVALID;
+    if (data_len == 0)
+        return ERR_DATA_INVALID;
 
-    if (dst == NULL){
-        return 0;
-    }
+    if (data_len < sizeof(struct elem_common))
+        return ERR_DATA_INVALID_HEADER;
 
-    int result = convert_data_to_json(dst, dst_len, data, data_len);
+    struct elem_common *e_common = (struct elem_common *)(data);
 
-    if (result >= 0)
+    if (e_common->magic != AMEBA_MAGIC)
+        return ERR_DATA_INVALID_MAGIC;
+
+    int result = writer_write(e_common, data_len);
+
+    if (result < 0)
     {
-        writer_write(dst, strnlen(dst, MAX_BUFFER_LEN));
-    } else {
-        printf("%s : Failed 'convert_data_to_json'. Error: %d\n", log_prefix, result);
-        // error
+        printf("%s : Failed 'writer_write'. Error: %d\n", log_prefix, result);
     }
 
-    free(dst);
-
-    return 0;
+    return result;
 }
 
 static void sig_handler(int sig)

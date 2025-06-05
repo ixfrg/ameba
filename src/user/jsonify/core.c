@@ -40,6 +40,11 @@ static int jsonify_core_snprintf(struct json_buffer *s, const char *format, ...)
     }
 }
 
+int jsonify_core_get_total_chars_written(struct json_buffer *s)
+{
+    return s->bufIdx;
+}
+
 static int jsonify_core_write_element_divider(struct json_buffer *s)
 {
     if (s->bufIdx > 1)

@@ -12,15 +12,18 @@ BPF_SKEL_NAME = ameba
 DIR_SRC_U = $(DIR_SRC)/user
 DIR_SRC_U_J = $(DIR_SRC_U)/jsonify
 DIR_SRC_U_A = $(DIR_SRC_U)/args
+DIR_SRC_U_W = $(DIR_SRC_U)/writer
 
 DIR_BUILD_U = $(DIR_BUILD)/user
 DIR_BUILD_U_J = $(DIR_BUILD_U)/jsonify
 DIR_BUILD_U_A = $(DIR_BUILD_U)/args
+DIR_BUILD_U_W = $(DIR_BUILD_U)/writer
 
-USER_OBJS_U = $(DIR_BUILD_U)/ameba.o $(DIR_BUILD_U)/convert_data.o $(DIR_BUILD_U)/writer.o
+USER_OBJS_U = $(DIR_BUILD_U)/ameba.o
 USER_OBJS_U_J = $(DIR_BUILD_U_J)/core.o $(DIR_BUILD_U_J)/record.o $(DIR_BUILD_U_J)/types.o $(DIR_BUILD_U_J)/control.o
 USER_OBJS_U_A = $(DIR_BUILD_U_A)/control.o
-USER_OBJS_ALL = $(USER_OBJS_U_J) $(USER_OBJS_U)	$(USER_OBJS_U_A)
+USER_OBJS_U_W = $(DIR_BUILD_U_W)/json.o
+USER_OBJS_ALL = $(USER_OBJS_U_J) $(USER_OBJS_U)	$(USER_OBJS_U_A) $(USER_OBJS_U_W)
 # END: Construction of USER_OBJS_ALL
 
 
