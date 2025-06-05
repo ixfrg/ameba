@@ -11,44 +11,87 @@
 #include <dirent.h>
 #include <time.h>
 #include <signal.h>
+#include <sys/types.h>
+
+#include "common/types.h"
 
 #include "user/args/control.h"
 #include "user/jsonify/control.h"
 #include "common/constants.h"
 #include "user/error.h"
-#include "user/writer/writer.h"
-#include "ameba.skel.h"
-#include "common/types.h"
 
+#include "user/data/converter/converter.h"
+#include "user/data/writer/writer.h"
+
+#include "ameba.skel.h"
+
+
+extern const struct data_converter data_converter_json;
+extern const struct data_writer data_writer_file;
 
 static const char *log_prefix = "[ameba] [user]";
+
+static const struct data_converter *default_data_converter;
+static const struct data_writer *default_data_writer;
 
 static struct ameba *skel = NULL;
 
 
-static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
-{
-    if (data == NULL)
-        return ERR_DATA_INVALID;
-    if (data_len == 0)
-        return ERR_DATA_INVALID;
+static int init_output_writer(){
+    const char *prov_output_json_path = "/tmp/current_log.json";
+    const char *prov_output_bin_path = "/tmp/current_log.bin";
 
-    if (data_len < sizeof(struct elem_common))
-        return ERR_DATA_INVALID_HEADER;
+    default_data_converter = &data_converter_json;
+    default_data_writer = &data_writer_file;
 
-    struct elem_common *e_common = (struct elem_common *)(data);
-
-    if (e_common->magic != AMEBA_MAGIC)
-        return ERR_DATA_INVALID_MAGIC;
-
-    int result = writer_write(e_common, data_len);
-
-    if (result < 0)
+    int writer_init_error = default_data_writer->set_init_args(
+        (void*)prov_output_json_path, strlen(prov_output_json_path)
+    );
+    if (writer_init_error != 0)
     {
-        printf("%s : Failed 'writer_write'. Error: %d\n", log_prefix, result);
+        syslog(LOG_ERR, "%s : Error creating log file\n", log_prefix);
+        return -1;
     }
 
-    return result;
+    int writer_error = default_data_writer->init();
+    if (writer_error != 0)
+    {
+        syslog(LOG_ERR, "%s : Error creating log file\n", log_prefix);
+        return -1;
+    }
+    return 0;
+}
+
+static void close_output_writer()
+{
+    default_data_writer->close();
+}
+
+static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
+{
+    size_t dst_len = MAX_BUFFER_LEN;
+    void *dst = malloc(sizeof(char) * dst_len);
+    if (!dst)
+        goto exit;
+
+    long data_copied_to_dst = default_data_converter->convert(dst, dst_len, data, data_len);
+    if (data_copied_to_dst <= 0)
+    {
+        printf("%s : Failed data conversion. Error: %lu\n", log_prefix, data_copied_to_dst);
+        goto free_dst;
+    }
+
+    int write_result = default_data_writer->write(dst, data_copied_to_dst);
+    if (write_result < 0)
+    {
+        printf("%s : Failed data write. Error: %d\n", log_prefix, write_result);
+        goto free_dst;
+    }
+
+free_dst:
+    free(dst);
+exit:
+    return 0;
 }
 
 static void sig_handler(int sig)
@@ -56,7 +99,7 @@ static void sig_handler(int sig)
     if (sig == SIGTERM)
     {
         syslog(LOG_INFO, "%s : Received termination signal...\n", log_prefix);
-        writer_close();
+        close_output_writer();
         if (skel != NULL)
         {
             ameba__destroy(skel);
@@ -184,11 +227,10 @@ int main(int argc, char *argv[])
 
     ringbuf = ring_buffer__new(ringbuf_map_fd, handle_ringbuf_data, NULL, NULL);
 
-    int writer_error = writer_init();
-
-    if (writer_error == -1)
+    int writer_error = init_output_writer();
+    if (writer_error != 0)
     {
-        syslog(LOG_ERR, "%s : Error creating log file\n", log_prefix);
+        syslog(LOG_ERR, "%s : Error creating log file writer\n", log_prefix);
         result = 1;
         goto skel_detach;
     }
@@ -201,7 +243,7 @@ int main(int argc, char *argv[])
     }
 
 // log_file_close:
-    writer_close();
+    close_output_writer();
 
 skel_detach:
     ameba__detach(skel);

@@ -12,18 +12,23 @@ BPF_SKEL_NAME = ameba
 DIR_SRC_U = $(DIR_SRC)/user
 DIR_SRC_U_J = $(DIR_SRC_U)/jsonify
 DIR_SRC_U_A = $(DIR_SRC_U)/args
-DIR_SRC_U_W = $(DIR_SRC_U)/writer
+DIR_SRC_U_D = $(DIR_SRC_U)/data
+DIR_SRC_U_D_C = $(DIR_SRC_U_D)/converter
+DIR_SRC_U_D_W = $(DIR_SRC_U_D)/writer
 
 DIR_BUILD_U = $(DIR_BUILD)/user
 DIR_BUILD_U_J = $(DIR_BUILD_U)/jsonify
 DIR_BUILD_U_A = $(DIR_BUILD_U)/args
-DIR_BUILD_U_W = $(DIR_BUILD_U)/writer
+DIR_BUILD_U_D = $(DIR_BUILD_U)/data
+DIR_BUILD_U_D_C = $(DIR_BUILD_U_D)/converter
+DIR_BUILD_U_D_W = $(DIR_BUILD_U_D)/writer
 
 USER_OBJS_U = $(DIR_BUILD_U)/ameba.o
 USER_OBJS_U_J = $(DIR_BUILD_U_J)/core.o $(DIR_BUILD_U_J)/record.o $(DIR_BUILD_U_J)/types.o $(DIR_BUILD_U_J)/control.o
 USER_OBJS_U_A = $(DIR_BUILD_U_A)/control.o
-USER_OBJS_U_W = $(DIR_BUILD_U_W)/json.o
-USER_OBJS_ALL = $(USER_OBJS_U_J) $(USER_OBJS_U)	$(USER_OBJS_U_A) $(USER_OBJS_U_W)
+USER_OBJS_U_D_C = $(DIR_BUILD_U_D_C)/binary.o $(DIR_BUILD_U_D_C)/converter.o $(DIR_BUILD_U_D_C)/json.o
+USER_OBJS_U_D_W = $(DIR_BUILD_U_D_W)/file.o
+USER_OBJS_ALL = $(USER_OBJS_U_J) $(USER_OBJS_U)	$(USER_OBJS_U_A) $(USER_OBJS_U_D_C) $(USER_OBJS_U_D_W)
 # END: Construction of USER_OBJS_ALL
 
 
