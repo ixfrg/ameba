@@ -42,7 +42,10 @@ def get_spade_record_namespace_clone(
     las_event_id, las_time,
     r_ale, r_cred, r_new_process, r_namespace
 ):
-    if not r_ale or not r_cred or not r_new_process or not r_namespace:
+    if not r_ale:
+        return
+    # if not r_cred or not r_new_process or not r_namespace:
+    if not r_namespace:
         return
     
     operation = None
