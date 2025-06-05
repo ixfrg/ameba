@@ -18,6 +18,7 @@ int jsonify_core_init(struct json_buffer *s, char *dst_buf, unsigned int dst_buf
 int jsonify_core_open_obj(struct json_buffer *s);
 int jsonify_core_close_obj(struct json_buffer *s);
 int jsonify_core_has_overflown(struct json_buffer *s);
+int jsonify_core_write_newline(struct json_buffer *s);
 int jsonify_core_get_total_chars_written(struct json_buffer *s);
 int jsonify_core_write_bytes(struct json_buffer *s, const char *key, unsigned char *val, int val_size);
 int jsonify_core_write_int(struct json_buffer *s, const char *key, int val);

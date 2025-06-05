@@ -52,6 +52,11 @@ static int jsonify_core_write_element_divider(struct json_buffer *s)
     return 0;
 }
 
+int jsonify_core_write_newline(struct json_buffer *s)
+{
+    return jsonify_core_snprintf(s, "\n");
+}
+
 int jsonify_core_has_overflown(struct json_buffer *s)
 {
     return s->overflown;
