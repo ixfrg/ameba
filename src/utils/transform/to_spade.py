@@ -33,6 +33,9 @@ class SysId():
 
 class SysNum():
     CLONE = 220
+    SETNS = 268
+    UNSHARE = 97
+    CLONE3 = 435
 
 
 buffer = []
@@ -127,7 +130,7 @@ def process_record_audit_log_exit(json_obj):
         # discard
         return
 
-    if syscall == SysNum.CLONE:
+    if syscall in [SysNum.CLONE, SysNum.SETNS, SysNum.UNSHARE]:
         process_record_audit_log_exit_for_clone(
             json_obj, las_event_id, las_time, task_ctx_id
         )
