@@ -127,9 +127,10 @@ clean:
 	-rm -r $(DIR_BUILD)
 
 
-build_utils: ./src/utils/types_info.c
+build_utils: ./src/utils/types_info.c ./src/utils/test_ubsi.c
 	@mkdir -p ./bin/utils
-	clang $(CLANG_BUILD_UTILS_FLAGS) $^ -o ./bin/utils/types_info
+	clang $(CLANG_BUILD_UTILS_FLAGS) ./src/utils/types_info.c -o ./bin/utils/types_info
+	clang $(CLANG_BUILD_UTILS_FLAGS) ./src/utils/test_ubsi.c -o ./bin/utils/test_ubsi
 
 
 all: $(DIR_BIN)/ameba build_utils
