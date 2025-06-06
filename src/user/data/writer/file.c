@@ -33,7 +33,7 @@ static int data_writer_file_init()
 
     int fd;
 
-    fd = open(fpath, O_RDWR | O_CREAT, 0666);
+    fd = open(fpath, O_RDWR | O_CREAT | O_TRUNC, 0666);
 
     if (fd == -1)
         return -1;
