@@ -4,6 +4,8 @@
 #include <bpf/bpf_core_read.h>
 #include <bpf/bpf_helpers.h>
 
+#include <asm/unistd.h>
+
 #include "common/types.h"
 #include "bpf/helpers/log.bpf.h"
 #include "bpf/helpers/map.bpf.h"
@@ -13,24 +15,6 @@
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/output.bpf.h"
-
-
-typedef enum
-{
-    SYS_ACCEPT = 202,
-    SYS_ACCEPT4 = 204,
-    SYS_BIND = 200,
-    SYS_CONNECT = 203,
-    SYS_KILL = 129,
-    SYS_SENDMSG = 211,
-    SYS_SENDTO = 206,
-    SYS_RECVMSG = 212,
-    SYS_RECVFROM = 207,
-    SYS_SETNS = 268,
-    SYS_UNSHARE = 97,
-    SYS_CLONE = 220,
-    SYS_CLONE3 = 435
-} syscall_number_t;
 
 
 int AMEBA_HOOK(
@@ -50,20 +34,20 @@ int AMEBA_HOOK(
 
     switch (syscall_number)
     {
-        case SYS_ACCEPT:
-        case SYS_ACCEPT4:
-        case SYS_BIND:
-        case SYS_CONNECT:
-        case SYS_KILL:
-        case SYS_SETNS:
-        case SYS_UNSHARE:
-        case SYS_CLONE:
-        case SYS_CLONE3:
+        case __NR_accept:
+        case __NR_accept4:
+        case __NR_bind:
+        case __NR_connect:
+        case __NR_kill:
+        case __NR_setns:
+        case __NR_unshare:
+        case __NR_clone:
+        case __NR_clone3:
             break;
-        case SYS_SENDMSG:
-        case SYS_SENDTO:
-        case SYS_RECVMSG:
-        case SYS_RECVFROM:
+        case __NR_sendmsg:
+        case __NR_sendto:
+        case __NR_recvmsg:
+        case __NR_recvfrom:
             if (event_is_netio_set_to_ignore())
                 return 0; // do not log
             break;
