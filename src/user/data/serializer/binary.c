@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <string.h>
+#include "user/error.h"
 #include "user/data/serializer/serializer.h"
 
 

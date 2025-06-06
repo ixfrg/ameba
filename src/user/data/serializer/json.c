@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include "user/error.h"
 #include "user/data/serializer/serializer.h"
 #include "user/jsonify/record.h"
 

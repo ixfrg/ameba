@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <sys/types.h>
 
+#include "user/error.h"
 #include "common/types.h"
 #include "user/data/serializer/serializer.h"
 

@@ -1,15 +1,6 @@
 #pragma once
 
 
-#define ERR_DST_INVALID -1
-#define ERR_DST_INSUFFICIENT -2
-#define ERR_DATA_INVALID -3
-#define ERR_DATA_INVALID_HEADER -4
-#define ERR_DATA_INVALID_MAGIC -5
-#define ERR_DATA_SIZE_MISMATCH -6
-#define ERR_DATA_UNKNOWN -7
-
-
 /*
     A function to perform some common data conversion checks.
 
