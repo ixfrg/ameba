@@ -2,6 +2,7 @@
 
 #include "common/types.h"
 #include "bpf/helpers/output.bpf.h"
+#include "bpf/helpers/log.bpf.h"
 
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>

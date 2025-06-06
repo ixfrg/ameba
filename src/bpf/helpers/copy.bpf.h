@@ -10,3 +10,5 @@ int copy_sockaddr_in6_local_from_skc(struct elem_sockaddr *dst, struct sock_comm
 int copy_sockaddr_in6_remote_from_skc(struct elem_sockaddr *dst, struct sock_common *sk_c);
 int copy_las_timestamp_from_current_task(struct elem_las_timestamp *dst);
 int copy_las_timestamp_from_audit_context_timestamp(struct elem_las_timestamp *dst, struct audit_stamp *a_s);
+int copy_net_ns_inum_from_current_task(inode_num_t *dst);
+// int copy_sock_type_from_socket(short int *dst, struct socket *sock);

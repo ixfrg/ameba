@@ -61,13 +61,16 @@ static int update_send_recv_map_entry_with_local_saddr(struct socket *sock)
 
     if (sockaddrs_are_set)
     {
-        possible_net_t skc_net = sk_c.skc_net;
-        struct net *net_ns = skc_net.net;
-        struct ns_common ns = BPF_CORE_READ(net_ns, ns);
-        inode_num_t net_ns_inum = ns.inum;
+        // possible_net_t skc_net = sk_c.skc_net;
+        // struct net *net_ns = skc_net.net;
+        // struct ns_common ns = BPF_CORE_READ(net_ns, ns);
+        // inode_num_t net_ns_inum = ns.inum;
+        inode_num_t net_ns_inum;
+        copy_net_ns_inum_from_current_task(&net_ns_inum);
+        short int sock_type = (short int)BPF_CORE_READ(sock, type);
         send_recv_storage_set_saddrs(
             net_ns_inum,
-            BPF_CORE_READ(sock, type),
+            sock_type,
             &local, &remote
         );
     }

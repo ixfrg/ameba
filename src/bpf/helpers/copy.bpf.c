@@ -90,3 +90,21 @@ int copy_las_timestamp_from_audit_context_timestamp(struct elem_las_timestamp *d
 
     return 0;
 }
+
+int copy_net_ns_inum_from_current_task(inode_num_t *dst)
+{
+    if (!dst)
+        return 0;
+    const struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    inode_num_t net_ns_inum = BPF_CORE_READ(current_task, nsproxy, net_ns, ns).inum;
+    *dst = net_ns_inum;
+    return 0;
+}
+
+// int copy_sock_type_from_socket(short int *dst, struct socket *sock)
+// {
+//     if (sock != NULL && dst != NULL) {
+//         *dst = BPF_CORE_READ(sock, type);
+//     }
+//     return 0;
+// }
