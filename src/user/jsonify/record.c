@@ -24,6 +24,8 @@ int jsonify_record_accept(struct json_buffer *s, struct record_accept *data)
     total += jsonify_types_write_pid(s, "pid", data->pid);
     total += jsonify_types_write_sys_id(s, data->sys_id);
     total += jsonify_types_write_fd(s, "fd", data->fd);
+    total += jsonify_types_write_inode(s, "ns_net", data->ns_net);
+    total += jsonify_core_write_short(s, "sock_type", data->sock_type);
     total += jsonify_types_write_elem_sockaddr(s, "local", &(data->local));
     total += jsonify_types_write_elem_sockaddr(s, "remote", &(data->remote));
 

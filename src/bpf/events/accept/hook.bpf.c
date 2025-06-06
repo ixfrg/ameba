@@ -78,12 +78,16 @@ static int update_accept_map_entry_with_file(accept_type_fd_t fd_type, struct fi
 
         if (sockaddrs_are_set)
         {
+            inode_num_t net_ns_inum;
+            copy_net_ns_inum_from_current_task(&net_ns_inum);
+            short int sock_type = (short int)BPF_CORE_READ(sock, type);
+
             if (fd_type == LOCAL)
             {
-                accept_storage_set_local_fd_saddrs(&local, &remote);
+                accept_storage_set_local_fd_saddrs(net_ns_inum, sock_type, &local, &remote);
             } else if (fd_type == REMOTE)
             {
-                accept_storage_set_remote_fd_saddrs(&local, &remote);
+                accept_storage_set_remote_fd_saddrs(net_ns_inum, sock_type, &local, &remote);
             }
         }
     }

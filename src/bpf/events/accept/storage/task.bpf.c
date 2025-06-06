@@ -44,12 +44,16 @@ int accept_storage_insert_remote_fd(struct record_accept *map_val)
     return result != NULL;
 }
 
-int accept_storage_set_local_fd_saddrs(struct elem_sockaddr *local, struct elem_sockaddr *remote)
+int accept_storage_set_local_fd_saddrs(
+    inode_num_t net_ns_inum, short int sock_type, struct elem_sockaddr *local, struct elem_sockaddr *remote
+)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     struct record_accept *result = bpf_task_storage_get(&task_map_accept_local, current_task, 0, 0);
     if (!result)
         return 0;
+    result->ns_net = net_ns_inum;
+    result->sock_type = sock_type;
     if (local)
         result->local = *local;
     if (remote)
@@ -57,12 +61,16 @@ int accept_storage_set_local_fd_saddrs(struct elem_sockaddr *local, struct elem_
     return 1; // Something is set so success
 }
 
-int accept_storage_set_remote_fd_saddrs(struct elem_sockaddr *local, struct elem_sockaddr *remote)
+int accept_storage_set_remote_fd_saddrs(
+    inode_num_t net_ns_inum, short int sock_type, struct elem_sockaddr *local, struct elem_sockaddr *remote
+)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
     struct record_accept *result = bpf_task_storage_get(&task_map_accept_remote, current_task, 0, 0);
     if (!result)
         return 0;
+    result->ns_net = net_ns_inum;
+    result->sock_type = sock_type;
     if (local)
         result->local = *local;
     if (remote)
