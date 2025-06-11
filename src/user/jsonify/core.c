@@ -45,11 +45,6 @@ static int jsonify_core_snprintf(struct json_buffer *s, const char *format, ...)
     }
 }
 
-int jsonify_core_get_total_chars_written(struct json_buffer *s)
-{
-    return s->bufIdx;
-}
-
 /*
     A helper function to write the key-val pair separater ','.
 
@@ -64,6 +59,11 @@ static int jsonify_core_write_element_divider(struct json_buffer *s)
     if (s->bufIdx > 1)
         return jsonify_core_snprintf(s, ",");
     return 0;
+}
+
+int jsonify_core_get_total_chars_written(struct json_buffer *s)
+{
+    return s->bufIdx;
 }
 
 int jsonify_core_write_newline(struct json_buffer *s)

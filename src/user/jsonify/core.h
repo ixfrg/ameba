@@ -1,6 +1,24 @@
 #pragma once
 
+/*
 
+    A module to define help with JSON object building.
+    
+    It defines the core components:
+    
+    1. json_buffer.
+    2. Functions to write basic types to json_buffer.
+
+*/
+
+
+/*
+    The maximum buffer length allowed for json_buffer.
+
+    Dependent on the context and the system.
+
+    The default value is completely arbitrary.
+*/
 #define MAX_BUFFER_LEN 1024
 
 
