@@ -15,6 +15,7 @@ int jsonify_types_write_gid(struct json_buffer *s, const char *key, gid_t val);
 int jsonify_types_write_inode(struct json_buffer *s, const char *key, inode_num_t val);
 int jsonify_types_write_event_id(struct json_buffer *s, event_id_t val);
 int jsonify_types_write_sys_id(struct json_buffer *s, sys_id_t sys_id);
+int jsonify_types_write_sys_name(struct json_buffer *s, sys_id_t sys_id);
 int jsonify_types_write_elem_las_timestamp(struct json_buffer *s, struct elem_las_timestamp *e_las_ts);
 int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, struct elem_sockaddr *e_sa);
 int jsonify_types_write_common(
