@@ -1,24 +1,22 @@
 #include <stddef.h>
 #include "user/error.h"
-#include "user/data/serializer/serializer.h"
+#include "user/record/serializer/serializer.h"
 #include "user/jsonify/record.h"
 
 
-static long data_serializer_json_serialize(void *dst, size_t dst_len, void *data, size_t data_len)
+static long record_serializer_json_serialize(void *dst, size_t dst_len, struct elem_common *record, size_t record_len)
 {
-    int err = data_serializer_common(dst, dst_len, data, data_len);
+    int err = record_serializer_common(dst, dst_len, record, record_len);
     if (err != 0)
         return err;
 
     int write_interpreted = 0;
 
-    struct elem_common *e_common = data;
-
     struct json_buffer s;
     jsonify_core_init(&s, dst, dst_len);
     jsonify_core_open_obj(&s);
 
-    int jsonify_result = jsonify_record(&s, e_common, data_len, write_interpreted);
+    int jsonify_result = jsonify_record(&s, record, record_len, write_interpreted);
 
     jsonify_core_close_obj(&s);
 
@@ -38,6 +36,6 @@ static long data_serializer_json_serialize(void *dst, size_t dst_len, void *data
 }
 
 
-const struct data_serializer data_serializer_json = {
-    .serialize = data_serializer_json_serialize
+const struct record_serializer record_serializer_json = {
+    .serialize = record_serializer_json_serialize
 };

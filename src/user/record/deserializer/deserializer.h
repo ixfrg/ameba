@@ -3,14 +3,14 @@
 #include <stddef.h>
 
 
-struct data_deserializer {
+struct record_deserializer {
 
     /*
-        Deserialize the data.
+        Deserialize the record.
 
         Call this function until it returns a positive value.
 
-        The positive value indicates that data size that has been successfully deserialized.
+        The positive value indicates that record size that has been successfully deserialized.
 
         If an error occurs then the data is discarded. It is unforgiving i.e. it discards data
         if not enough space is available.
@@ -19,7 +19,7 @@ struct data_deserializer {
         ready yet.
 
         Return:
-            +ive -> The size of the data that is deserialized and ready.
+            +ive -> The size of the record that is deserialized and ready.
             -ive -> Error and any incomplete data is discarded.
             0    -> Not ready.
 
@@ -27,7 +27,7 @@ struct data_deserializer {
     int (*deserialize)(void *data, size_t data_len);
 
     /*
-        Read the deserialized data into the given 'dst'.
+        Read the deserialized record into the given 'dst'.
 
         Return:
             +ive -> Data written into dst

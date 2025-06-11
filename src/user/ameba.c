@@ -20,19 +20,19 @@
 #include "common/constants.h"
 #include "user/error.h"
 
-#include "user/data/serializer/serializer.h"
-#include "user/data/writer/writer.h"
+#include "user/record/serializer/serializer.h"
+#include "user/record/writer/writer.h"
 
 #include "ameba.skel.h"
 
 
-extern const struct data_serializer data_serializer_json;
-extern const struct data_writer data_writer_file;
+extern const struct record_serializer record_serializer_json;
+extern const struct record_writer record_writer_file;
 
 static const char *log_prefix = "[ameba] [user]";
 
-static const struct data_serializer *default_data_serializer;
-static const struct data_writer *default_data_writer;
+static const struct record_serializer *default_record_serializer;
+static const struct record_writer *default_record_writer;
 
 static struct ameba *skel = NULL;
 
@@ -41,10 +41,10 @@ static int init_output_writer(){
     const char *prov_output_json_path = "/tmp/current_log.json";
     const char *prov_output_bin_path = "/tmp/current_log.bin";
 
-    default_data_serializer = &data_serializer_json;
-    default_data_writer = &data_writer_file;
+    default_record_serializer = &record_serializer_json;
+    default_record_writer = &record_writer_file;
 
-    int writer_init_error = default_data_writer->set_init_args(
+    int writer_init_error = default_record_writer->set_init_args(
         (void*)prov_output_json_path, strlen(prov_output_json_path)
     );
     if (writer_init_error != 0)
@@ -53,7 +53,7 @@ static int init_output_writer(){
         return -1;
     }
 
-    int writer_error = default_data_writer->init();
+    int writer_error = default_record_writer->init();
     if (writer_error != 0)
     {
         syslog(LOG_ERR, "%s : Error creating log file\n", log_prefix);
@@ -64,7 +64,7 @@ static int init_output_writer(){
 
 static void close_output_writer()
 {
-    default_data_writer->close();
+    default_record_writer->close();
 }
 
 static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
@@ -74,14 +74,14 @@ static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
     if (!dst)
         goto exit;
 
-    long data_copied_to_dst = default_data_serializer->serialize(dst, dst_len, data, data_len);
+    long data_copied_to_dst = default_record_serializer->serialize(dst, dst_len, data, data_len);
     if (data_copied_to_dst <= 0)
     {
         printf("%s : Failed data conversion. Error: %lu\n", log_prefix, data_copied_to_dst);
         goto free_dst;
     }
 
-    int write_result = default_data_writer->write(dst, data_copied_to_dst);
+    int write_result = default_record_writer->write(dst, data_copied_to_dst);
     if (write_result < 0)
     {
         printf("%s : Failed data write. Error: %d\n", log_prefix, write_result);

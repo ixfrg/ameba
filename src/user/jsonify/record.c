@@ -145,42 +145,42 @@ int jsonify_record(struct json_buffer *s, struct elem_common *e_common, int data
     {
         case RECORD_TYPE_CONNECT:
             if (data_len != sizeof(struct record_connect))
-                return ERR_DATA_SIZE_MISMATCH;
+                return ERR_RECORD_SIZE_MISMATCH;
             return jsonify_record_connect(s, (struct record_connect *)e_common, write_interpreted);
         case RECORD_TYPE_ACCEPT:
             if (data_len != sizeof(struct record_accept))
-                return ERR_DATA_SIZE_MISMATCH;
+                return ERR_RECORD_SIZE_MISMATCH;
             return jsonify_record_accept(s, (struct record_accept *)e_common, write_interpreted);
         case RECORD_TYPE_NAMESPACE:
             if (data_len != sizeof(struct record_namespace))
-                return ERR_DATA_SIZE_MISMATCH;
+                return ERR_RECORD_SIZE_MISMATCH;
             return jsonify_record_namespace(s, (struct record_namespace *)e_common, write_interpreted);
         case RECORD_TYPE_NEW_PROCESS:
             if (data_len != sizeof(struct record_new_process))
-                return ERR_DATA_SIZE_MISMATCH;
+                return ERR_RECORD_SIZE_MISMATCH;
             return jsonify_record_new_process(s, (struct record_new_process *)e_common, write_interpreted);
         case RECORD_TYPE_CRED:
             if (data_len != sizeof(struct record_cred))
-                return ERR_DATA_SIZE_MISMATCH;
+                return ERR_RECORD_SIZE_MISMATCH;
             return jsonify_record_cred(s, (struct record_cred *)e_common, write_interpreted);
         case RECORD_TYPE_SEND_RECV:
             if (data_len != sizeof(struct record_send_recv))
-                return ERR_DATA_SIZE_MISMATCH;
+                return ERR_RECORD_SIZE_MISMATCH;
             return jsonify_record_send_recv(s, (struct record_send_recv *)e_common, write_interpreted);
         case RECORD_TYPE_BIND:
             if (data_len != sizeof(struct record_bind))
-                return ERR_DATA_SIZE_MISMATCH;
+                return ERR_RECORD_SIZE_MISMATCH;
             return jsonify_record_bind(s, (struct record_bind *)e_common, write_interpreted);
         case RECORD_TYPE_KILL:
             if (data_len != sizeof(struct record_kill))
-                return ERR_DATA_SIZE_MISMATCH;
+                return ERR_RECORD_SIZE_MISMATCH;
             return jsonify_record_kill(s, (struct record_kill *)e_common, write_interpreted);
         case RECORD_TYPE_AUDIT_LOG_EXIT:
             if (data_len != sizeof(struct record_audit_log_exit))
-                return ERR_DATA_SIZE_MISMATCH;
+                return ERR_RECORD_SIZE_MISMATCH;
             return jsonify_record_audit_log_exit(s, (struct record_audit_log_exit *)e_common, write_interpreted);
         default:
             // Quietly ignore any expected record.
-            return ERR_DATA_UNKNOWN;
+            return ERR_RECORD_UNKNOWN;
     }
 }

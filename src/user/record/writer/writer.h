@@ -4,7 +4,7 @@
 #include "common/types.h"
 
 
-struct data_writer
+struct record_writer
 {
     /*
         Function to set arguments to used in 'init' function.
@@ -30,12 +30,12 @@ struct data_writer
     */
     int (*close) ();
     /*
-        Write the given data to the writer.
+        Write the given record to the writer.
 
         Return:
             -2  => The writer is not initialized
             -1  => The underlying write failed
             >=0 => The bytes written
     */
-    int (*write) (void* data, size_t data_len);
+    int (*write) (struct elem_common *record, size_t record_len);
 };
