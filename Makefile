@@ -8,73 +8,21 @@ DIR_BIN = bin
 
 BPF_SKEL_NAME = ameba
 
-# BEGIN: Construction of USER_OBJS_ALL
-DIR_SRC_U = $(DIR_SRC)/user
-DIR_SRC_U_J = $(DIR_SRC_U)/jsonify
-DIR_SRC_U_A = $(DIR_SRC_U)/args
-DIR_SRC_U_R = $(DIR_SRC_U)/record
-DIR_SRC_U_R_S = $(DIR_SRC_U_R)/serializer
-DIR_SRC_U_R_W = $(DIR_SRC_U_R)/writer
 
-DIR_BUILD_U = $(DIR_BUILD)/user
-DIR_BUILD_U_J = $(DIR_BUILD_U)/jsonify
-DIR_BUILD_U_A = $(DIR_BUILD_U)/args
-DIR_BUILD_U_R = $(DIR_BUILD_U)/record
-DIR_BUILD_U_R_S = $(DIR_BUILD_U_R)/serializer
-DIR_BUILD_U_R_W = $(DIR_BUILD_U_R)/writer
+USER_SRC_DIR = $(DIR_SRC)/user
+USER_BUILD_DIR = $(DIR_BUILD)/user
+USER_SRC_FILES = $(shell find $(USER_SRC_DIR) -name "*.c" -type f)
+USER_OBJS_ALL = $(patsubst $(DIR_SRC)/%.c,$(DIR_BUILD)/%.o,$(USER_SRC_FILES))
 
-USER_OBJS_U = $(DIR_BUILD_U)/ameba.o
-USER_OBJS_U_J = $(DIR_BUILD_U_J)/core.o $(DIR_BUILD_U_J)/record.o $(DIR_BUILD_U_J)/types.o $(DIR_BUILD_U_J)/control.o
-USER_OBJS_U_A = $(DIR_BUILD_U_A)/control.o
-USER_OBJS_U_R_S = $(DIR_BUILD_U_R_S)/binary.o $(DIR_BUILD_U_R_S)/serializer.o $(DIR_BUILD_U_R_S)/json.o
-USER_OBJS_U_R_W = $(DIR_BUILD_U_R_W)/file.o
-USER_OBJS_ALL = $(USER_OBJS_U_J) $(USER_OBJS_U)	$(USER_OBJS_U_A) $(USER_OBJS_U_R_S) $(USER_OBJS_U_R_W)
-# END: Construction of USER_OBJS_ALL
+BPF_SRC_DIR = $(DIR_SRC)/bpf
+BPF_BUILD_DIR = $(DIR_BUILD)/bpf
+BPF_SRC_FILES = $(shell find $(BPF_SRC_DIR) -name "*.c" -type f)
+BPF_OBJS_ALL := $(patsubst $(DIR_SRC)/%.c,$(DIR_BUILD)/%.o,$(BPF_SRC_FILES))
 
-
-# BEGIN: Construction of BPF_OBJS_ALL
-DIR_SRC_B = $(DIR_SRC)/bpf
-DIR_SRC_B_E = $(DIR_SRC_B)/events
-DIR_SRC_B_E_C = $(DIR_SRC_B_E)/connect
-DIR_SRC_B_E_C_S = $(DIR_SRC_B_E_C)/storage
-DIR_SRC_B_E_A = $(DIR_SRC_B_E)/accept
-DIR_SRC_B_E_A_S = $(DIR_SRC_B_E_A)/storage
-DIR_SRC_B_E_ALE = $(DIR_SRC_B_E)/audit_log_exit
-DIR_SRC_B_E_B = $(DIR_SRC_B_E)/bind
-DIR_SRC_B_E_PN = $(DIR_SRC_B_E)/process_namespace
-DIR_SRC_B_E_K = $(DIR_SRC_B_E)/kill
-DIR_SRC_B_E_K_S = $(DIR_SRC_B_E_K)/storage
-DIR_SRC_B_E_SR = $(DIR_SRC_B_E)/send_recv
-DIR_SRC_B_E_SR_S = $(DIR_SRC_B_E_SR)/storage
-DIR_SRC_B_H = $(DIR_SRC_B)/helpers
-
-DIR_BUILD_B = $(DIR_BUILD)/bpf
-DIR_BUILD_B_E = $(DIR_BUILD_B)/events
-DIR_BUILD_B_E_C = $(DIR_BUILD_B_E)/connect
-DIR_BUILD_B_E_C_S = $(DIR_BUILD_B_E_C)/storage
-DIR_BUILD_B_E_A = $(DIR_BUILD_B_E)/accept
-DIR_BUILD_B_E_A_S = $(DIR_BUILD_B_E_A)/storage
-DIR_BUILD_B_E_ALE = $(DIR_BUILD_B_E)/audit_log_exit
-DIR_BUILD_B_E_B = $(DIR_BUILD_B_E)/bind
-DIR_BUILD_B_E_PN = $(DIR_BUILD_B_E)/process_namespace
-DIR_BUILD_B_E_K = $(DIR_BUILD_B_E)/kill
-DIR_BUILD_B_E_K_S = $(DIR_BUILD_B_E_K)/storage
-DIR_BUILD_B_E_SR = $(DIR_BUILD_B_E)/send_recv
-DIR_BUILD_B_E_SR_S = $(DIR_BUILD_B_E_SR)/storage
-DIR_BUILD_B_H = $(DIR_BUILD_B)/helpers
-
-BPF_OBJS_B = $(DIR_BUILD_B)/license.bpf.o
-BPF_OBJS_B_E_C = $(DIR_BUILD_B_E_C)/hook.bpf.o $(DIR_BUILD_B_E_C_S)/task.bpf.o
-BPF_OBJS_B_E_A = $(DIR_BUILD_B_E_A)/hook.bpf.o $(DIR_BUILD_B_E_A_S)/task.bpf.o
-BPF_OBJS_B_E_ALE = $(DIR_BUILD_B_E_ALE)/hook.bpf.o
-BPF_OBJS_B_E_B = $(DIR_BUILD_B_E_B)/hook.bpf.o
-BPF_OBJS_B_E_PN = $(DIR_BUILD_B_E_PN)/hook.bpf.o
-BPF_OBJS_B_E_K = $(DIR_BUILD_B_E_K)/hook.bpf.o $(DIR_BUILD_B_E_K_S)/task.bpf.o
-BPF_OBJS_B_E_SR = $(DIR_BUILD_B_E_SR)/hook.bpf.o $(DIR_BUILD_B_E_SR_S)/task.bpf.o
-BPF_OBJS_B_HOOKS = $(BPF_OBJS_B_E_C) $(BPF_OBJS_B_E_A) $(BPF_OBJS_B_E_ALE) $(BPF_OBJS_B_E_B) $(BPF_OBJS_B_E_PN) $(BPF_OBJS_B_E_K) $(BPF_OBJS_B_E_SR)
-BPF_OBJS_B_H = $(DIR_BUILD_B_H)/event.bpf.o $(DIR_BUILD_B_H)/event_id.bpf.o $(DIR_BUILD_B_H)/datatype.bpf.o $(DIR_BUILD_B_H)/copy.bpf.o $(DIR_BUILD_B_H)/output.bpf.o $(DIR_BUILD_B_H)/map.bpf.o $(DIR_BUILD_B_H)/log.bpf.o
-BPF_OBJS_ALL = $(BPF_OBJS_B) $(BPF_OBJS_B_E) $(BPF_OBJS_B_H) $(BPF_OBJS_B_HOOKS)
-# END: Construction of BPF_OBJS_ALL
+UTILS_SRC_DIR = $(DIR_SRC)/utils
+UTILS_BIN_DIR = $(DIR_BIN)/utils
+UTILS_SRC_FILES = $(shell find $(UTILS_SRC_DIR) -name "*.c" -type f)
+UTILS_EXES_ALL := $(patsubst $(DIR_SRC)/%.c,$(DIR_BIN)/%.exe,$(UTILS_SRC_FILES))
 
 
 BPFTOOL_VERSION = v7.2.0
@@ -103,14 +51,21 @@ CLANG_BUILD_UTILS_FLAGS = $(FLAG_INCLUDE_TASK_CTX_ID) -Wall -g -I$(DIR_BUILD) -I
 #	test -x "$(BPFTOOL_EXE_FILE)" || \
 #		chmod +x "$(BPFTOOL_EXE_FILE)"
 
-# BPF objs build
+
+$(BPF_BUILD_DIR)/%.o: $(BPF_SRC_DIR)/%.c
+	@mkdir -p $(@D)
+	clang $(CLANG_BUILD_BPF_FLAGS) $^ -o $@
+
+$(USER_BUILD_DIR)/%.o: $(USER_SRC_DIR)/%.c
+	@mkdir -p $(@D)
+	clang $(CLANG_BUILD_USER_FLAGS) $^ -o $@
+
+$(UTILS_BIN_DIR)/%.exe: $(UTILS_SRC_DIR)/%.c
+	@mkdir -p $(@D)
+	clang $(CLANG_BUILD_UTILS_FLAGS) $^ -o $@
 
 $(DIR_SRC)/common/vmlinux.h: 
 	$(BPFTOOL_EXE_FILE) btf dump file /sys/kernel/btf/vmlinux format c > $@
-
-$(DIR_BUILD_B)/%.bpf.o: $(DIR_SRC_B)/%.bpf.c 
-	@mkdir -p $(@D)
-	clang $(CLANG_BUILD_BPF_FLAGS) $^ -o $@
 
 $(DIR_BUILD)/combined.bpf.o: $(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL)
 	$(BPFTOOL_EXE_FILE) gen object $@ $(BPF_OBJS_ALL)
@@ -118,13 +73,9 @@ $(DIR_BUILD)/combined.bpf.o: $(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL)
 $(DIR_BUILD)/ameba.skel.h: $(DIR_BUILD)/combined.bpf.o
 	$(BPFTOOL_EXE_FILE) gen skeleton $^ name $(BPF_SKEL_NAME) > $@
 
-# USER objs build
+bpf_objs: $(BPF_OBJS_ALL) $(DIR_BUILD)/ameba.skel.h
 
-$(DIR_BUILD_U)/%.o: $(DIR_SRC_U)/%.c
-	@mkdir -p $(@D)
-	clang $(CLANG_BUILD_USER_FLAGS) $^ -o $@
-
-$(DIR_BIN)/ameba: $(DIR_BUILD)/ameba.skel.h $(USER_OBJS_ALL)
+$(DIR_BIN)/ameba: bpf_objs $(USER_OBJS_ALL)
 	clang $(USER_OBJS_ALL) -o $@ -l:$(LIBPF_SO) -lpthread
 
 
@@ -135,13 +86,7 @@ clean:
 	-rm -r $(DIR_BUILD)
 
 
-build_utils: ./src/utils/types_info.c ./src/utils/test_ubsi.c
-	@mkdir -p ./bin/utils
-	clang $(CLANG_BUILD_UTILS_FLAGS) ./src/utils/types_info.c -o ./bin/utils/types_info
-	clang $(CLANG_BUILD_UTILS_FLAGS) ./src/utils/test_ubsi.c -o ./bin/utils/test_ubsi
-
-
-all: $(DIR_BIN)/ameba build_utils
+all: $(DIR_BIN)/ameba $(UTILS_EXES_ALL)
 
 ###
 
