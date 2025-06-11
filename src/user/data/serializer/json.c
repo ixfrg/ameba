@@ -10,13 +10,15 @@ static long data_serializer_json_serialize(void *dst, size_t dst_len, void *data
     if (err != 0)
         return err;
 
+    int write_interpreted = 0;
+
     struct elem_common *e_common = data;
 
     struct json_buffer s;
     jsonify_core_init(&s, dst, dst_len);
     jsonify_core_open_obj(&s);
 
-    int jsonify_result = jsonify_record(&s, e_common, data_len);
+    int jsonify_result = jsonify_record(&s, e_common, data_len, write_interpreted);
 
     jsonify_core_close_obj(&s);
 

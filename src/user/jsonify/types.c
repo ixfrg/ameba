@@ -10,14 +10,6 @@
 #include "user/jsonify/types.h"
 
 
-/*
-    A constant to either interpreted types or raw types.
-
-    Either 0 or 1.
-*/
-static int write_interpreted = 0;
-
-
 static int jsonify_types_write_record_type(struct json_buffer *s, const char *key, record_type_t val)
 {
     return jsonify_core_write_int(s, key, val);
@@ -172,7 +164,7 @@ int jsonify_types_write_event_id(struct json_buffer *s, event_id_t val)
     return jsonify_core_write_ulong(s, "event_id", val);
 }
 
-int jsonify_types_write_sys_id(struct json_buffer *s, sys_id_t sys_id)
+int jsonify_types_write_sys_id(struct json_buffer *s, sys_id_t sys_id, int write_interpreted)
 {
     int total = 0;
     total += jsonify_core_write_int(s, "sys_id", sys_id);
@@ -249,7 +241,7 @@ int jsonify_types_write_elem_las_timestamp(struct json_buffer *s, struct elem_la
     return total;
 }
 
-int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, struct elem_sockaddr *e_sa)
+int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, struct elem_sockaddr *e_sa, int write_interpreted)
 {
     char *s_child_buf = (char *)malloc(sizeof(char) * MAX_BUFFER_LEN);
     if (!s_child_buf)
@@ -259,7 +251,7 @@ int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, st
     jsonify_core_init(&s_child, s_child_buf, MAX_BUFFER_LEN);
     jsonify_core_open_obj(&s_child);
 
-    if (write_interpreted == 0)
+    if (!write_interpreted)
     {
         jsonify_types_write_elem_sockaddr_generic(&s_child, e_sa);
     }else{

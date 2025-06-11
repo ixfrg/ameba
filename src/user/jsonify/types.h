@@ -82,10 +82,12 @@ int jsonify_types_write_event_id(struct json_buffer *s, event_id_t val);
 /*
     Write [,]"sys_id":val where val is sys_id_t.
 
+    Set 'write_interpreted' to non-zero value to write the interpreted value of sys_id as well.
+
     Return:
         See 'jsonify_core_snprintf'.
 */
-int jsonify_types_write_sys_id(struct json_buffer *s, sys_id_t sys_id);
+int jsonify_types_write_sys_id(struct json_buffer *s, sys_id_t sys_id, int write_interpreted);
 
 /*
     Write [,]"sys_name":"val_sys_name" where val_sys_name is interpreted from sys_id.
@@ -113,10 +115,12 @@ int jsonify_types_write_elem_las_timestamp(struct json_buffer *s, struct elem_la
     Write:
         [,]"key":e_sa where written format of e_sa is dependent on the data inside e_sa.
 
+    Set 'write_interpreted' to non-zero value to write the interpreted value of e_sa as well.
+
     Return:
         See 'jsonify_core_snprintf'.
 */
-int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, struct elem_sockaddr *e_sa);
+int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, struct elem_sockaddr *e_sa, int write_interpreted);
 
 /*
     Write:
