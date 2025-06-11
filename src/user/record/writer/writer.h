@@ -1,5 +1,11 @@
 #pragma once
 
+/*
+
+    A module to define the interface for record writer.
+
+*/
+
 #include <stddef.h>
 #include "common/types.h"
 

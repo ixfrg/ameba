@@ -1,8 +1,17 @@
 #pragma once
 
+/*
+
+    A module to define the interface for record deserialization.
+
+*/
+
 #include <stddef.h>
 
 
+/*
+    A struct to define record deserialization. 
+*/
 struct record_deserializer {
 
     /*

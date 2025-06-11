@@ -1,5 +1,11 @@
 #pragma once
 
+/*
+
+    A module to define the interface for record serialization.
+
+*/
+
 #include <sys/types.h>
 
 #include "common/types.h"
