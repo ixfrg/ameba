@@ -10,7 +10,7 @@
 
 static event_id_t current_event_id = 0;
 
-
+/*
 struct
 {
     __uint(type, BPF_MAP_TYPE_TASK_STORAGE);
@@ -18,8 +18,9 @@ struct
     __type(key, int);
     __type(value, event_id_t);
 } task_map_event_id SEC(".maps");
+*/
 
-
+/*
 event_id_t event_id_increment(void)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
@@ -32,7 +33,9 @@ event_id_t event_id_increment(void)
     }
     return e_id;
 }
+*/
 
+/*
 int event_id_get_last_from_task_map(event_id_t *event_id)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
@@ -43,4 +46,10 @@ int event_id_get_last_from_task_map(event_id_t *event_id)
         return 1;
     }
     return 0;
+}
+*/
+
+event_id_t event_id_increment(void)
+{
+    return ++current_event_id;
 }
