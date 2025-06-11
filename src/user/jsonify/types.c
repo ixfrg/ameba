@@ -18,39 +18,9 @@
 static int write_interpreted = 0;
 
 
-int jsonify_types_write_pid(struct json_buffer *s, const char *key, pid_t val)
-{
-    return jsonify_core_write_int(s, key, val);
-}
-
 static int jsonify_types_write_record_type(struct json_buffer *s, const char *key, record_type_t val)
 {
     return jsonify_core_write_int(s, key, val);
-}
-
-int jsonify_types_write_uid(struct json_buffer *s, const char *key, uid_t val)
-{
-    return jsonify_core_write_uint(s, key, val);
-}
-
-int jsonify_types_write_gid(struct json_buffer *s, const char *key, gid_t val)
-{
-    return jsonify_core_write_uint(s, key, val);
-}
-
-int jsonify_types_write_inode(struct json_buffer *s, const char *key, inode_num_t val)
-{
-    return jsonify_core_write_uint(s, key, val);
-}
-
-int jsonify_types_write_event_id(struct json_buffer *s, event_id_t val)
-{
-    return jsonify_core_write_ulong(s, "event_id", val);
-}
-
-int jsonify_types_write_ssize(struct json_buffer *s, const char *key, ssize_t val)
-{
-    return jsonify_core_write_long(s, key, val);
 }
 
 static int jsonify_types_write_version(struct json_buffer *s, const char *key, struct elem_version *version)
@@ -62,62 +32,6 @@ static int jsonify_types_write_version(struct json_buffer *s, const char *key, s
     snprintf(&local_val[0], max_size, "%u.%u.%u", version->major, version->minor, version->patch);
 
     return jsonify_core_write_str(s, key, &local_val[0]);
-}
-
-int jsonify_types_write_sys_id(struct json_buffer *s, sys_id_t sys_id)
-{
-    int total = 0;
-    total += jsonify_core_write_int(s, "sys_id", sys_id);
-    if (write_interpreted)
-    {
-        total += jsonify_types_write_sys_name(s, sys_id);
-    }
-    return total;
-}
-
-int jsonify_types_write_sys_name(struct json_buffer *s, sys_id_t sys_id)
-{
-    char *sys_name;
-    switch (sys_id)
-    {
-    case SYS_ID_FORK:
-        sys_name = "fork";
-        break;
-    case SYS_ID_VFORK:
-        sys_name = "vfork";
-        break;
-    case SYS_ID_CLONE:
-        sys_name = "clone";
-        break;
-    case SYS_ID_SETNS:
-        sys_name = "setns";
-        break;
-    case SYS_ID_UNSHARE:
-        sys_name = "unshare";
-        break;
-    case SYS_ID_SENDTO:
-        sys_name = "sendto";
-        break;
-    case SYS_ID_SENDMSG:
-        sys_name = "sendmsg";
-        break;
-    case SYS_ID_RECVFROM:
-        sys_name = "recvfrom";
-        break;
-    case SYS_ID_RECVMSG:
-        sys_name = "recvmsg";
-        break;
-    case SYS_ID_ACCEPT:
-        sys_name = "accept";
-        break;
-    case SYS_ID_ACCEPT4:
-        sys_name = "accept4";
-        break;
-    default:
-        sys_name = "UNKNOWN";
-        break;
-    }
-    return jsonify_core_write_str(s, "sys_name", sys_name);
 }
 
 static int jsonify_types_write_elem_sockaddr_raw(struct json_buffer *s, struct elem_sockaddr *sa)
@@ -211,6 +125,130 @@ static int jsonify_types_write_sockaddr_nl(struct json_buffer *s, struct sockadd
     return total;
 }
 
+static int jsonify_types_write_elem_timestamp(struct json_buffer *s, struct elem_timestamp *e_ts)
+{
+    int total = 0;
+    total += jsonify_types_write_event_id(s, e_ts->event_id);
+    return total;
+}
+
+int jsonify_types_write_fd(struct json_buffer *s, const char *key, int val)
+{
+    return jsonify_core_write_int(s, key, val);
+}
+
+int jsonify_types_write_return(struct json_buffer *s, const char *key, int val)
+{
+    return jsonify_core_write_int(s, key, val);
+}
+
+int jsonify_types_write_ssize(struct json_buffer *s, const char *key, ssize_t val)
+{
+    return jsonify_core_write_long(s, key, val);
+}
+
+int jsonify_types_write_pid(struct json_buffer *s, const char *key, pid_t val)
+{
+    return jsonify_core_write_int(s, key, val);
+}
+
+int jsonify_types_write_uid(struct json_buffer *s, const char *key, uid_t val)
+{
+    return jsonify_core_write_uint(s, key, val);
+}
+
+int jsonify_types_write_gid(struct json_buffer *s, const char *key, gid_t val)
+{
+    return jsonify_core_write_uint(s, key, val);
+}
+
+int jsonify_types_write_inode(struct json_buffer *s, const char *key, inode_num_t val)
+{
+    return jsonify_core_write_uint(s, key, val);
+}
+
+int jsonify_types_write_event_id(struct json_buffer *s, event_id_t val)
+{
+    return jsonify_core_write_ulong(s, "event_id", val);
+}
+
+int jsonify_types_write_sys_id(struct json_buffer *s, sys_id_t sys_id)
+{
+    int total = 0;
+    total += jsonify_core_write_int(s, "sys_id", sys_id);
+    if (write_interpreted)
+    {
+        total += jsonify_types_write_sys_name(s, sys_id);
+    }
+    return total;
+}
+
+int jsonify_types_write_sys_name(struct json_buffer *s, sys_id_t sys_id)
+{
+    char *sys_name;
+    switch (sys_id)
+    {
+    case SYS_ID_FORK:
+        sys_name = "fork";
+        break;
+    case SYS_ID_VFORK:
+        sys_name = "vfork";
+        break;
+    case SYS_ID_CLONE:
+        sys_name = "clone";
+        break;
+    case SYS_ID_SETNS:
+        sys_name = "setns";
+        break;
+    case SYS_ID_UNSHARE:
+        sys_name = "unshare";
+        break;
+    case SYS_ID_SENDTO:
+        sys_name = "sendto";
+        break;
+    case SYS_ID_SENDMSG:
+        sys_name = "sendmsg";
+        break;
+    case SYS_ID_RECVFROM:
+        sys_name = "recvfrom";
+        break;
+    case SYS_ID_RECVMSG:
+        sys_name = "recvmsg";
+        break;
+    case SYS_ID_ACCEPT:
+        sys_name = "accept";
+        break;
+    case SYS_ID_ACCEPT4:
+        sys_name = "accept4";
+        break;
+    default:
+        sys_name = "UNKNOWN";
+        break;
+    }
+    return jsonify_core_write_str(s, "sys_name", sys_name);
+}
+
+int jsonify_types_write_elem_las_timestamp(struct json_buffer *s, struct elem_las_timestamp *e_las_ts)
+{
+    char *s_child_buf = (char *)malloc(sizeof(char) * MAX_BUFFER_LEN);
+    if (!s_child_buf)
+        return 0;
+
+    struct json_buffer s_child;
+    jsonify_core_init(&s_child, s_child_buf, MAX_BUFFER_LEN);
+    jsonify_core_open_obj(&s_child);
+
+    jsonify_core_write_ulong(&s_child, "event_id", e_las_ts->event_id);
+    jsonify_core_write_timespec64(&s_child, "time", e_las_ts->tv_sec, e_las_ts->tv_nsec);
+
+    jsonify_core_close_obj(&s_child);
+
+    int total = 0;
+    total = jsonify_core_write_as_literal(s, "las_audit", &s_child.buf[0]);
+    free(s_child_buf);
+    return total;
+}
+
 int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, struct elem_sockaddr *e_sa)
 {
     char *s_child_buf = (char *)malloc(sizeof(char) * MAX_BUFFER_LEN);
@@ -254,34 +292,6 @@ int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, st
     return total;
 }
 
-static int jsonify_types_write_elem_timestamp(struct json_buffer *s, struct elem_timestamp *e_ts)
-{
-    int total = 0;
-    total += jsonify_types_write_event_id(s, e_ts->event_id);
-    return total;
-}
-
-int jsonify_types_write_elem_las_timestamp(struct json_buffer *s, struct elem_las_timestamp *e_las_ts)
-{
-    char *s_child_buf = (char *)malloc(sizeof(char) * MAX_BUFFER_LEN);
-    if (!s_child_buf)
-        return 0;
-
-    struct json_buffer s_child;
-    jsonify_core_init(&s_child, s_child_buf, MAX_BUFFER_LEN);
-    jsonify_core_open_obj(&s_child);
-
-    jsonify_core_write_ulong(&s_child, "event_id", e_las_ts->event_id);
-    jsonify_core_write_timespec64(&s_child, "time", e_las_ts->tv_sec, e_las_ts->tv_nsec);
-
-    jsonify_core_close_obj(&s_child);
-
-    int total = 0;
-    total = jsonify_core_write_as_literal(s, "las_audit", &s_child.buf[0]);
-    free(s_child_buf);
-    return total;
-}
-
 int jsonify_types_write_common(
     struct json_buffer *s, struct elem_common *e_common, 
     struct elem_timestamp *e_ts, char *record_type_name
@@ -296,14 +306,4 @@ int jsonify_types_write_common(
     total += jsonify_core_write_ulonglong(s, "task_ctx_id", e_common->task_ctx_id);
 #endif
     return total;
-}
-
-int jsonify_types_write_fd(struct json_buffer *s, const char *key, int val)
-{
-    return jsonify_core_write_int(s, key, val);
-}
-
-int jsonify_types_write_return(struct json_buffer *s, const char *key, int val)
-{
-    return jsonify_core_write_int(s, key, val);
 }

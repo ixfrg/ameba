@@ -2,7 +2,7 @@
 
 /*
 
-    A module to define help with JSON object building.
+    A module to help with JSON object building.
     
     It defines the core components:
     
