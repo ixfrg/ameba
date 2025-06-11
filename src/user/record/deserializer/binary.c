@@ -3,7 +3,7 @@
 #include "user/error.h"
 #include "user/record/deserializer/deserializer.h"
 
-
+/*
 static const int max_buff_len = 1024;
 static const unsigned char buf[max_buff_len];
 static int current_buf_index = 0;
@@ -16,6 +16,7 @@ static void reset_state()
     expected_data_size = 0;
     memset(&buf[0], 0, max_buff_len);
 }
+*/
 
 // static int data_deserializer_binary_deserialize(void *data, size_t data_len)
 // {
