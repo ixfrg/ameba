@@ -249,7 +249,7 @@ int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, st
     jsonify_core_close_obj(&s_child);
 
     int total = 0;
-    total = jsonify_core_write_raw(s, key, &s_child.buf[0]);
+    total = jsonify_core_write_as_literal(s, key, &s_child.buf[0]);
     free(s_child_buf);
     return total;
 }
@@ -277,7 +277,7 @@ int jsonify_types_write_elem_las_timestamp(struct json_buffer *s, struct elem_la
     jsonify_core_close_obj(&s_child);
 
     int total = 0;
-    total = jsonify_core_write_raw(s, "las_audit", &s_child.buf[0]);
+    total = jsonify_core_write_as_literal(s, "las_audit", &s_child.buf[0]);
     free(s_child_buf);
     return total;
 }

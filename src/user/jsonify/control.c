@@ -53,7 +53,7 @@ static int jsonify_control_write_int_list(struct json_buffer *s, char *key, int 
             "%d%s", list[i], i < len - 1 ? ", " : "");
     }
     list_idx += sprintf(&list_str[list_idx], "]");
-    return jsonify_core_write_raw(s, key, &list_str[0]);
+    return jsonify_core_write_as_literal(s, key, &list_str[0]);
 }
 
 int jsonify_control_write_control_input(struct json_buffer *s, struct control_input *val)

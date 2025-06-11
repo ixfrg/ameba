@@ -123,7 +123,7 @@ int jsonify_core_write_str(struct json_buffer *s, const char *key, const char *v
     return total;
 }
 
-int jsonify_core_write_raw(struct json_buffer *s, const char *key, const char *val)
+int jsonify_core_write_as_literal(struct json_buffer *s, const char *key, const char *val)
 {
     int total = 0;
     total += jsonify_core_write_element_divider(s);
