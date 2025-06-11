@@ -1,5 +1,11 @@
 #pragma once
 
+/*
+
+    A module for defining common types (i.e. records, and etc.)
+    used by BPF and user programs.
+
+*/
 
 #include "common/constants.h"
 

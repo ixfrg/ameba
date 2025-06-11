@@ -1,5 +1,11 @@
 #pragma once
 
+/*
+
+    A module for defining control_input i.e. the input to the BPF
+    programs to control the tracing of events.
+
+*/
 
 #define MAX_LIST_ITEMS 10
 
@@ -15,6 +21,9 @@ typedef enum
     CAPTURE
 } trace_mode_t;
 
+/*
+    See argp_option definition in src/user/args/control.c
+*/
 struct control_input
 {
     trace_mode_t global_mode;
