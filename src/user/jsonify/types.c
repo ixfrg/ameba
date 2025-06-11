@@ -202,26 +202,31 @@ int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, st
     jsonify_core_init(&s_child, s_child_buf, MAX_BUFFER_LEN);
     jsonify_core_open_obj(&s_child);
 
-    struct sockaddr *sa = (struct sockaddr *)(e_sa->addr);
-    // jsonify_types_write_elem_sockaddr_generic(&s_child, e_sa);
+    int write_raw = 1;
 
-    switch (sa->sa_family)
+    if (write_raw)
     {
-        case AF_INET:
-            jsonify_types_write_ip4_sockaddr_in(&s_child, (struct sockaddr_in *)sa, e_sa->byte_order);
-            break;
-        case AF_INET6:
-            jsonify_types_write_ip6_sockaddr_in(&s_child, (struct sockaddr_in6 *)sa, e_sa->byte_order);
-            break;
-        case AF_UNIX:
-            jsonify_types_write_sockaddr_un(&s_child, (struct sockaddr_un *)sa);
-            break;
-        case AF_NETLINK:
-            jsonify_types_write_sockaddr_nl(&s_child, (struct sockaddr_nl *)sa);
-            break;
-        default:
-            jsonify_types_write_elem_sockaddr_generic(&s_child, e_sa);
-            break;
+        jsonify_types_write_elem_sockaddr_generic(&s_child, e_sa);
+    }else{
+        struct sockaddr *sa = (struct sockaddr *)(e_sa->addr);
+        switch (sa->sa_family)
+        {
+            case AF_INET:
+                jsonify_types_write_ip4_sockaddr_in(&s_child, (struct sockaddr_in *)sa, e_sa->byte_order);
+                break;
+            case AF_INET6:
+                jsonify_types_write_ip6_sockaddr_in(&s_child, (struct sockaddr_in6 *)sa, e_sa->byte_order);
+                break;
+            case AF_UNIX:
+                jsonify_types_write_sockaddr_un(&s_child, (struct sockaddr_un *)sa);
+                break;
+            case AF_NETLINK:
+                jsonify_types_write_sockaddr_nl(&s_child, (struct sockaddr_nl *)sa);
+                break;
+            default:
+                jsonify_types_write_elem_sockaddr_generic(&s_child, e_sa);
+                break;
+        }
     }
 
     jsonify_core_close_obj(&s_child);
