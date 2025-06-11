@@ -11,13 +11,19 @@
 #include "user/jsonify/core.h"
 
 
+/*
+    Write the data with the specified format into the json_buffer.
+
+    Return:
+        0    => Error i.e. failed to write data to json_buffer.
+        +ive => The number of bytes written.
+*/
 static int jsonify_core_snprintf(struct json_buffer *s, const char *format, ...)
 {
     va_list args;
     int charsWritten;
 
-    if (s->overflown)
-        return 0;
+    if (s->overflown) return 0;
 
     va_start(args, format);
 
@@ -44,6 +50,15 @@ int jsonify_core_get_total_chars_written(struct json_buffer *s)
     return s->bufIdx;
 }
 
+/*
+    A helper function to write the key-val pair separater ','.
+
+    This function can be used to write ',' everytime any other jsonify_* function
+    is used write any key-val.
+
+    Return:
+        See 'jsonify_core_snprintf'.
+*/
 static int jsonify_core_write_element_divider(struct json_buffer *s)
 {
     if (s->bufIdx > 1)
@@ -71,10 +86,6 @@ int jsonify_core_init(struct json_buffer *s, char *dst_buf, unsigned int dst_buf
     memset(&(s->buf[0]), 0, s->maxBufLen);
     return 0;
 }
-
-// static int str_buffer_state_is_full(struct str_buffer_state *s){
-//     return s->remBufLen == 0;
-// }
 
 int jsonify_core_open_obj(struct json_buffer *s)
 {
