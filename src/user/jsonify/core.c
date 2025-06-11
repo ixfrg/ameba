@@ -16,20 +16,19 @@ static int jsonify_core_snprintf(struct json_buffer *s, const char *format, ...)
     va_list args;
     int charsWritten;
 
-    if (s->remBufLen == 0)
-    {
+    if (s->overflown)
         return 0;
-    }
 
     va_start(args, format);
 
     charsWritten = vsnprintf(&(s->buf[s->bufIdx]), s->remBufLen, format, args);
     if (charsWritten >= s->remBufLen)
     {
+        // i.e. the vsnprintf function truncated the result.
         s->overflown = 1;
         s->remBufLen = 0;
         va_end(args);
-        return charsWritten;
+        return 0; // The json buffer is not usable anymore.
     }
     else
     {
