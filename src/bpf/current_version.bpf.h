@@ -1,5 +1,10 @@
 #pragma once
 
+/*
+
+    A module for defining current version of the BPF programs.
+
+*/
 
 #include "common/types.h"
 

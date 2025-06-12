@@ -1,5 +1,11 @@
 #pragma once
 
+/*
+
+    A module for managing event ids used for records.
+
+*/
+
 #include "common/types.h"
 
 
