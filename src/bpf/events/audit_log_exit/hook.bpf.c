@@ -30,6 +30,8 @@ int AMEBA_HOOK(
     if (!audit_context)
         return 0;
 
+    long ret = BPF_CORE_READ(audit_context, return_code);
+
     int syscall_number = BPF_CORE_READ(audit_context, major);
 
     switch (syscall_number)
@@ -37,13 +39,21 @@ int AMEBA_HOOK(
         case __NR_accept:
         case __NR_accept4:
         case __NR_bind:
-        case __NR_connect:
         case __NR_kill:
         case __NR_setns:
         case __NR_unshare:
         case __NR_clone:
         case __NR_clone3:
             break;
+        case __NR_connect:
+            if (ret == 0 || ret == ERROR_EINPROGRESS)
+            {
+                break;
+            }
+            else
+            {
+                return 0; //do not log
+            }
         case __NR_sendmsg:
         case __NR_sendto:
         case __NR_recvmsg:
@@ -69,7 +79,7 @@ int AMEBA_HOOK(
         pid, event_id, syscall_number
     );
 
-    r_ale.ret = BPF_CORE_READ(audit_context, return_code);
+    r_ale.ret = ret;
 
     copy_las_timestamp_from_current_task(&(r_ale.e_las_ts));
 
