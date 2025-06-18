@@ -30,6 +30,11 @@ function set_rules() {
 }
 
 
+function set_default_buffer() {
+    "${auditctl_bin}" -b 1000000
+}
+
+
 function print_help() {
     echo "Usage:"
     echo ""
@@ -53,6 +58,7 @@ function execute_cmd() {
     case $cmd in
         "set")
             set_rules
+            set_default_buffer
             ;;
         "clear")
             clear_rules
