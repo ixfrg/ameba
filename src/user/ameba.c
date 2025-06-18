@@ -39,7 +39,7 @@ static struct ameba *skel = NULL;
 
 static int init_output_writer(){
     const char *prov_output_json_path = "/tmp/current_log.json";
-    const char *prov_output_bin_path = "/tmp/current_log.bin";
+    // const char *prov_output_bin_path = "/tmp/current_log.bin";
 
     default_record_serializer = &record_serializer_json;
     default_record_writer = &record_writer_file;
