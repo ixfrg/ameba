@@ -1,7 +1,7 @@
 #!/bin/sh
 
 
-prov_log_path="/tmp/current_ameba_log.json"
+prov_log_path="/tmp/current_log.json"
 
 
 current_uid=$(id -u)
