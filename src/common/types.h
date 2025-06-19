@@ -155,6 +155,8 @@ struct record_connect
     pid_t pid;
     int fd;
     int ret;
+    inode_num_t ns_net;
+    short int sock_type;
     struct elem_sockaddr local;
     struct elem_sockaddr remote;
 };

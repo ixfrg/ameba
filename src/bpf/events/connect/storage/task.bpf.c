@@ -26,6 +26,17 @@ int connect_storage_insert(struct record_connect *map_val)
     return result != NULL;
 }
 
+int connect_storage_set_sock_type_net_ns(short int sock_type, inode_num_t net_ns)
+{
+    struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    struct record_connect *result = bpf_task_storage_get(&task_map_connect, current_task, NULL, 0);
+    if (!result)
+        return 0;
+    result->sock_type = sock_type;
+    result->ns_net = net_ns;
+    return 1;
+}
+
 int connect_storage_delete(void)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();

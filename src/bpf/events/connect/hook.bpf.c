@@ -155,9 +155,20 @@ int AMEBA_HOOK(
     }
 
     update_connect_map_entry_with_local_saddr(file);
+    
+    struct socket *sock = bpf_sock_from_file(file);
+    if (!sock)
+        return 0;
+    
+    inode_num_t net_ns_inum;
+    copy_net_ns_inum_from_current_task(&net_ns_inum);
+    short int sock_type = (short int)BPF_CORE_READ(sock, type);
+
+    connect_storage_set_sock_type_net_ns(sock_type, net_ns_inum);
 
     return 0;
 }
+
 
 // static u16 local_ntohs(u16 netshort) {
 //     return (netshort >> 8) | (netshort << 8);

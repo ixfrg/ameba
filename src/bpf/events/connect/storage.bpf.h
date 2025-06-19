@@ -6,6 +6,7 @@
 
 
 int connect_storage_insert(struct record_connect *map_val);
+int connect_storage_set_sock_type_net_ns(short int sock_type, inode_num_t net_ns);
 int connect_storage_delete(void);
 int connect_storage_set_props_on_sys_exit(pid_t pid, int fd, int ret, event_id_t event_id);
 int connect_storage_set_local(struct elem_sockaddr *local);
