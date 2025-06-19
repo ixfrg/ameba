@@ -14,7 +14,7 @@
 #include "bpf/helpers/output.bpf.h"
 
 
-static __attribute__((unused)) int send_record_cred(
+static int send_record_cred(
     struct task_struct *task,
     const sys_id_t sys_id
 )
@@ -79,7 +79,7 @@ static int send_record_namespace(
     return 0;
 }
 
-static __attribute__((unused)) int send_record_new_process(
+static int send_record_new_process(
     struct task_struct *task,
     sys_id_t sys_id
 )
@@ -147,9 +147,9 @@ int AMEBA_HOOK(
 
     sys_id_t sys_id = get_sys_id_from_kernel_clone_args(args);
 
-    // send_record_new_process(ret, sys_id);
+    send_record_new_process(ret, sys_id);
+    send_record_cred(ret, sys_id);
     send_record_namespace(parent_task, ret, sys_id);
-    // send_record_cred(ret, sys_id);
 
     return 0;
 }
