@@ -168,6 +168,7 @@ struct record_accept
     pid_t pid;
     sys_id_t sys_id;
     int fd;
+    int ret;
     inode_num_t ns_net;
     short int sock_type;
     struct elem_sockaddr local;
