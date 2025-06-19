@@ -1,45 +1,53 @@
-ARCH=arm64
+ARCH := $(shell uname -m)
 
-FLAG_INCLUDE_TASK_CTX_ID = -DINCLUDE_TASK_CTX_ID
+ifeq ($(ARCH),x86_64)
+	TARGET_ARCH := x86
+else ifeq ($(ARCH),aarch64)
+	TARGET_ARCH := arm64
+else
+	TARGET_ARCH := $(ARCH)
+endif
 
-DIR_SRC = src
-DIR_BUILD = build
-DIR_BIN = bin
+FLAG_INCLUDE_TASK_CTX_ID := -DINCLUDE_TASK_CTX_ID
 
-BPF_SKEL_NAME = ameba
+DIR_SRC := src
+DIR_BUILD := build
+DIR_BIN := bin
+
+BPF_SKEL_NAME := ameba
 
 
-USER_SRC_DIR = $(DIR_SRC)/user
-USER_BUILD_DIR = $(DIR_BUILD)/user
-USER_SRC_FILES = $(shell find $(USER_SRC_DIR) -name "*.c" -type f)
-USER_OBJS_ALL = $(patsubst $(DIR_SRC)/%.c,$(DIR_BUILD)/%.o,$(USER_SRC_FILES))
+USER_SRC_DIR := $(DIR_SRC)/user
+USER_BUILD_DIR := $(DIR_BUILD)/user
+USER_SRC_FILES := $(shell find $(USER_SRC_DIR) -name "*.c" -type f)
+USER_OBJS_ALL := $(patsubst $(DIR_SRC)/%.c,$(DIR_BUILD)/%.o,$(USER_SRC_FILES))
 
-BPF_SRC_DIR = $(DIR_SRC)/bpf
-BPF_BUILD_DIR = $(DIR_BUILD)/bpf
-BPF_SRC_FILES = $(shell find $(BPF_SRC_DIR) -name "*.c" -type f)
+BPF_SRC_DIR := $(DIR_SRC)/bpf
+BPF_BUILD_DIR := $(DIR_BUILD)/bpf
+BPF_SRC_FILES := $(shell find $(BPF_SRC_DIR) -name "*.c" -type f)
 BPF_OBJS_ALL := $(patsubst $(DIR_SRC)/%.c,$(DIR_BUILD)/%.o,$(BPF_SRC_FILES))
 
-UTILS_SRC_DIR = $(DIR_SRC)/utils
-UTILS_BIN_DIR = $(DIR_BIN)/utils
-UTILS_SRC_FILES = $(shell find $(UTILS_SRC_DIR) -name "*.c" -type f)
+UTILS_SRC_DIR := $(DIR_SRC)/utils
+UTILS_BIN_DIR := $(DIR_BIN)/utils
+UTILS_SRC_FILES := $(shell find $(UTILS_SRC_DIR) -name "*.c" -type f)
 UTILS_EXES_ALL := $(patsubst $(DIR_SRC)/%.c,$(DIR_BIN)/%.exe,$(UTILS_SRC_FILES))
 
 
-BPFTOOL_VERSION = v7.2.0
-BPFTOOL_ARCH = $(ARCH)
-BPFTOOL_URL = https://github.com/libbpf/bpftool/releases/download/$(BPFTOOL_VERSION)/bpftool-$(BPFTOOL_VERSION)-$(BPFTOOL_ARCH).tar.gz
-BPFTOOL_TARGZ_FILE = $(DIR_BIN)/bpftool.tar.gz
-BPFTOOL_EXE_FILE = $(DIR_BIN)/bpftool
+BPFTOOL_VERSION := v7.2.0
+BPFTOOL_ARCH := $(TARGET_ARCH)
+BPFTOOL_URL := https://github.com/libbpf/bpftool/releases/download/$(BPFTOOL_VERSION)/bpftool-$(BPFTOOL_VERSION)-$(BPFTOOL_ARCH).tar.gz
+BPFTOOL_TARGZ_FILE := $(DIR_BIN)/bpftool.tar.gz
+BPFTOOL_EXE_FILE := $(DIR_BIN)/bpftool
 # Overwrite the variable BPFTOOL_EXE_FILE
-BPFTOOL_EXE_FILE = /usr/sbin/bpftool
+BPFTOOL_EXE_FILE := /usr/sbin/bpftool
 
 
-LIBPF_SO = libbpf.so.1
+LIBPF_SO := libbpf.so.1
 
 
-CLANG_BUILD_BPF_FLAGS = $(FLAG_INCLUDE_TASK_CTX_ID) -D__TARGET_ARCH_$(ARCH) -O2 -Wall -mcpu=v4 -target bpf -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
-CLANG_BUILD_USER_FLAGS = $(FLAG_INCLUDE_TASK_CTX_ID) -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
-CLANG_BUILD_UTILS_FLAGS = $(FLAG_INCLUDE_TASK_CTX_ID) -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC)
+CLANG_BUILD_BPF_FLAGS := $(FLAG_INCLUDE_TASK_CTX_ID) -D__TARGET_ARCH_$(TARGET_ARCH) -O2 -Wall -mcpu=v4 -target bpf -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
+CLANG_BUILD_USER_FLAGS := $(FLAG_INCLUDE_TASK_CTX_ID) -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
+CLANG_BUILD_UTILS_FLAGS := $(FLAG_INCLUDE_TASK_CTX_ID) -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC)
 
 
 #download_bpftool:
