@@ -7,8 +7,11 @@
 #include "user/args/control.h"
 
 
-static char doc[] = "Parse Control Input";
-static char args_doc[] = "";
+static error_t parse_opt(int key, char *arg, struct argp_state *state);
+
+
+struct control_input global_control_input;
+
 
 enum
 {
@@ -32,7 +35,39 @@ static struct argp_option options[] = {
     {"ppid-mode", OPT_PPID_MODE, "MODE", 0, "PPID trace mode (ignore|capture)", 0},
     {"ppid-list", OPT_PPID_LIST, "PPIDS", 0, "Comma-separated list of PPIDs", 0},
     {"netio-mode", OPT_NETIO_MODE, "MODE", 0, "Network I/O trace mode (ignore|capture)", 0},
-    {0}};
+    {0}
+};
+
+// Argp parser structure
+struct argp global_control_input_argp = {
+    .options = options,
+    .parser = parse_opt,
+    .args_doc = "",
+    .doc = "Parse Control Input",
+    .children = 0,
+    .help_filter = 0,
+    .argp_domain = 0
+};
+
+static struct control_input *get_global_control_input()
+{
+    return &global_control_input;
+}
+
+static void init_control_input(struct control_input *input)
+{
+    if (!input)
+        return;
+    input->lock = FREE;
+    input->global_mode = IGNORE;
+    input->uid_mode = IGNORE;
+    input->uids_len = 0;
+    input->pid_mode = IGNORE;
+    input->pids_len = 0;
+    input->ppid_mode = IGNORE;
+    input->ppids_len = 0;
+    input->netio_mode = IGNORE;
+}
 
 static int find_string_index(const char *haystack, const char *needle)
 {
@@ -144,10 +179,7 @@ static error_t validate_control_input(struct control_input *input, struct argp_s
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-    struct control_input *input = state->input;
-    printf("key=0x%x\n", key);
-    printf("state->input=%p\n", state->input);
-
+    struct control_input *input = get_global_control_input();
     int negative_disallowed = 1;
 
     switch (key)
@@ -176,6 +208,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     case OPT_NETIO_MODE:
         return parse_mode(&input->netio_mode, arg, state);
 
+    case ARGP_KEY_INIT:
+        init_control_input(input);
+        break;
+
     case ARGP_KEY_ARG:
         // No positional arguments expected
         argp_usage(state);
@@ -191,36 +227,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-// Argp parser structure
-struct argp control_input_argp = {
-    .options = options,
-    .parser = parse_opt,
-    .args_doc = args_doc,
-    .doc = doc,
-    .children = 0,
-    .help_filter = 0,
-    .argp_domain = 0};
-
-void init_control_input(struct control_input *input)
+int user_args_control_must_parse_control_input(int argc, char **argv)
 {
-    if (!input)
-        return;
-    input->lock = FREE;
-    input->global_mode = IGNORE;
-    input->uid_mode = IGNORE;
-    input->uids_len = 0;
-    input->pid_mode = IGNORE;
-    input->pids_len = 0;
-    input->ppid_mode = IGNORE;
-    input->ppids_len = 0;
-    input->netio_mode = IGNORE;
-}
-
-int user_args_control_must_parse_control_input(struct control_input *dst, int argc, char **argv)
-{
-    init_control_input(dst);
-
-    error_t err = argp_parse(&control_input_argp, argc, argv, 0, 0, dst);
+    error_t err = argp_parse(&global_control_input_argp, argc, argv, 0, 0, 0);
 
     return err;
 }

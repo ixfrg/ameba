@@ -18,6 +18,7 @@
 #include "user/args/control.h"
 #include "user/args/user.h"
 #include "user/jsonify/control.h"
+#include "user/jsonify/user.h"
 #include "common/constants.h"
 #include "user/error.h"
 
@@ -38,9 +39,16 @@ static const struct record_writer *default_record_writer;
 static struct ameba *skel = NULL;
 
 
-static int init_output_writer(){
-    const char *prov_output_json_path = "/tmp/current_log.json";
-    // const char *prov_output_bin_path = "/tmp/current_log.bin";
+static int init_output_writer(struct user_input *input){
+    const char *prov_output_json_path;
+    
+    if (input->o_type == OUTPUT_FILE)
+    {
+        prov_output_json_path = &(input->output_file.path[0]);
+    } else {
+        printf("Unsupported output type\n");
+        return -1;
+    }
 
     default_record_serializer = &record_serializer_json;
     default_record_writer = &record_writer_file;
@@ -111,9 +119,11 @@ static void sig_handler(int sig)
 
 static int parse_user_input(struct user_input *input, int argc, char *argv[])
 {
-    return user_args_user_must_parse_user_input(
-        input, argc, argv
-    );
+    int ret = user_args_user_must_parse_user_input(argc, argv);
+    if(ret == 0){
+        memcpy(input, &global_user_input, sizeof(*input));
+    }
+    return ret;
 }
 
 static int update_control_input_map(struct control_input *input)
@@ -174,6 +184,22 @@ static void print_current_control_input()
     printf("%s\n", dst);
 }
 
+static void print_user_input(struct user_input *user_input)
+{
+    int dst_len = 1024;
+    char dst[dst_len];
+
+    struct json_buffer s;
+    jsonify_core_init(&s, dst, dst_len);
+    jsonify_core_open_obj(&s);
+
+    jsonify_user_write_user_input(&s, user_input);
+
+    jsonify_core_close_obj(&s);
+
+    printf("User input: %s\n", dst);
+}
+
 int main(int argc, char *argv[])
 {
     int result;
@@ -187,6 +213,8 @@ int main(int argc, char *argv[])
     {
         return result;
     }
+
+    print_user_input(&input);
 
     syslog(LOG_INFO, "%s : Registering signal handler...\n", log_prefix);
     signal(SIGTERM, sig_handler);
@@ -228,7 +256,7 @@ int main(int argc, char *argv[])
 
     ringbuf = ring_buffer__new(ringbuf_map_fd, handle_ringbuf_data, NULL, NULL);
 
-    int writer_error = init_output_writer();
+    int writer_error = init_output_writer(&input);
     if (writer_error != 0)
     {
         syslog(LOG_ERR, "%s : Error creating log file writer\n", log_prefix);

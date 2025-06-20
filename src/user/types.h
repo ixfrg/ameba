@@ -31,9 +31,7 @@ enum output_type {
 struct user_input
 {
     struct control_input c_in;
-    union {
-        struct output_file file;
-        struct output_net net;
-    } output;
+    struct output_file output_file;
+    struct output_net output_net;
     enum output_type o_type;
 };
