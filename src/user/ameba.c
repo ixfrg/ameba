@@ -44,8 +44,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/record/serializer/serializer.h"
 #include "user/record/writer/writer.h"
 
+#include "user/helpers/log.h"
+
 #include "ameba.skel.h"
 
+//
 
 extern const struct record_serializer record_serializer_json;
 extern const struct record_writer record_writer_file;
@@ -53,13 +56,14 @@ extern const struct record_writer record_writer_net;
 
 //
 
-static const char *log_prefix = "[ameba] [user]";
-
 static const struct record_serializer *default_record_serializer;
 static const struct record_writer *default_record_writer;
 
+//
+
 static struct ameba *skel = NULL;
 
+//
 
 static int select_default_output_writer(
     struct user_input *input,
@@ -99,14 +103,14 @@ static int init_output_writer(struct user_input *input){
     int err = select_default_output_writer(input, &record_writer_init_args, &record_writer_init_args_size);
     if (err)
     {
-        syslog(LOG_ERR, "%s : Error selecting a valid output writer\n", log_prefix);
+        log_stopped_with_error("Error selecting a valid output writer");
         return -1;
     }
 
     err = select_default_record_serializer();
     if (err)
     {
-        syslog(LOG_ERR, "%s : Error selecting a valid record serializer\n", log_prefix);
+        log_stopped_with_error("Error selecting a valid record serializer");
         return -1;
     }
 
@@ -115,14 +119,14 @@ static int init_output_writer(struct user_input *input){
     );
     if (err != 0)
     {
-        syslog(LOG_ERR, "%s : Error setting init args for the output writer\n", log_prefix);
+        log_stopped_with_error("Error setting init args for the output writer");
         return -1;
     }
 
     err = default_record_writer->init();
     if (err != 0)
     {
-        syslog(LOG_ERR, "%s : Error initing output writer\n", log_prefix);
+        log_stopped_with_error("Error initing output writer");
         return -1;
     }
     return 0;
@@ -143,14 +147,14 @@ static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
     long data_copied_to_dst = default_record_serializer->serialize(dst, dst_len, data, data_len);
     if (data_copied_to_dst <= 0)
     {
-        printf("%s : Failed data conversion. Error: %lu\n", log_prefix, data_copied_to_dst);
+        log_operational_with_error("Failed data conversion");
         goto free_dst;
     }
 
     int write_result = default_record_writer->write(dst, data_copied_to_dst);
     if (write_result < 0)
     {
-        printf("%s : Failed data write. Error: %d\n", log_prefix, write_result);
+        log_operational_with_error("Failed data write");
         goto free_dst;
     }
 
@@ -164,12 +168,12 @@ static void sig_handler(int sig)
 {
     if (sig == SIGTERM)
     {
-        syslog(LOG_INFO, "%s : Received termination signal...\n", log_prefix);
         close_output_writer();
         if (skel != NULL)
         {
             ameba__destroy(skel);
         }
+        log_stopped_normally("Stopped... received termination signal");
         exit(0);
     }
 }
@@ -225,7 +229,7 @@ static void print_current_control_input()
 
     if (get_control_input_from_map(&result) != 0)
     {
-        printf("Failed to get control input entry from map\n");
+        log_starting("Failed to get control input entry from map");
         return;
     }
 
@@ -237,8 +241,7 @@ static void print_current_control_input()
 
     jsonify_core_close_obj(&s);
 
-    printf("Control Input set in EBPF map:\n");
-    printf("%s\n", dst);
+    log_starting(&dst[0]);
 }
 
 static void print_user_input(struct user_input *user_input)
@@ -254,7 +257,7 @@ static void print_user_input(struct user_input *user_input)
 
     jsonify_core_close_obj(&s);
 
-    printf("User input: %s\n", dst);
+    log_starting(&dst[0]);
 }
 
 int main(int argc, char *argv[])
@@ -273,13 +276,13 @@ int main(int argc, char *argv[])
 
     print_user_input(&input);
 
-    syslog(LOG_INFO, "%s : Registering signal handler...\n", log_prefix);
+    log_starting("Registering signal handler");
     signal(SIGTERM, sig_handler);
 
     skel = ameba__open_and_load();
     if (!skel)
     {
-        syslog(LOG_ERR, "%s : Failed to load bpf skeleton\n", log_prefix);
+        log_stopped_with_error("Failed to load bpf skeleton");
         result = 1;
         return result;
     }
@@ -287,7 +290,7 @@ int main(int argc, char *argv[])
     result = update_control_input_map(&input.c_in);
     if (result != 0)
     {
-        syslog(LOG_ERR, "%s : Error updaing control input\n", log_prefix);
+        log_stopped_with_error("Error updating control input");
         result = 1;
         goto skel_destroy;
     }
@@ -297,7 +300,7 @@ int main(int argc, char *argv[])
     err = ameba__attach(skel);
     if (err != 0)
     {
-        syslog(LOG_ERR, "%s : Error attaching skeleton\n", log_prefix);
+        log_stopped_with_error("Error attaching skeleton");
         result = 1;
         goto skel_destroy;
     }
@@ -306,7 +309,7 @@ int main(int argc, char *argv[])
     ringbuf_map_fd = bpf_object__find_map_fd_by_name(skel->obj, OUTPUT_RINGBUF_MAP_NAME);
     if (ringbuf_map_fd < 0)
     {
-        syslog(LOG_ERR, "%s : Failed to find ring buffer map object\n", log_prefix);
+        log_stopped_with_error("Failed to find ring buffer map object");
         result = 1;
         goto skel_detach;
     }
@@ -316,12 +319,12 @@ int main(int argc, char *argv[])
     int writer_error = init_output_writer(&input);
     if (writer_error != 0)
     {
-        syslog(LOG_ERR, "%s : Error creating output writer\n", log_prefix);
+        log_stopped_with_error("Error creating output writer");
         result = 1;
         goto skel_detach;
     }
 
-    printf("%s : Started\n", log_prefix);
+    log_operational("Started successfully");
 
     while (ring_buffer__poll(ringbuf, -1) >= 0)
     {
