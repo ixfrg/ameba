@@ -6,6 +6,7 @@
 
 #include "user/args/control.h"
 
+
 static char doc[] = "Parse Control Input";
 static char args_doc[] = "";
 
@@ -144,6 +145,8 @@ static error_t validate_control_input(struct control_input *input, struct argp_s
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
     struct control_input *input = state->input;
+    printf("key=0x%x\n", key);
+    printf("state->input=%p\n", state->input);
 
     int negative_disallowed = 1;
 
@@ -188,8 +191,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-// Argp parser structure TODO
-static struct argp argp = {
+// Argp parser structure
+struct argp control_input_argp = {
     .options = options,
     .parser = parse_opt,
     .args_doc = args_doc,
@@ -198,8 +201,10 @@ static struct argp argp = {
     .help_filter = 0,
     .argp_domain = 0};
 
-static void init_control_input(struct control_input *input)
+void init_control_input(struct control_input *input)
 {
+    if (!input)
+        return;
     input->lock = FREE;
     input->global_mode = IGNORE;
     input->uid_mode = IGNORE;
@@ -215,11 +220,7 @@ int user_args_control_must_parse_control_input(struct control_input *dst, int ar
 {
     init_control_input(dst);
 
-    error_t err = argp_parse(&argp, argc, argv, 0, 0, dst);
+    error_t err = argp_parse(&control_input_argp, argc, argv, 0, 0, dst);
 
-    // if (err == 0)
-    // {
-    //     print_control_input(dst);
-    // }
     return err;
 }

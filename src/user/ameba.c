@@ -16,6 +16,7 @@
 #include "common/types.h"
 
 #include "user/args/control.h"
+#include "user/args/user.h"
 #include "user/jsonify/control.h"
 #include "common/constants.h"
 #include "user/error.h"
@@ -108,9 +109,9 @@ static void sig_handler(int sig)
     }
 }
 
-static int parse_user_input(struct control_input *input, int argc, char *argv[])
+static int parse_user_input(struct user_input *input, int argc, char *argv[])
 {
-    return user_args_control_must_parse_control_input(
+    return user_args_user_must_parse_user_input(
         input, argc, argv
     );
 }
@@ -178,7 +179,7 @@ int main(int argc, char *argv[])
     int result;
     struct ring_buffer *ringbuf = NULL;
     int err, ringbuf_map_fd;
-    struct control_input input;
+    struct user_input input;
     
     result = parse_user_input(&input, argc, argv);
 
@@ -198,7 +199,7 @@ int main(int argc, char *argv[])
         return result;
     }
 
-    result = update_control_input_map(&input);
+    result = update_control_input_map(&input.c_in);
     if (result != 0)
     {
         syslog(LOG_ERR, "%s : Error updaing control input\n", log_prefix);
