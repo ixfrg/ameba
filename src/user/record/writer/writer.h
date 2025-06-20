@@ -43,5 +43,5 @@ struct record_writer
             -1  => The underlying write failed
             >=0 => The bytes written
     */
-    int (*write) (struct elem_common *record, size_t record_len);
+    int (*write) (void *data, size_t data_len);
 };

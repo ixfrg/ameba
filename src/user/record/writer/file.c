@@ -1,70 +1,69 @@
-#include <fcntl.h>
-#include <unistd.h>
-#include <time.h>
 #include <stdio.h>
-#include <errno.h>
 #include <stdlib.h>
-#include <linux/limits.h>
 #include <string.h>
-#include <sys/types.h>
+#include <unistd.h>
+#include <limits.h>
+#include <fcntl.h>
 
 #include "user/record/writer/writer.h"
+#include "user/types.h"
 
 
-static char filepath[PATH_MAX];
-static int data_writer_file_fd = -1;
-
-
-static int record_writer_file_set_init_args(void *ptr, size_t ptr_len)
-{
-    if (!ptr)
-        return -1;
-    
-    if (ptr_len >= PATH_MAX)
-        return -1;
-
-    memcpy(&filepath[0], ptr, ptr_len);
-    return 0;
-}
-
-static int record_writer_file_init()
-{
-    char *fpath = &filepath[0];
-
+static struct {
     int fd;
+    int initialized;
+    struct output_file init_args;
+} state = {0};
 
-    fd = open(fpath, O_RDWR | O_CREAT | O_TRUNC, 0666);
 
-    if (fd == -1)
+static int set_init_args_file(void *ptr, size_t ptr_len) {
+    if (ptr_len != sizeof(struct output_file))
         return -1;
 
-    data_writer_file_fd = fd;
+    struct output_file *in = (struct output_file *)ptr;
 
+    if (strlen(in->path) == 0 || strlen(in->path) >= PATH_MAX)
+        return -1;
+
+    memcpy(&state.init_args, in, sizeof(struct output_file));
     return 0;
 }
 
-static int record_writer_file_close()
-{
-    close(data_writer_file_fd);
-    data_writer_file_fd = -1;
-    memset(&filepath[0], 0, PATH_MAX);
+static int init_file() {
+    if (state.initialized)
+        return 0;
+
+    state.fd = open(state.init_args.path, O_RDWR | O_CREAT | O_TRUNC, 0666);
+    if (state.fd == -1)
+        return -1;
+
+    state.initialized = 1;
     return 0;
 }
 
-static int record_writer_file_write(struct elem_common *record, size_t record_len)
-{
-    if (data_writer_file_fd == -1)
+static int close_file() {
+    if (state.initialized) {
+        close(state.fd);
+        state.fd = 0;
+        state.initialized = 0;
+    }
+    return 0;
+}
+
+static int write_file(void *data, size_t data_len) {
+    if (!state.initialized)
         return -2;
-    return write(data_writer_file_fd, record, record_len);
+
+    size_t written = write(state.fd, data, data_len);
+    if (written != data_len)
+        return -1;
+
+    return (int)written;
 }
 
-
-const struct record_writer record_writer_file =
-{
-    .set_init_args = record_writer_file_set_init_args,
-    .init = record_writer_file_init,
-    .close = record_writer_file_close,
-    .write = record_writer_file_write
+const struct record_writer record_writer_file = {
+    .set_init_args = set_init_args_file,
+    .init = init_file,
+    .close = close_file,
+    .write = write_file,
 };
-
-

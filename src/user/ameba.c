@@ -30,6 +30,9 @@
 
 extern const struct record_serializer record_serializer_json;
 extern const struct record_writer record_writer_file;
+extern const struct record_writer record_writer_net;
+
+//
 
 static const char *log_prefix = "[ameba] [user]";
 
@@ -39,33 +42,68 @@ static const struct record_writer *default_record_writer;
 static struct ameba *skel = NULL;
 
 
-static int init_output_writer(struct user_input *input){
-    const char *prov_output_json_path;
-    
-    if (input->o_type == OUTPUT_FILE)
+static int select_default_output_writer(
+    struct user_input *input,
+    void **o_writer_args_ptr,
+    size_t *o_writer_args_ptr_size
+)
+{
+    switch (input->o_type)
     {
-        prov_output_json_path = &(input->output_file.path[0]);
-    } else {
-        printf("Unsupported output type\n");
-        return -1;
+        case OUTPUT_FILE:
+            *o_writer_args_ptr = &(input->output_file);
+            *o_writer_args_ptr_size = sizeof(input->output_file);
+            default_record_writer = &record_writer_file;
+            return 0;
+        case OUTPUT_NET:
+            *o_writer_args_ptr = &(input->output_net);
+            *o_writer_args_ptr_size = sizeof(input->output_net);
+            default_record_writer = &record_writer_net;
+            return 0;
+        default:
+            return 1;
     }
+}
 
+
+static int select_default_record_serializer()
+{
     default_record_serializer = &record_serializer_json;
-    default_record_writer = &record_writer_file;
+    return 0;
+}
 
-    int writer_init_error = default_record_writer->set_init_args(
-        (void*)prov_output_json_path, strlen(prov_output_json_path)
-    );
-    if (writer_init_error != 0)
+
+static int init_output_writer(struct user_input *input){
+    void *record_writer_init_args = NULL;
+    size_t record_writer_init_args_size = 0;
+    
+    int err = select_default_output_writer(input, &record_writer_init_args, &record_writer_init_args_size);
+    if (err)
     {
-        syslog(LOG_ERR, "%s : Error creating log file\n", log_prefix);
+        syslog(LOG_ERR, "%s : Error selecting a valid output writer\n", log_prefix);
         return -1;
     }
 
-    int writer_error = default_record_writer->init();
-    if (writer_error != 0)
+    err = select_default_record_serializer();
+    if (err)
     {
-        syslog(LOG_ERR, "%s : Error creating log file\n", log_prefix);
+        syslog(LOG_ERR, "%s : Error selecting a valid record serializer\n", log_prefix);
+        return -1;
+    }
+
+    err = default_record_writer->set_init_args(
+        record_writer_init_args, record_writer_init_args_size
+    );
+    if (err != 0)
+    {
+        syslog(LOG_ERR, "%s : Error setting init args for the output writer\n", log_prefix);
+        return -1;
+    }
+
+    err = default_record_writer->init();
+    if (err != 0)
+    {
+        syslog(LOG_ERR, "%s : Error initing output writer\n", log_prefix);
         return -1;
     }
     return 0;
@@ -259,7 +297,7 @@ int main(int argc, char *argv[])
     int writer_error = init_output_writer(&input);
     if (writer_error != 0)
     {
-        syslog(LOG_ERR, "%s : Error creating log file writer\n", log_prefix);
+        syslog(LOG_ERR, "%s : Error creating output writer\n", log_prefix);
         result = 1;
         goto skel_detach;
     }
