@@ -15,7 +15,7 @@ struct output_file
 
 struct output_net
 {
-    short int ip_version;
+    int ip_family;
     char ip[INET6_ADDRSTRLEN];
     int port;
 };

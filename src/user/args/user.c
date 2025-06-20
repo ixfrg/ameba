@@ -119,7 +119,7 @@ static int parse_ip(struct user_input *dst, char *arg, struct argp_state *state)
     if (inet_pton(AF_INET, arg, &ipv4) == 1) {
         char *buf = (char*)&(dst->output_net.ip[0]);
         if (inet_ntop(AF_INET, &ipv4, buf, INET6_ADDRSTRLEN)) {
-            dst->output_net.ip_version = 4;
+            dst->output_net.ip_family = AF_INET;
             dst->o_type = OUTPUT_NET;
             return 0;
         }
@@ -128,7 +128,7 @@ static int parse_ip(struct user_input *dst, char *arg, struct argp_state *state)
     if (inet_pton(AF_INET6, arg, &ipv6) == 1) {
         char *buf = (char*)&(dst->output_net.ip[0]);
         if (inet_ntop(AF_INET6, &ipv6, buf, INET6_ADDRSTRLEN)) {
-            dst->output_net.ip_version = 6;
+            dst->output_net.ip_family = AF_INET6;
             dst->o_type = OUTPUT_NET;
             return 0;
         }
