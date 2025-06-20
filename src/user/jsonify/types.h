@@ -98,6 +98,14 @@ int jsonify_types_write_sys_id(struct json_buffer *s, sys_id_t sys_id, int write
 int jsonify_types_write_sys_name(struct json_buffer *s, sys_id_t sys_id);
 
 /*
+    Write [,]"key":"val_ip_family_name" where val_ip_family_name is interpreted from ip_family.
+
+    Return:
+        See 'jsonify_core_snprintf'.
+*/
+int jsonify_types_write_ip_family_name(struct json_buffer *s, char *key, int ip_family);
+
+/*
     Write:
         [,]"las_audit":
         {

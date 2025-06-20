@@ -220,6 +220,24 @@ int jsonify_types_write_sys_name(struct json_buffer *s, sys_id_t sys_id)
     return jsonify_core_write_str(s, "sys_name", sys_name);
 }
 
+int jsonify_types_write_ip_family_name(struct json_buffer *s, char *key, int ip_family)
+{
+    char *ip_family_name;
+    switch (ip_family)
+    {
+    case AF_INET:
+        ip_family_name = "AF_INET";
+        break;
+    case AF_INET6:
+        ip_family_name = "AF_INET6";
+        break;
+    default:
+        ip_family_name = "UNKNOWN";
+        break;
+    }
+    return jsonify_core_write_str(s, key, ip_family_name);
+}
+
 int jsonify_types_write_elem_las_timestamp(struct json_buffer *s, struct elem_las_timestamp *e_las_ts)
 {
     char *s_child_buf = (char *)malloc(sizeof(char) * MAX_BUFFER_LEN);

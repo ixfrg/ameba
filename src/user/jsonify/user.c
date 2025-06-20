@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "user/jsonify/types.h"
 #include "user/jsonify/control.h"
 #include "user/jsonify/user.h"
 
@@ -28,7 +29,7 @@ int jsonify_user_write_output_net(struct json_buffer *s, struct output_net *o_ne
     jsonify_core_open_obj(&s_child);
     jsonify_core_write_str(&s_child, "ip", o_net->ip);
     jsonify_core_write_int(&s_child, "port", o_net->port);
-    jsonify_core_write_short(&s_child, "ip_version", o_net->ip_version);
+    jsonify_types_write_ip_family_name(&s_child, "ip_family", o_net->ip_family);
     jsonify_core_close_obj(&s_child);
 
 
