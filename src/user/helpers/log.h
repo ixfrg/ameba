@@ -27,16 +27,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/jsonify/core.h"
 
 
-#define TEXT_SIZE 1024
-
-
 typedef enum
 {
-    STARTING = 1,
-    OPERATIONAL = 2,
-    OPERATIONAL_WITH_ERROR = 3,
-    STOPPED_WITH_ERROR = 4,
-    STOPPED_NORMALLY = 5
+    STATE_STARTING = 1,
+    STATE_OPERATIONAL = 2,
+    STATE_OPERATIONAL_WITH_ERROR = 3,
+    STATE_STOPPED_WITH_ERROR = 4,
+    STATE_STOPPED_NORMALLY = 5
 } state_t;
 
 
@@ -44,15 +41,16 @@ struct msg
 {
     struct timespec ts;
     state_t state;
-    char json_text[TEXT_SIZE];
+    struct json_buffer *json;
 };
 
 
-void __log(FILE *out_f, state_t state, struct json_buffer *js);
+void __log_state(FILE *out_f, state_t state, struct json_buffer *js);
 
+void log_state(state_t state, struct json_buffer *js);
 
-#define log_starting(js) __log(stdout, STARTING, js)
-#define log_operational(js) __log(stdout, OPERATIONAL, js)
-#define log_operational_with_error(js) __log(stdout, OPERATIONAL_WITH_ERROR, js)
-#define log_stopped_with_error(js) __log(stdout, STOPPED_WITH_ERROR, js)
-#define log_stopped_normally(js) __log(stdout, STOPPED_NORMALLY, js)
+void log_state_starting(struct json_buffer *js);
+void log_state_operational(struct json_buffer *js);
+void log_state_operational_with_error(struct json_buffer *js);
+void log_state_stopped_with_error(struct json_buffer *js);
+void log_state_stopped_normally(struct json_buffer *js);

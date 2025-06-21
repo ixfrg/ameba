@@ -24,14 +24,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/helpers/log.h"
 
 
-void __log(FILE *out_f, state_t state, struct json_buffer *js_text)
+void __log_state(FILE *out_f, state_t state, struct json_buffer *js)
 {
     struct msg m;
     clock_gettime(CLOCK_REALTIME, &m.ts);
     m.state = state;
-    memcpy(&(m.json_text[0]), &(js_text->buf[0]), TEXT_SIZE);
+    m.json = js;
 
-    int js_msg_buffer_size = TEXT_SIZE + 512;
+    int js_msg_buffer_size = 1024;
     char *js_msg_buffer = malloc(sizeof(char) * js_msg_buffer_size);
     if (!js_msg_buffer)
         return;
@@ -46,4 +46,34 @@ void __log(FILE *out_f, state_t state, struct json_buffer *js_text)
     fprintf(out_f, "%s\n", js_msg_buffer);
 
     free(js_msg_buffer);
+}
+
+void log_state(state_t state, struct json_buffer *js)
+{
+    __log_state(stdout, state, js);
+}
+
+void log_state_starting(struct json_buffer *js)
+{
+    log_state(STATE_STARTING, js);
+}
+
+void log_state_operational(struct json_buffer *js)
+{
+    log_state(STATE_OPERATIONAL, js);
+}
+
+void log_state_operational_with_error(struct json_buffer *js)
+{
+    log_state(STATE_OPERATIONAL_WITH_ERROR, js);
+}
+
+void log_state_stopped_with_error(struct json_buffer *js)
+{
+    log_state(STATE_STOPPED_WITH_ERROR, js);
+}
+
+void log_state_stopped_normally(struct json_buffer *js)
+{
+    log_state(STATE_STOPPED_NORMALLY, js);
 }

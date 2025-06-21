@@ -25,19 +25,19 @@ static int jsonify_log_msg_write_state_name(struct json_buffer *s, char *key, st
     char *name;
     switch (st)
     {
-        case STARTING:
+        case STATE_STARTING:
             name = "STARTING";
             break;
-        case OPERATIONAL:
+        case STATE_OPERATIONAL:
             name = "OPERATIONAL";
             break;
-        case OPERATIONAL_WITH_ERROR:
+        case STATE_OPERATIONAL_WITH_ERROR:
             name = "OPERATIONAL_WITH_ERROR";
             break;
-        case STOPPED_WITH_ERROR:
+        case STATE_STOPPED_WITH_ERROR:
             name = "STOPPED_WITH_ERROR";
             break;
-        case STOPPED_NORMALLY:
+        case STATE_STOPPED_NORMALLY:
             name = "STOPPED_NORMALLY";
             break;
         default:
@@ -54,7 +54,7 @@ int jsonify_log_msg_write_log_msg(struct json_buffer *s, struct msg *val)
 
     total += jsonify_core_write_timespec64(s, "time", val->ts.tv_sec, val->ts.tv_nsec);
     total += jsonify_log_msg_write_state_name(s, "state_name", val->state);
-    total += jsonify_core_write_as_literal(s, "json", &(val->json_text[0]));
+    total += jsonify_core_write_as_literal(s, "json", &(val->json->buf[0]));
 
     return total;
 }

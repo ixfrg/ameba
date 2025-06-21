@@ -95,6 +95,39 @@ static int select_default_record_serializer()
     return 0;
 }
 
+/*
+    Helper function to use the json logger to log a string.
+*/
+static void _log_state_msg(state_t st, const char *s)
+{
+    int buf_size = 512;
+    char buf[buf_size];
+
+    struct json_buffer js_msg;
+    jsonify_core_init(&js_msg, &buf[0], buf_size);
+    jsonify_core_open_obj(&js_msg);
+    jsonify_core_write_str(&js_msg, "msg", s);
+    jsonify_core_close_obj(&js_msg);
+
+    log_state(st, &js_msg);
+}
+
+/*
+    Helper function to use the json logger to log a json_obj.
+*/
+static void _log_state_js(state_t st, const char *key, struct json_buffer *js)
+{
+    int buf_size = 512;
+    char buf[buf_size];
+
+    struct json_buffer js_msg;
+    jsonify_core_init(&js_msg, &buf[0], buf_size);
+    jsonify_core_open_obj(&js_msg);
+    jsonify_core_write_as_literal(&js_msg, key, &(js->buf[0]));
+    jsonify_core_close_obj(&js_msg);
+
+    log_state(st, &js_msg);
+}
 
 static int init_output_writer(struct user_input *input){
     void *record_writer_init_args = NULL;
@@ -103,14 +136,14 @@ static int init_output_writer(struct user_input *input){
     int err = select_default_output_writer(input, &record_writer_init_args, &record_writer_init_args_size);
     if (err)
     {
-        log_stopped_with_error("Error selecting a valid output writer");
+        _log_state_msg(STATE_STOPPED_WITH_ERROR, "Error selecting a valid output writer");
         return -1;
     }
 
     err = select_default_record_serializer();
     if (err)
     {
-        log_stopped_with_error("Error selecting a valid record serializer");
+        _log_state_msg(STATE_STOPPED_WITH_ERROR, "Error selecting a valid record serializer");
         return -1;
     }
 
@@ -119,14 +152,14 @@ static int init_output_writer(struct user_input *input){
     );
     if (err != 0)
     {
-        log_stopped_with_error("Error setting init args for the output writer");
+        _log_state_msg(STATE_STOPPED_WITH_ERROR, "Error setting init args for the output writer");
         return -1;
     }
 
     err = default_record_writer->init();
     if (err != 0)
     {
-        log_stopped_with_error("Error initing output writer");
+        _log_state_msg(STATE_STOPPED_WITH_ERROR, "Error initing output writer");
         return -1;
     }
     return 0;
@@ -147,14 +180,14 @@ static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
     long data_copied_to_dst = default_record_serializer->serialize(dst, dst_len, data, data_len);
     if (data_copied_to_dst <= 0)
     {
-        log_operational_with_error("Failed data conversion");
+        _log_state_msg(STATE_OPERATIONAL_WITH_ERROR, "Failed data conversion");
         goto free_dst;
     }
 
     int write_result = default_record_writer->write(dst, data_copied_to_dst);
     if (write_result < 0)
     {
-        log_operational_with_error("Failed data write");
+        _log_state_msg(STATE_OPERATIONAL_WITH_ERROR, "Failed data write");
         goto free_dst;
     }
 
@@ -173,7 +206,7 @@ static void sig_handler(int sig)
         {
             ameba__destroy(skel);
         }
-        log_stopped_normally("Stopped... received termination signal");
+        _log_state_msg(STATE_STOPPED_NORMALLY, "Stopped... received termination signal");
         exit(0);
     }
 }
@@ -229,7 +262,7 @@ static void print_current_control_input()
 
     if (get_control_input_from_map(&result) != 0)
     {
-        log_starting("Failed to get control input entry from map");
+        _log_state_msg(STATE_STARTING, "Failed to get control input entry from map");
         return;
     }
 
@@ -241,7 +274,7 @@ static void print_current_control_input()
 
     jsonify_core_close_obj(&s);
 
-    log_starting(&dst[0]);
+    _log_state_js(STATE_STARTING, "control_input", &s);
 }
 
 static void print_user_input(struct user_input *user_input)
@@ -257,7 +290,7 @@ static void print_user_input(struct user_input *user_input)
 
     jsonify_core_close_obj(&s);
 
-    log_starting(&dst[0]);
+    _log_state_js(STATE_STARTING, "user_input", &s);
 }
 
 int main(int argc, char *argv[])
@@ -276,13 +309,13 @@ int main(int argc, char *argv[])
 
     print_user_input(&input);
 
-    log_starting("Registering signal handler");
+    _log_state_msg(STATE_STARTING, "Registering signal handler");
     signal(SIGTERM, sig_handler);
 
     skel = ameba__open_and_load();
     if (!skel)
     {
-        log_stopped_with_error("Failed to load bpf skeleton");
+        _log_state_msg(STATE_STOPPED_WITH_ERROR, "Failed to load bpf skeleton");
         result = 1;
         return result;
     }
@@ -290,7 +323,7 @@ int main(int argc, char *argv[])
     result = update_control_input_map(&input.c_in);
     if (result != 0)
     {
-        log_stopped_with_error("Error updating control input");
+        _log_state_msg(STATE_STOPPED_WITH_ERROR, "Error updating control input");
         result = 1;
         goto skel_destroy;
     }
@@ -300,7 +333,7 @@ int main(int argc, char *argv[])
     err = ameba__attach(skel);
     if (err != 0)
     {
-        log_stopped_with_error("Error attaching skeleton");
+        _log_state_msg(STATE_STOPPED_WITH_ERROR, "Error attaching skeleton");
         result = 1;
         goto skel_destroy;
     }
@@ -309,7 +342,7 @@ int main(int argc, char *argv[])
     ringbuf_map_fd = bpf_object__find_map_fd_by_name(skel->obj, OUTPUT_RINGBUF_MAP_NAME);
     if (ringbuf_map_fd < 0)
     {
-        log_stopped_with_error("Failed to find ring buffer map object");
+        _log_state_msg(STATE_STOPPED_WITH_ERROR, "Failed to find ring buffer map object");
         result = 1;
         goto skel_detach;
     }
@@ -319,12 +352,12 @@ int main(int argc, char *argv[])
     int writer_error = init_output_writer(&input);
     if (writer_error != 0)
     {
-        log_stopped_with_error("Error creating output writer");
+        _log_state_msg(STATE_STOPPED_WITH_ERROR, "Error creating output writer");
         result = 1;
         goto skel_detach;
     }
 
-    log_operational("Started successfully");
+     _log_state_msg(STATE_OPERATIONAL, "Started successfully");
 
     while (ring_buffer__poll(ringbuf, -1) >= 0)
     {
