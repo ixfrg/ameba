@@ -35,7 +35,14 @@ int jsonify_user_write_output_file(struct json_buffer *s, struct output_file *o_
     jsonify_core_close_obj(&s_child);
 
     int total = 0;
-    total = jsonify_core_write_as_literal(s, "output_file", &s_child.buf[0]);
+
+    char *s_child_buf_ptr;
+    int s_child_buf_ptr_size;
+    if (jsonify_core_get_internal_buf_ptr(&s_child, &s_child_buf_ptr, &s_child_buf_ptr_size) == 0)
+    {
+        total = jsonify_core_write_as_literal(s, "output_file", s_child_buf_ptr);
+    }
+
     return total;
 }
 
@@ -53,7 +60,14 @@ int jsonify_user_write_output_net(struct json_buffer *s, struct output_net *o_ne
 
 
     int total = 0; 
-    total += jsonify_core_write_as_literal(s, "output_net", &s_child.buf[0]);
+
+    char *s_child_buf_ptr;
+    int s_child_buf_ptr_size;
+    if (jsonify_core_get_internal_buf_ptr(&s_child, &s_child_buf_ptr, &s_child_buf_ptr_size) == 0)
+    {
+        total += jsonify_core_write_as_literal(s, "output_net", s_child_buf_ptr);
+    }
+    
     return total;
 }
 
@@ -93,7 +107,14 @@ int jsonify_user_write_user_input(struct json_buffer *s, struct user_input *val)
     jsonify_core_close_obj(&s_child);
 
     int total = 0;
-    total = jsonify_core_write_as_literal(s, "control_input", &s_child.buf[0]);
+
+    char *s_child_buf_ptr;
+    int s_child_buf_ptr_size;
+    if (jsonify_core_get_internal_buf_ptr(&s_child, &s_child_buf_ptr, &s_child_buf_ptr_size) == 0)
+    {
+        total = jsonify_core_write_as_literal(s, "control_input", s_child_buf_ptr);
+    }
+
     total += jsonify_user_write_output(s, val);
     return total;
 }

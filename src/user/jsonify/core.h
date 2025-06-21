@@ -66,6 +66,18 @@ struct json_buffer
 
 
 /*
+    Get reference to internal buffer used by json_buffer and it's size.
+
+    Return:
+        0    => Success
+        -ive => Error
+*/
+int jsonify_core_get_internal_buf_ptr(
+    struct json_buffer *s,
+    char **buf_ptr, int *buf_size
+);
+
+/*
     Return the number of chars written to the json_buffer so far.
 */
 int jsonify_core_get_total_chars_written(struct json_buffer *s);

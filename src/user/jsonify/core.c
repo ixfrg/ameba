@@ -80,6 +80,23 @@ static int jsonify_core_write_element_divider(struct json_buffer *s)
     return 0;
 }
 
+/*
+    Get reference to internal buffer used by json_buffer and it's size.
+
+    Return:
+        0    => Success
+        -ive => Error
+*/
+int jsonify_core_get_internal_buf_ptr(
+    struct json_buffer *s,
+    char **buf_ptr, int *buf_size
+)
+{
+    *buf_ptr = &(s->buf[0]);
+    *buf_size = s->bufIdx;
+    return 0;
+}
+
 int jsonify_core_get_total_chars_written(struct json_buffer *s)
 {
     return s->bufIdx;

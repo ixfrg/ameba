@@ -54,7 +54,13 @@ int jsonify_log_msg_write_log_msg(struct json_buffer *s, struct log_msg *val)
 
     total += jsonify_core_write_timespec64(s, "time", val->ts.tv_sec, val->ts.tv_nsec);
     total += jsonify_log_msg_write_app_state_name(s, "state_name", val->state);
-    total += jsonify_core_write_as_literal(s, "json", &(val->json->buf[0]));
+
+    char *s_child_buf_ptr;
+    int s_child_buf_ptr_size;
+    if (jsonify_core_get_internal_buf_ptr(val->json, &s_child_buf_ptr, &s_child_buf_ptr_size) == 0)
+    {
+        total += jsonify_core_write_as_literal(s, "json", s_child_buf_ptr);
+    }
 
     return total;
 }

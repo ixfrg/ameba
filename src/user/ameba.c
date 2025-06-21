@@ -121,6 +121,9 @@ static void _log_state_msg_and_js(
     const char *js_key, struct json_buffer *js_val
 )
 {
+    char *js_val_buf_ptr;
+    int js_val_buf_size;
+
     int buf_size = 512;
     char buf[buf_size];
 
@@ -128,7 +131,10 @@ static void _log_state_msg_and_js(
     jsonify_core_init(&js_msg, &buf[0], buf_size);
     jsonify_core_open_obj(&js_msg);
     jsonify_core_write_str(&js_msg, "msg", msg_val);
-    jsonify_core_write_as_literal(&js_msg, js_key, &(js_val->buf[0]));
+    if (jsonify_core_get_internal_buf_ptr(js_val, &js_val_buf_ptr, &js_val_buf_size) == 0)
+    {
+        jsonify_core_write_as_literal(&js_msg, js_key, js_val_buf_ptr);
+    }
     jsonify_core_close_obj(&js_msg);
 
     log_state(st, &js_msg);
