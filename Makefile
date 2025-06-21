@@ -92,13 +92,13 @@ $(UTILS_BIN_DIR)/%.exe: $(UTILS_SRC_DIR)/%.c
 $(DIR_SRC)/common/vmlinux.h: 
 	$(BPFTOOL_EXE_FILE) btf dump file /sys/kernel/btf/vmlinux format c > $@
 
-$(DIR_BUILD)/combined.bpf.o: $(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL)
+$(DIR_BUILD)/combined.bpf.o: $(BPF_OBJS_ALL)
 	$(BPFTOOL_EXE_FILE) gen object $@ $(BPF_OBJS_ALL)
 
 $(DIR_BUILD)/ameba.skel.h: $(DIR_BUILD)/combined.bpf.o
 	$(BPFTOOL_EXE_FILE) gen skeleton $^ name $(BPF_SKEL_NAME) > $@
 
-bpf_objs: $(BPF_OBJS_ALL) $(DIR_BUILD)/ameba.skel.h
+bpf_objs: $(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL) $(DIR_BUILD)/ameba.skel.h
 
 $(DIR_BIN)/ameba: bpf_objs $(USER_OBJS_ALL)
 	clang $(USER_OBJS_ALL) -o $@ -l:$(LIBPF_SO) -lpthread
