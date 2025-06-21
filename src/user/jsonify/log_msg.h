@@ -39,4 +39,4 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     Return:
         See 'jsonify_core_snprintf'.
 */
-int jsonify_log_msg_write_log_msg(struct json_buffer *s, struct msg *val);
+int jsonify_log_msg_write_log_msg(struct json_buffer *s, struct log_msg *val);

@@ -24,9 +24,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/helpers/log.h"
 
 
-void __log_state(FILE *out_f, state_t state, struct json_buffer *js)
+void __log_state(FILE *out_f, app_state_t state, struct json_buffer *js)
 {
-    struct msg m;
+    struct log_msg m;
     clock_gettime(CLOCK_REALTIME, &m.ts);
     m.state = state;
     m.json = js;
@@ -48,32 +48,32 @@ void __log_state(FILE *out_f, state_t state, struct json_buffer *js)
     free(js_msg_buffer);
 }
 
-void log_state(state_t state, struct json_buffer *js)
+void log_state(app_state_t state, struct json_buffer *js)
 {
     __log_state(stdout, state, js);
 }
 
 void log_state_starting(struct json_buffer *js)
 {
-    log_state(STATE_STARTING, js);
+    log_state(APP_STATE_STARTING, js);
 }
 
 void log_state_operational(struct json_buffer *js)
 {
-    log_state(STATE_OPERATIONAL, js);
+    log_state(APP_STATE_OPERATIONAL, js);
 }
 
 void log_state_operational_with_error(struct json_buffer *js)
 {
-    log_state(STATE_OPERATIONAL_WITH_ERROR, js);
+    log_state(APP_STATE_OPERATIONAL_WITH_ERROR, js);
 }
 
 void log_state_stopped_with_error(struct json_buffer *js)
 {
-    log_state(STATE_STOPPED_WITH_ERROR, js);
+    log_state(APP_STATE_STOPPED_WITH_ERROR, js);
 }
 
 void log_state_stopped_normally(struct json_buffer *js)
 {
-    log_state(STATE_STOPPED_NORMALLY, js);
+    log_state(APP_STATE_STOPPED_NORMALLY, js);
 }

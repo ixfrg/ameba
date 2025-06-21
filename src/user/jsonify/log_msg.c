@@ -20,24 +20,24 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/jsonify/log_msg.h"
 
 
-static int jsonify_log_msg_write_state_name(struct json_buffer *s, char *key, state_t st)
+static int jsonify_log_msg_write_app_state_name(struct json_buffer *s, char *key, app_state_t st)
 {
     char *name;
     switch (st)
     {
-        case STATE_STARTING:
+        case APP_STATE_STARTING:
             name = "STARTING";
             break;
-        case STATE_OPERATIONAL:
+        case APP_STATE_OPERATIONAL:
             name = "OPERATIONAL";
             break;
-        case STATE_OPERATIONAL_WITH_ERROR:
+        case APP_STATE_OPERATIONAL_WITH_ERROR:
             name = "OPERATIONAL_WITH_ERROR";
             break;
-        case STATE_STOPPED_WITH_ERROR:
+        case APP_STATE_STOPPED_WITH_ERROR:
             name = "STOPPED_WITH_ERROR";
             break;
-        case STATE_STOPPED_NORMALLY:
+        case APP_STATE_STOPPED_NORMALLY:
             name = "STOPPED_NORMALLY";
             break;
         default:
@@ -48,12 +48,12 @@ static int jsonify_log_msg_write_state_name(struct json_buffer *s, char *key, st
 }
 
 
-int jsonify_log_msg_write_log_msg(struct json_buffer *s, struct msg *val)
+int jsonify_log_msg_write_log_msg(struct json_buffer *s, struct log_msg *val)
 {
     int total = 0;
 
     total += jsonify_core_write_timespec64(s, "time", val->ts.tv_sec, val->ts.tv_nsec);
-    total += jsonify_log_msg_write_state_name(s, "state_name", val->state);
+    total += jsonify_log_msg_write_app_state_name(s, "state_name", val->state);
     total += jsonify_core_write_as_literal(s, "json", &(val->json->buf[0]));
 
     return total;
