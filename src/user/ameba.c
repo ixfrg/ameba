@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
         goto skel_detach;
     }
 
-     _log_state_msg_with_pid(APP_STATE_OPERATIONAL, "Started successfully", getpid());
+     _log_state_msg_with_pid(APP_STATE_OPERATIONAL_PID, "Started successfully", getpid());
 
     while (ring_buffer__poll(ringbuf, -1) >= 0)
     {

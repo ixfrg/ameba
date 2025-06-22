@@ -31,6 +31,9 @@ static int jsonify_log_msg_write_app_state_name(struct json_buffer *s, char *key
         case APP_STATE_OPERATIONAL:
             name = "APP_STATE_OPERATIONAL";
             break;
+        case APP_STATE_OPERATIONAL_PID:
+            name = "APP_STATE_OPERATIONAL_PID";
+            break;
         case APP_STATE_OPERATIONAL_WITH_ERROR:
             name = "APP_STATE_OPERATIONAL_WITH_ERROR";
             break;
