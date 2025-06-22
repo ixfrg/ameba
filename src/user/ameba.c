@@ -140,6 +140,25 @@ static void _log_state_msg_and_js(
     log_state(st, &js_msg);
 }
 
+static void _log_state_msg_with_pid(
+    app_state_t st,
+    const char *msg_val,
+    pid_t pid
+)
+{
+    int buf_size = 128;
+    char buf[buf_size];
+
+    struct json_buffer js_msg;
+    jsonify_core_init(&js_msg, &buf[0], buf_size);
+    jsonify_core_open_obj(&js_msg);
+    jsonify_core_write_str(&js_msg, "msg", msg_val);
+    jsonify_core_write_int(&js_msg, "pid", pid);
+    jsonify_core_close_obj(&js_msg);
+
+    log_state(st, &js_msg);
+}
+
 static int init_output_writer(struct user_input *input){
     void *record_writer_init_args = NULL;
     size_t record_writer_init_args_size = 0;
@@ -376,7 +395,7 @@ int main(int argc, char *argv[])
         goto skel_detach;
     }
 
-     _log_state_msg(APP_STATE_OPERATIONAL, "Started successfully");
+     _log_state_msg_with_pid(APP_STATE_OPERATIONAL, "Started successfully", getpid());
 
     while (ring_buffer__poll(ringbuf, -1) >= 0)
     {
