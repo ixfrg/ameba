@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
+INSTALL_DIR ?= bin
+
 ARCH := $(shell uname -m)
 
 ifeq ($(ARCH),x86_64)
@@ -104,14 +107,24 @@ $(DIR_BIN)/ameba: bpf_objs $(USER_OBJS_ALL)
 	clang $(USER_OBJS_ALL) -o $@ -l:$(LIBPF_SO) -lpthread
 
 
-.PHONY: clean all
+.PHONY: clean all install
 
 
 clean: 
 	-rm -r $(DIR_BUILD)
+	-rm $(DIR_BIN)/ameba
 
 
 all: $(DIR_BIN)/ameba $(UTILS_EXES_ALL)
+
+
+install:
+	@test "$(DIR_BIN)" = "$(INSTALL_DIR)" || \
+		{ \
+			mkdir -p "$(INSTALL_DIR)" && \
+			cp "$(DIR_BIN)/ameba" "$(INSTALL_DIR)/ameba" && \
+			echo "Installed at: $(INSTALL_DIR)/ameba"; \
+		}
 
 ###
 
