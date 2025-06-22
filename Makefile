@@ -35,7 +35,7 @@ DIR_BUILD := build
 DIR_BIN := bin
 
 BPF_SKEL_NAME := ameba
-
+BIN_NAME := ameba
 
 USER_SRC_DIR := $(DIR_SRC)/user
 USER_BUILD_DIR := $(DIR_BUILD)/user
@@ -103,7 +103,7 @@ $(DIR_BUILD)/ameba.skel.h: $(DIR_BUILD)/combined.bpf.o
 
 bpf_objs: $(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL) $(DIR_BUILD)/ameba.skel.h
 
-$(DIR_BIN)/ameba: bpf_objs $(USER_OBJS_ALL)
+$(DIR_BIN)/$(BIN_NAME): bpf_objs $(USER_OBJS_ALL)
 	clang $(USER_OBJS_ALL) -o $@ -l:$(LIBPF_SO) -lpthread
 
 
@@ -112,18 +112,18 @@ $(DIR_BIN)/ameba: bpf_objs $(USER_OBJS_ALL)
 
 clean: 
 	-rm -r $(DIR_BUILD)
-	-rm $(DIR_BIN)/ameba
+	-rm $(DIR_BIN)/$(BIN_NAME)
 
 
-all: $(DIR_BIN)/ameba $(UTILS_EXES_ALL)
+all: $(DIR_BIN)/$(BIN_NAME) $(UTILS_EXES_ALL)
 
 
 install:
 	@test "$(DIR_BIN)" = "$(INSTALL_DIR)" || \
 		{ \
 			mkdir -p "$(INSTALL_DIR)" && \
-			cp "$(DIR_BIN)/ameba" "$(INSTALL_DIR)/ameba" && \
-			echo "Installed at: $(INSTALL_DIR)/ameba"; \
+			cp "$(DIR_BIN)/$(BIN_NAME)" "$(INSTALL_DIR)/$(BIN_NAME)" && \
+			echo "Installed at: $(INSTALL_DIR)/$(BIN_NAME)"; \
 		}
 
 ###
