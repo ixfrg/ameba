@@ -26,19 +26,19 @@ static int jsonify_log_msg_write_app_state_name(struct json_buffer *s, char *key
     switch (st)
     {
         case APP_STATE_STARTING:
-            name = "STARTING";
+            name = "APP_STATE_STARTING";
             break;
         case APP_STATE_OPERATIONAL:
-            name = "OPERATIONAL";
+            name = "APP_STATE_OPERATIONAL";
             break;
         case APP_STATE_OPERATIONAL_WITH_ERROR:
-            name = "OPERATIONAL_WITH_ERROR";
+            name = "APP_STATE_OPERATIONAL_WITH_ERROR";
             break;
         case APP_STATE_STOPPED_WITH_ERROR:
-            name = "STOPPED_WITH_ERROR";
+            name = "APP_STATE_STOPPED_WITH_ERROR";
             break;
         case APP_STATE_STOPPED_NORMALLY:
-            name = "STOPPED_NORMALLY";
+            name = "APP_STATE_STOPPED_NORMALLY";
             break;
         default:
             name = "UNKNOWN";
