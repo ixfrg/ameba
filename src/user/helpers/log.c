@@ -46,6 +46,8 @@ void __log_state(FILE *out_f, app_state_t state, struct json_buffer *js)
     fprintf(out_f, "%s\n", js_msg_buffer);
 
     free(js_msg_buffer);
+
+    fflush(out_f);
 }
 
 void log_state(app_state_t state, struct json_buffer *js)
