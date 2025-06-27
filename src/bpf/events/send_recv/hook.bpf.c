@@ -286,7 +286,7 @@ int AMEBA_HOOK(
 
 // Intermediate state update functions
 int AMEBA_HOOK(
-    "fexit/__sock_sendmsg",
+    "fexit/sock_sendmsg",
     fexit__sock_sendmsg,
     RECORD_TYPE_SEND_RECV,
     struct socket *sock,
