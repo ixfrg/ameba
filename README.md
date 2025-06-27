@@ -42,6 +42,13 @@ ameba
 
 * Clang/LLVM and libbpf development libraries
 
+## Install on Ubuntu
+
+```
+apt-get update && \
+    apt-get install -y llvm bpftool linux-tools-common libbpf-dev linux-headers-$(uname -r) gcc-multilib
+```
+
 ## Build
 
 ```
