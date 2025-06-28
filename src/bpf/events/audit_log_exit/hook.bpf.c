@@ -63,6 +63,12 @@ int AMEBA_HOOK(
         case __NR_unshare:
         case __NR_clone:
         case __NR_clone3:
+#ifdef __NR_fork
+        case __NR_fork:
+#endif
+#ifdef __NR_vfork
+        case __NR_vfork:
+#endif
             break;
         case __NR_connect:
             if (ret == 0 || ret == ERROR_EINPROGRESS)
