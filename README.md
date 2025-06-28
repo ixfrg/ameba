@@ -49,6 +49,12 @@ apt-get update && \
     apt-get install -y llvm bpftool linux-tools-common libbpf-dev linux-headers-$(uname -r) gcc-multilib
 ```
 
+## Check system requirements
+Run the following command to check if operating system requirements are met.
+```
+make check_system_requirements
+```
+
 ## Build
 
 ```

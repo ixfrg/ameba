@@ -124,17 +124,21 @@ $(DIR_BIN)/$(BIN_NAME): bpf_objs $(USER_OBJS_ALL)
 
 check_system_requirements:
 	@if [ "$(OS_NAME)" = "Linux" ]; then \
+		echo "✔ Operation system... Linux"; \
 		if grep -q '^CONFIG_BPF_SYSCALL=y' $(KERNEL_CONFIG); then \
-			if [ $(OS_KERNEL_NUMBER) -lt $(MIN_OS_KERNEL_NUMBER) ]; then \
-				echo "Kernel must be later than or equal to ${MIN_OS_KERNEL_NAME}"; \
+			echo "✔ CONFIG_BPF_SYSCALL... enabled"; \
+			if [ $(OS_KERNEL_NUMBER) -ge $(MIN_OS_KERNEL_NUMBER) ]; then \
+				echo "✔ Kernel... $(MIN_OS_KERNEL_NAME)"; \
+			else \
+				echo "✖ Kernel must be later than or equal to $(MIN_OS_KERNEL_NAME)"; \
 				exit 1; \
 			fi \
 		else \
-			echo "CONFIG_BPF_SYSCALL must be enabled!"; \
+			echo "✖ CONFIG_BPF_SYSCALL must be enabled!"; \
 			exit 1; \
 		fi \
 	else \
-		echo "Operating system must be Linux"; \
+		echo "✖ Operating system must be Linux"; \
 		exit 1; \
 	fi
 
