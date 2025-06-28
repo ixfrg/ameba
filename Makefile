@@ -28,6 +28,18 @@ else
 	TARGET_ARCH := $(ARCH)
 endif
 
+##
+
+KERNEL_CONFIG := /boot/config-$(shell uname -r)
+OS_NAME := $(shell uname)
+OS_KERNEL_MAJOR := $(shell uname -r | cut -d '.' -f 1)
+OS_KERNEL_MINOR := $(shell uname -r | cut -d '.' -f 2 | xargs printf "%03d")
+OS_KERNEL_NUMBER := $(OS_KERNEL_MAJOR)$(OS_KERNEL_MINOR)
+MIN_OS_KERNEL_NUMBER := 6008
+MIN_OS_KERNEL_NAME := 6.8
+
+##
+
 FLAG_INCLUDE_TASK_CTX_ID := -DINCLUDE_TASK_CTX_ID
 
 DIR_SRC := src
@@ -107,7 +119,24 @@ $(DIR_BIN)/$(BIN_NAME): bpf_objs $(USER_OBJS_ALL)
 	clang $(USER_OBJS_ALL) -o $@ -l:$(LIBPF_SO) -lpthread
 
 
-.PHONY: clean all install
+.PHONY: check_system_requirements clean all install
+
+
+check_system_requirements:
+	@if [ "$(OS_NAME)" = "Linux" ]; then \
+		if grep -q '^CONFIG_BPF_SYSCALL=y' $(KERNEL_CONFIG); then \
+			if [ $(OS_KERNEL_NUMBER) -lt $(MIN_OS_KERNEL_NUMBER) ]; then \
+				echo "Kernel must be later than or equal to ${MIN_OS_KERNEL_NAME}"; \
+				exit 1; \
+			fi \
+		else \
+			echo "CONFIG_BPF_SYSCALL must be enabled!"; \
+			exit 1; \
+		fi \
+	else \
+		echo "Operating system must be Linux"; \
+		exit 1; \
+	fi
 
 
 clean: 
@@ -115,7 +144,7 @@ clean:
 	-rm $(DIR_BIN)/$(BIN_NAME)
 
 
-all: $(DIR_BIN)/$(BIN_NAME) $(UTILS_EXES_ALL)
+all: check_system_requirements $(DIR_BIN)/$(BIN_NAME) $(UTILS_EXES_ALL)
 
 
 install:
