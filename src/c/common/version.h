@@ -21,14 +21,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /*
 
-    A module for defining current version of the BPF programs.
+    A module for defining versions.
 
 */
 
 #include "common/types.h"
 
 
-const struct elem_version current_version = {
+const struct elem_version record_version = {
     .major = 1,
     .minor = 0,
     .patch = 0
