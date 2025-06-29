@@ -20,18 +20,17 @@ ameba
 ├── README.md
 ├── bin                                 # Binaries
 └── src
-    ├── c
-    │   ├── bpf                         # BPF code
-    │   │   ├── events                  # BPF hooks
-    │   │   ├── helpers                 # BPF helpers
-    │   ├── common                      # Headers used in BPF, and user-space code
-    │   ├── user                        # User-space code
-    │   │   ├── ameba.c                 # Userspace entrypoint
-    │   │   ├── args                    # User arguments
-    │   │   ├── jsonify                 # JSON helper
-    │   │   └── record                  # BPF generated records serializers and writers
-    │   └── utils                       # Misc. utilities
-    └── java
+    └── c
+        ├── bpf                         # BPF code
+        │   ├── events                  # BPF hooks
+        │   ├── helpers                 # BPF helpers
+        ├── common                      # Headers used in BPF, and user-space code
+        ├── user                        # User-space code
+        │   ├── ameba.c                 # Userspace entrypoint
+        │   ├── args                    # User arguments
+        │   ├── jsonify                 # JSON helper
+        │   └── record                  # BPF generated records serializers and writers
+        └── utils                       # Misc. utilities
 ```
 
 # Getting Started
