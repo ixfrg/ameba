@@ -44,25 +44,27 @@ FLAG_INCLUDE_TASK_CTX_ID := -DINCLUDE_TASK_CTX_ID
 
 DIR_SRC := src
 DIR_BUILD := build
+DIR_SRC_C := $(DIR_SRC)/c
+DIR_BUILD_C := $(DIR_BUILD)/c
 DIR_BIN := bin
 
 BPF_SKEL_NAME := ameba
 BIN_NAME := ameba
 
-USER_SRC_DIR := $(DIR_SRC)/user
-USER_BUILD_DIR := $(DIR_BUILD)/user
+USER_SRC_DIR := $(DIR_SRC_C)/user
+USER_BUILD_DIR := $(DIR_BUILD_C)/user
 USER_SRC_FILES := $(shell find $(USER_SRC_DIR) -name "*.c" -type f)
-USER_OBJS_ALL := $(patsubst $(DIR_SRC)/%.c,$(DIR_BUILD)/%.o,$(USER_SRC_FILES))
+USER_OBJS_ALL := $(patsubst $(DIR_SRC_C)/%.c,$(DIR_BUILD_C)/%.o,$(USER_SRC_FILES))
 
-BPF_SRC_DIR := $(DIR_SRC)/bpf
-BPF_BUILD_DIR := $(DIR_BUILD)/bpf
+BPF_SRC_DIR := $(DIR_SRC_C)/bpf
+BPF_BUILD_DIR := $(DIR_BUILD_C)/bpf
 BPF_SRC_FILES := $(shell find $(BPF_SRC_DIR) -name "*.c" -type f)
-BPF_OBJS_ALL := $(patsubst $(DIR_SRC)/%.c,$(DIR_BUILD)/%.o,$(BPF_SRC_FILES))
+BPF_OBJS_ALL := $(patsubst $(DIR_SRC_C)/%.c,$(DIR_BUILD_C)/%.o,$(BPF_SRC_FILES))
 
-UTILS_SRC_DIR := $(DIR_SRC)/utils
+UTILS_SRC_DIR := $(DIR_SRC_C)/utils
 UTILS_BIN_DIR := $(DIR_BIN)/utils
 UTILS_SRC_FILES := $(shell find $(UTILS_SRC_DIR) -name "*.c" -type f)
-UTILS_EXES_ALL := $(patsubst $(DIR_SRC)/%.c,$(DIR_BIN)/%.exe,$(UTILS_SRC_FILES))
+UTILS_EXES_ALL := $(patsubst $(DIR_SRC_C)/%.c,$(DIR_BIN)/%.exe,$(UTILS_SRC_FILES))
 
 
 BPFTOOL_VERSION := v7.2.0
@@ -77,9 +79,9 @@ BPFTOOL_EXE_FILE := /usr/sbin/bpftool
 LIBPF_SO := libbpf.so.1
 
 
-CLANG_BUILD_BPF_FLAGS := $(FLAG_INCLUDE_TASK_CTX_ID) -D__TARGET_ARCH_$(TARGET_ARCH) -O2 -Wall -mcpu=v4 -target bpf -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
-CLANG_BUILD_USER_FLAGS := $(FLAG_INCLUDE_TASK_CTX_ID) -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC) -c
-CLANG_BUILD_UTILS_FLAGS := $(FLAG_INCLUDE_TASK_CTX_ID) -Wall -g -I$(DIR_BUILD) -I$(DIR_SRC)
+CLANG_BUILD_BPF_FLAGS := $(FLAG_INCLUDE_TASK_CTX_ID) -D__TARGET_ARCH_$(TARGET_ARCH) -O2 -Wall -mcpu=v4 -target bpf -g -I$(DIR_BUILD_C) -I$(DIR_SRC_C) -c
+CLANG_BUILD_USER_FLAGS := $(FLAG_INCLUDE_TASK_CTX_ID) -Wall -g -I$(DIR_BUILD_C) -I$(DIR_SRC_C) -c
+CLANG_BUILD_UTILS_FLAGS := $(FLAG_INCLUDE_TASK_CTX_ID) -Wall -g -I$(DIR_BUILD_C) -I$(DIR_SRC_C)
 
 
 #download_bpftool:
@@ -104,16 +106,16 @@ $(UTILS_BIN_DIR)/%.exe: $(UTILS_SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	clang $(CLANG_BUILD_UTILS_FLAGS) $^ -o $@
 
-$(DIR_SRC)/common/vmlinux.h: 
+$(DIR_SRC_C)/common/vmlinux.h:
 	$(BPFTOOL_EXE_FILE) btf dump file /sys/kernel/btf/vmlinux format c > $@
 
-$(DIR_BUILD)/combined.bpf.o: $(BPF_OBJS_ALL)
+$(DIR_BUILD_C)/combined.bpf.o: $(BPF_OBJS_ALL)
 	$(BPFTOOL_EXE_FILE) gen object $@ $(BPF_OBJS_ALL)
 
-$(DIR_BUILD)/ameba.skel.h: $(DIR_BUILD)/combined.bpf.o
+$(DIR_BUILD_C)/ameba.skel.h: $(DIR_BUILD_C)/combined.bpf.o
 	$(BPFTOOL_EXE_FILE) gen skeleton $^ name $(BPF_SKEL_NAME) > $@
 
-bpf_objs: $(DIR_SRC)/common/vmlinux.h $(BPF_OBJS_ALL) $(DIR_BUILD)/ameba.skel.h
+bpf_objs: $(DIR_SRC_C)/common/vmlinux.h $(BPF_OBJS_ALL) $(DIR_BUILD_C)/ameba.skel.h
 
 $(DIR_BIN)/$(BIN_NAME): bpf_objs $(USER_OBJS_ALL)
 	clang $(USER_OBJS_ALL) -o $@ -l:$(LIBPF_SO) -lpthread
@@ -144,7 +146,7 @@ check_system_requirements:
 
 
 clean: 
-	-rm -r $(DIR_BUILD)
+	-rm -r $(DIR_BUILD_C)
 	-rm $(DIR_BIN)/$(BIN_NAME)
 
 
