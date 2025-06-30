@@ -74,6 +74,11 @@ make install INSTALL_DIR=./local_install
 sudo ./bin/ameba --help
 ```
 
+## Tests
+
+Install [check](https://libcheck.github.io/check/web/install.html#aptitude): `sudo apt-get install check`
+
+
 # Use Cases
 
 * Lightweight security auditing
