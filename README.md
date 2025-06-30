@@ -62,6 +62,12 @@ make check_system_requirements
 make all
 ```
 
+## Install
+
+```
+make install INSTALL_DIR=./local_install
+```
+
 ## See help
 
 ```
