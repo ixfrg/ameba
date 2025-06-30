@@ -33,3 +33,9 @@ const struct elem_version record_version = {
     .minor = 0,
     .patch = 0
 };
+
+const struct elem_version app_version = {
+    .major = 2,
+    .minor = 2,
+    .patch = 0
+};

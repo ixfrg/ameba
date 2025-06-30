@@ -151,6 +151,15 @@ int jsonify_types_write_elem_sockaddr(struct json_buffer *s, const char *key, st
 
 /*
     Write:
+        [,]"key":version.
+
+    Return:
+        See 'jsonify_core_snprintf'.
+*/
+int jsonify_types_write_version(struct json_buffer *s, const char *key, const struct elem_version *version);
+
+/*
+    Write:
         [,]"record_name":"record_type_name"
         ,"record_type":e_common->record_type
         ,"record_version":e_common->version

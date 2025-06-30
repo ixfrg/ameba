@@ -38,7 +38,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/args/user.h"
 #include "user/jsonify/control.h"
 #include "user/jsonify/user.h"
+#include "user/jsonify/types.h"
 #include "common/constants.h"
+#include "common/version.h"
 #include "user/error.h"
 
 #include "user/record/serializer/serializer.h"
@@ -47,6 +49,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/helpers/log.h"
 
 #include "ameba.skel.h"
+
+//
+
+extern const struct elem_version app_version;
 
 //
 
@@ -331,6 +337,22 @@ static void print_user_input(struct user_input *user_input)
     );
 }
 
+void print_app_version()
+{
+    int dst_len = 512;
+    char dst[dst_len];
+
+    struct json_buffer s;
+    jsonify_core_init(&s, dst, dst_len);
+    jsonify_core_open_obj(&s);
+
+    jsonify_types_write_version(&s, "app_version", &app_version);
+
+    jsonify_core_close_obj(&s);
+
+    printf("%s\n", &dst[0]);
+}
+
 int main(int argc, char *argv[])
 {
     int result;
@@ -343,6 +365,12 @@ int main(int argc, char *argv[])
     if (result != 0)
     {
         return result;
+    }
+
+    if (input.show_version == 1)
+    {
+        print_app_version();
+        return 0;
     }
 
     print_user_input(&input);

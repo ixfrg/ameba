@@ -34,7 +34,7 @@ static int jsonify_types_write_record_type(struct json_buffer *s, const char *ke
     return jsonify_core_write_int(s, key, val);
 }
 
-static int jsonify_types_write_version(struct json_buffer *s, const char *key, struct elem_version *version)
+int jsonify_types_write_version(struct json_buffer *s, const char *key, const struct elem_version *version)
 {
     const int max_size = 13;
     char local_val[max_size];

@@ -37,14 +37,16 @@ enum
 {
     OPT_RECORD_OUTPUT_FILE = 'f',
     OPT_RECORD_OUTPUT_NET_IP = 'N',
-    OPT_RECORD_OUTPUT_NET_PORT = 's'
+    OPT_RECORD_OUTPUT_NET_PORT = 's',
+    OPT_VERSION = 'V'
 };
 
 // Option definitions
 static struct argp_option options[] = {
-    {"file-path", OPT_RECORD_OUTPUT_FILE, "OUTPUT METHOD", OPTION_ARG_OPTIONAL, "Path of the file to write the records to", 0},
-    {"ip", OPT_RECORD_OUTPUT_NET_IP, "OUTPUT METHOD", OPTION_ARG_OPTIONAL, "IP address to write the records to", 0},
-    {"port", OPT_RECORD_OUTPUT_NET_PORT, "OUTPUT METHOD", OPTION_ARG_OPTIONAL, "IP port to write the records to", 0},
+    {"file-path", OPT_RECORD_OUTPUT_FILE, "FILE_PATH", OPTION_ARG_OPTIONAL, "Path of the file to write the records to", 0},
+    {"ip", OPT_RECORD_OUTPUT_NET_IP, "IP", OPTION_ARG_OPTIONAL, "IP address to write the records to", 0},
+    {"port", OPT_RECORD_OUTPUT_NET_PORT, "PORT", OPTION_ARG_OPTIONAL, "IP port to write the records to", 0},
+    {"version", OPT_VERSION, 0, 0, "Show version"},
     {0}
 };
 
@@ -198,6 +200,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     case OPT_RECORD_OUTPUT_NET_PORT:
         return parse_port(input, arg, state);
+
+    case OPT_VERSION:
+        input->show_version = 1;
+        break;
 
     case ARGP_KEY_INIT:
         init_user_input(input);
