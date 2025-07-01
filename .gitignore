@@ -63,3 +63,9 @@ bin/bpftool.tar.gz
 
 src/test_main.c
 bin/utils
+
+autoscan.log
+configure.scan
+autom4te.cache
+config.log
+configure
