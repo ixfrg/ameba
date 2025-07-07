@@ -18,7 +18,7 @@
 ## Process this file with automake to produce Makefile.in
 
 
-vmlinux_h = $(top_srcdir)/src/common/vmlinux.h
+vmlinux_h = $(top_builddir)/src/common/vmlinux.h
 
 $(vmlinux_h):
 	@BPFTOOL_EXE_FILE@ btf dump file /sys/kernel/btf/vmlinux format c > $@

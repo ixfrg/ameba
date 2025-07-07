@@ -29,13 +29,19 @@ bpf_skel_header = $(top_builddir)/src/$(bpf_skel_name).skel.h
 noinst_LIBRARIES = libbpfobjs.a
 
 libbpfobjs_a_SOURCES = \
+    helpers/event.bpf.h helpers/copy.bpf.h helpers/map.bpf.h helpers/log.bpf.h helpers/output.bpf.h helpers/event_id.bpf.h helpers/datatype.bpf.h \
     helpers/event.bpf.c helpers/copy.bpf.c helpers/map.bpf.c helpers/log.bpf.c helpers/output.bpf.c helpers/event_id.bpf.c helpers/datatype.bpf.c \
     events/process_namespace/hook.bpf.c \
+    events/kill/storage.bpf.h \
     events/kill/storage/task.bpf.c events/kill/hook.bpf.c \
+    events/accept/storage.bpf.h \
     events/accept/storage/task.bpf.c events/accept/hook.bpf.c \
     events/audit_log_exit/hook.bpf.c \
+    events/bind/storage.bpf.h \
     events/bind/storage/task.bpf.c events/bind/hook.bpf.c \
+    events/send_recv/storage.bpf.h \
     events/send_recv/storage/task.bpf.c events/send_recv/hook.bpf.c \
+    events/connect/storage.bpf.h \
     events/connect/storage/task.bpf.c events/connect/hook.bpf.c \
     license.bpf.c
 
