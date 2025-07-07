@@ -68,4 +68,6 @@ autoscan.log
 configure.scan
 autom4te.cache
 config.log
-configure
+configure~
+config.h.in~
+config.status
