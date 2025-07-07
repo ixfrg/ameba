@@ -20,17 +20,16 @@ ameba
 ├── README.md
 ├── bin                                 # Binaries
 └── src
-    └── c
-        ├── bpf                         # BPF code
-        │   ├── events                  # BPF hooks
-        │   ├── helpers                 # BPF helpers
-        ├── common                      # Headers used in BPF, and user-space code
-        ├── user                        # User-space code
-        │   ├── ameba.c                 # Userspace entrypoint
-        │   ├── args                    # User arguments
-        │   ├── jsonify                 # JSON helper
-        │   └── record                  # BPF generated records serializers and writers
-        └── utils                       # Misc. utilities
+    ├── bpf                             # BPF code
+    │   ├── events                      # BPF hooks
+    │   ├── helpers                     # BPF helpers
+    ├── common                          # Headers used in BPF, and user-space code
+    ├── user                            # User-space code
+    │   ├── ameba.c                     # Userspace entrypoint
+    │   ├── args                        # User arguments
+    │   ├── jsonify                     # JSON helper
+    │   └── record                      # BPF generated records serializers and writers
+    └── utils                           # Misc. utilities
 ```
 
 # Getting Started
@@ -50,28 +49,21 @@ apt-get update && \
     apt-get install -y llvm bpftool linux-tools-common libbpf-dev linux-headers-$(uname -r) gcc-multilib
 ```
 
-## Check system requirements
-Run the following command to check if operating system requirements are met.
-```
-make check_system_requirements
-```
-
-## Build
+## Build & Install
 
 ```
-make all
-```
-
-## Install
-
-```
-make install INSTALL_DIR=./local_install
+mkdir build && \
+    pushd build && \
+    ../configure CC=clang --prefix=${PWD}/local-install && \
+    make all && \
+    make install && \
+    popd
 ```
 
 ## See help
 
 ```
-sudo ./bin/ameba --help
+sudo local-install/bin/ameba --help
 ```
 
 ## Tests
