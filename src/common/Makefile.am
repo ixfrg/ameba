@@ -21,7 +21,7 @@
 vmlinux_h = $(top_builddir)/src/common/vmlinux.h
 
 $(vmlinux_h):
-	@BPFTOOL_EXE_FILE@ btf dump file /sys/kernel/btf/vmlinux format c > $@
+	@BPFTOOL_EXE_FILE@ btf dump file @AMEBA_SYS_KERNEL_BTF_VMLINUX@ format c > $@
 
 CLEANFILES = $(vmlinux_h)
 
