@@ -46,8 +46,10 @@ ameba
 
 ```
 apt-get update && \
-    apt-get install -y llvm bpftool linux-tools-common libbpf-dev linux-headers-$(uname -r) gcc-multilib
+    apt-get install -y llvm linux-tools-common libbpf-dev linux-headers-$(uname -r) gcc-multilib
 ```
+
+For `bpftool` installation, directly download version [v7.2.0](https://github.com/libbpf/bpftool/releases/tag/v7.2.0) and add it to your path. For more details, see the issue [here](https://github.com/xdp-project/xdp-tutorial/issues/368).
 
 ## Build & Install
 
