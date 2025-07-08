@@ -18,10 +18,8 @@
 ## Process this file with automake to produce Makefile.in
 
 
-AM_DISTCHECK_CONFIGURE_FLAGS = CC=clang --prefix=${PWD}/ameba-local-dist-check-install
-
-SUBDIRS = src/common src/bpf src/user src/utils tests
-dist_doc_DATA = README.md
-
-dist-hook:
-	echo $(VERSION) > $(distdir)/.tarball-version
+TESTS = control
+check_PROGRAMS = control
+control_SOURCES = control.c
+control_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
+control_CFLAGS = -Wall
