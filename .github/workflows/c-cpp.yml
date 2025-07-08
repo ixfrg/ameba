@@ -35,9 +35,9 @@ jobs:
           echo "Unexpected arch: ${{runner.arch}}"
           exit 1
         fi
-        wget https://github.com/libbpf/bpftool/releases/download/${BPF_TOOL_VERSION}/bpftool-${BPF_TOOL_VERSION}-${ARCH}.tar.gz -O "$(BPFTOOL_TARGZ_FILE)"
+        wget https://github.com/libbpf/bpftool/releases/download/${BPF_TOOL_VERSION}/bpftool-${BPF_TOOL_VERSION}-${ARCH}.tar.gz -O "${BPFTOOL_TARGZ_FILE}"
         pushd "${BPFTOOL_TMP_DIR}"
-        tar -zxvf "$(BPFTOOL_TARGZ_FILE)"
+        tar -zxvf "${BPFTOOL_TARGZ_FILE}"
         sudo cp "./bpftool" "${BPFTOOL_EXE_FILE}"
         sudo chmod +x "${BPFTOOL_EXE_FILE}"
         popd
