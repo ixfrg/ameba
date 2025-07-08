@@ -25,6 +25,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
+#include "common/config.h"
+
 #include "common/types.h"
 
 
@@ -35,7 +37,7 @@ const struct elem_version record_version = {
 };
 
 const struct elem_version app_version = {
-    .major = 2,
-    .minor = 2,
-    .patch = 0
+    .major = PACKAGE_VERSION_MAJOR,
+    .minor = PACKAGE_VERSION_MINOR,
+    .patch = PACKAGE_VERSION_PATCH
 };

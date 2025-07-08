@@ -24,6 +24,11 @@ AC_PREREQ([2.71])
 # Get & set version
 m4_define([ameba_VERSION], m4_esyscmd([build-aux/git-version-gen .tarball-version]))
 AC_INIT([ameba], [ameba_VERSION], [hassaanirshad88@gmail.com])
+# Set major,minor,patch
+AMEBA_DEFINE_VERSION_MAJOR([ameba_VERSION],[PACKAGE_VERSION_MAJOR])
+AMEBA_DEFINE_VERSION_MINOR([ameba_VERSION],[PACKAGE_VERSION_MINOR])
+AMEBA_DEFINE_VERSION_PATCH([ameba_VERSION],[PACKAGE_VERSION_PATCH])
+
 
 # Aux script dir
 AC_CONFIG_AUX_DIR([build-aux])
@@ -43,13 +48,16 @@ the Free Software Foundation, either version 3 of the License, or
 AC_CONFIG_MACRO_DIR([m4])
 
 # Arguments
-CUSTOM_ARG_ENABLE_TASK_CTX
+AMEBA_ARG_ENABLE_TASK_CTX
 
 # App entrypoint
 AC_CONFIG_SRCDIR([src/user/ameba.c])
 
 # Path of file containing all the configurable constants
 AC_CONFIG_HEADERS([src/common/config.h])
+
+# Add config.h guard
+AH_TOP([#pragma once])
 
 # Initialize host identification vars.
 AC_CANONICAL_HOST

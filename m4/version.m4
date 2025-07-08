@@ -15,22 +15,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# m4/args.m4
+# m4/version.m4
 
 
-AC_DEFUN([AMEBA_ARG_ENABLE_TASK_CTX],
+AC_DEFUN([AMEBA_DEFINE_VERSION_PART],
 [
-  AC_ARG_ENABLE([task-ctx],
-    [AS_HELP_STRING([--enable-task-ctx], [Enable task context inclusion flag])],
-    [enable_task_ctx=yes],
-    [enable_task_ctx=no]
-  )
+    ameba_define_version_part_awk_res=`echo "$1" | awk -F'-' '{print [$]1}' | awk -F'.' '{print [$]$3}'`
+    AS_IF([echo "$ameba_define_version_part_awk_res" | grep -Eq '^[[0-9]]+$'],
+        [AC_DEFINE_UNQUOTED([$2], [$ameba_define_version_part_awk_res], [Package $4 number in version])],
+        [AC_MSG_ERROR([Failed to extract $4 number from version: "$1"])])
+])
 
-  if test "x$enable_task_ctx" = "xyes"; then
-    CPPFLAGS_ENABLE_TASK_CTX="-DINCLUDE_TASK_CTX_ID"
-  else
-    CPPFLAGS_ENABLE_TASK_CTX=""
-  fi
 
-  AC_SUBST([CPPFLAGS_ENABLE_TASK_CTX])
+AC_DEFUN([AMEBA_DEFINE_VERSION_MAJOR],
+[
+    AMEBA_DEFINE_VERSION_PART([$1], [$2], [1], [major])
+])
+
+AC_DEFUN([AMEBA_DEFINE_VERSION_MINOR],
+[
+    AMEBA_DEFINE_VERSION_PART([$1], [$2], [2], [minor])
+])
+
+AC_DEFUN([AMEBA_DEFINE_VERSION_PATCH],
+[
+    AMEBA_DEFINE_VERSION_PART([$1], [$2], [3], [patch])
 ])

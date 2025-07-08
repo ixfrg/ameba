@@ -1,5 +1,7 @@
 /* src/common/config.h.in.  Generated from configure.ac by autoheader.  */
 
+#pragma once
+
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
 
@@ -117,6 +119,15 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* Package major number in version */
+#undef PACKAGE_VERSION_MAJOR
+
+/* Package minor number in version */
+#undef PACKAGE_VERSION_MINOR
+
+/* Package patch number in version */
+#undef PACKAGE_VERSION_PATCH
 
 /* Define to 1 if all of the C90 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
