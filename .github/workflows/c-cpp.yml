@@ -19,7 +19,28 @@ jobs:
     - name: Install requirements
       run: |
         sudo apt-get update
-        sudo apt-get install -y jq llvm bpftool linux-tools-common libbpf-dev linux-headers-$(uname -r) gcc-multilib
+        sudo apt-get install -y jq llvm linux-tools-common libbpf-dev linux-headers-$(uname -r) gcc-multilib
+    - name: Install bpftool
+      run: |
+        BPFTOOL_TMP_DIR="/tmp"
+        BPFTOOL_TARGZ_FILE="${BPFTOOL_TMP_DIR}/bpftool.tar.gz"
+        BPFTOOL_EXE_FILE="/usr/local/bin/bpftool"
+        BPF_TOOL_VERSION=v7.2.0
+        ARCH=
+        if [ "${{ runner.arch }}" = "X64" ]; then
+          ARCH="amd64"
+        elif [ "${{ runner.arch }}" = "ARM64" ]; then
+          ARCH="arm64"
+        else
+          echo "Unexpected arch: ${{runner.arch}}"
+          exit 1
+        fi
+        wget https://github.com/libbpf/bpftool/releases/download/${BPF_TOOL_VERSION}/bpftool-${BPF_TOOL_VERSION}-${ARCH}.tar.gz -O "$(BPFTOOL_TARGZ_FILE)"
+        pushd "${BPFTOOL_TMP_DIR}"
+        tar -zxvf "$(BPFTOOL_TARGZ_FILE)"
+        sudo cp "./bpftool" "${BPFTOOL_EXE_FILE}"
+        sudo chmod +x "${BPFTOOL_EXE_FILE}"
+        popd
     - name: Setup non-sudo build
       run: |
         sudo cat /sys/kernel/tracing/available_events > "${PATH_BPF_AVAILABLE_EVENTS}"
