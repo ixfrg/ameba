@@ -123,5 +123,6 @@ AC_CONFIG_FILES([
     src/common/Makefile
     src/bpf/Makefile
     src/user/Makefile
+    src/utils/Makefile
 ])
 AC_OUTPUT
