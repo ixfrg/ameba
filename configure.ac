@@ -62,6 +62,8 @@ AH_TOP([#pragma once])
 # Initialize host identification vars.
 AC_CANONICAL_HOST
 
+AMEBA_DEFINE_BPF_ARCH_CPPFLAG
+
 # Static archive creator and indexer
 AM_PROG_AR
 AC_PROG_RANLIB

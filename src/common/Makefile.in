@@ -107,7 +107,8 @@ host_triplet = @host@
 subdir = src/common
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/args.m4 \
-	$(top_srcdir)/m4/version.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/host.m4 $(top_srcdir)/m4/version.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
@@ -155,6 +156,7 @@ am__define_uniq_tagged_files = \
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
+AMEBA_BPF_ARCH_CPPFLAG = @AMEBA_BPF_ARCH_CPPFLAG@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@

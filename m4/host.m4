@@ -15,13 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-## Process this file with automake to produce Makefile.in
+# m4/host.m4
 
 
-AM_DISTCHECK_CONFIGURE_FLAGS = CC=clang --prefix=${PWD}/ameba-local-dist-check-install
+AC_DEFUN([AMEBA_DEFINE_BPF_ARCH_CPPFLAG], [
+    AC_REQUIRE([AC_CANONICAL_HOST])
+    case "$host_cpu" in
+    x86_64)
+        AMEBA_BPF_ARCH_CPPFLAG="-D__TARGET_ARCH_x86"
+        ;;
+    aarch64)
+        AMEBA_BPF_ARCH_CPPFLAG="-D__TARGET_ARCH_arm64"
+        ;;
+    *)
+        AC_MSG_ERROR([Unsupported architecture: $host_cpu])
+        ;;
+    esac
 
-SUBDIRS = src/common src/bpf src/user
-dist_doc_DATA = README.md
-
-dist-hook:
-	echo $(VERSION) > $(distdir)/.tarball-version
+    AC_SUBST([AMEBA_BPF_ARCH_CPPFLAG])
+])

@@ -19,7 +19,7 @@
 
 
 AUTOMAKE_OPTIONS = subdir-objects
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX) $(AMEBA_BPF_ARCH_CPPFLAG)
 AM_CFLAGS = -O2 -Wall -target bpf -mcpu=v4
 
 bpf_combined_obj = $(top_builddir)/src/combined.bpf.o
