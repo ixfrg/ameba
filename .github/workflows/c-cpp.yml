@@ -2,9 +2,30 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ "main" ]
+    tags:
+      - 'v*'
+    paths:
+      - '.github/**'
+      - 'build-aux/**'
+      - 'm4/**'
+      - 'src/**'
+      - 'aclocal.m4'
+      - 'configure'
+      - 'configure.ac'
+      - 'Makefile.am'
+      - 'Makefile.in'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - '.github/**'
+      - 'build-aux/**'
+      - 'm4/**'
+      - 'src/**'
+      - 'aclocal.m4'
+      - 'configure'
+      - 'configure.ac'
+      - 'Makefile.am'
+      - 'Makefile.in'
 
 jobs:
   build:
