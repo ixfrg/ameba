@@ -32,6 +32,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 #include "bpf/events/accept/storage.bpf.h"
+#include "bpf/events/hook_name.bpf.h"
 
 
 // defs
@@ -145,7 +146,7 @@ static int sys_accept_exit(int ret_fd)
 
 struct proto_accept_arg;
 int AMEBA_HOOK(
-    "fexit/do_accept", 
+    BPF_EVENT_HOOK_NAME_FEXIT_DO_ACCEPT,
     fexit__do_accept, 
     accept_record_type, 
     struct file *file,
@@ -168,7 +169,7 @@ int AMEBA_HOOK(
 }
 
 int AMEBA_HOOK_TP(
-    "tracepoint/syscalls/sys_enter_accept",
+    BPF_EVENT_HOOK_NAME_TP_SYS_ENTER_ACCEPT,
     trace_accept_enter,
     accept_record_type,
     struct trace_event_raw_sys_enter *, sys_ctx
@@ -180,7 +181,7 @@ int AMEBA_HOOK_TP(
 }
 
 int AMEBA_HOOK_TP(
-    "tracepoint/syscalls/sys_enter_accept4",
+    BPF_EVENT_HOOK_NAME_TP_SYS_ENTER_ACCEPT4,
     trace_accept4_enter,
     accept_record_type,
     struct trace_event_raw_sys_enter *, sys_ctx
@@ -192,7 +193,7 @@ int AMEBA_HOOK_TP(
 }
 
 int AMEBA_HOOK_TP(
-    "tracepoint/syscalls/sys_exit_accept",
+    BPF_EVENT_HOOK_NAME_TP_SYS_EXIT_ACCEPT,
     trace_accept_exit,
     accept_record_type,
     struct trace_event_raw_sys_exit *, sys_ctx
@@ -204,7 +205,7 @@ int AMEBA_HOOK_TP(
 }
 
 int AMEBA_HOOK_TP(
-    "tracepoint/syscalls/sys_exit_accept4",
+    BPF_EVENT_HOOK_NAME_TP_SYS_EXIT_ACCEPT4,
     trace_accept4_exit,
     accept_record_type,
     struct trace_event_raw_sys_exit *, sys_ctx

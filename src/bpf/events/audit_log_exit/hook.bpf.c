@@ -34,10 +34,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/event.bpf.h"
 #include "bpf/helpers/output.bpf.h"
+#include "bpf/events/hook_name.bpf.h"
 
 
 int AMEBA_HOOK(
-    "fexit/audit_log_exit",
+    BPF_EVENT_HOOK_NAME_FEXIT_AUDIT_LOG_EXIT,
     fexit__audit_log_exit,
     RECORD_TYPE_AUDIT_LOG_EXIT
 )

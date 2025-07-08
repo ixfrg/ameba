@@ -31,6 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "bpf/helpers/datatype.bpf.h"
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
+#include "bpf/events/hook_name.bpf.h"
 
 
 static int send_record_cred(
@@ -149,7 +150,7 @@ static sys_id_t get_sys_id_from_kernel_clone_args(struct kernel_clone_args *args
 }
 
 int AMEBA_HOOK(
-    "fexit/copy_process",
+    BPF_EVENT_HOOK_NAME_FEXIT_COPY_PROCESS,
     fexit__copy_process,
     RECORD_TYPE_NAMESPACE,
     struct pid *s_pid,
@@ -174,7 +175,7 @@ int AMEBA_HOOK(
 }
 
 int AMEBA_HOOK(
-    "fexit/ksys_unshare",
+    BPF_EVENT_HOOK_NAME_FEXIT_KSYS_UNSHARE,
     fexit__ksys_unshare,
     RECORD_TYPE_NAMESPACE,
     unsigned long unshare_flags,
@@ -192,7 +193,7 @@ int AMEBA_HOOK(
 }
 
 int AMEBA_HOOK_TP(
-    "tracepoint/syscalls/sys_exit_setns",
+    BPF_EVENT_HOOK_NAME_TP_SYS_EXIT_SETNS,
     trace_setns_exit,
     RECORD_TYPE_NAMESPACE,
     struct trace_event_raw_sys_exit *, ctx

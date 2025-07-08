@@ -32,6 +32,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 #include "bpf/events/send_recv/storage.bpf.h"
+#include "bpf/events/hook_name.bpf.h"
 
 
 static int insert_send_recv_map_entry_at_syscall_enter(sys_id_t sys_id)
@@ -128,7 +129,7 @@ static int send_send_recv_map_entry_on_syscall_exit(void)
 // Begin syscall sys_sendto 
 // hooks
 int AMEBA_HOOK(
-    "fentry/__sys_sendto",
+    BPF_EVENT_HOOK_NAME_FENTRY___SYS_SENDTO,
     fentry__sys_sendto,
     RECORD_TYPE_SEND_RECV
 )
@@ -138,7 +139,7 @@ int AMEBA_HOOK(
 }
 
 int AMEBA_HOOK(
-    "fexit/__sys_sendto",
+    BPF_EVENT_HOOK_NAME_FEXIT___SYS_SENDTO,
     fexit__sys_sendto,
     RECORD_TYPE_SEND_RECV,
     int fd, 
@@ -165,7 +166,7 @@ int AMEBA_HOOK(
 // Begin syscall sys_sendmsg
 // hooks
 int AMEBA_HOOK(
-    "fentry/__sys_sendmsg",
+    BPF_EVENT_HOOK_NAME_FENTRY___SYS_SENDMSG,
     fentry__sys_sendmsg,
     RECORD_TYPE_SEND_RECV
 )
@@ -175,7 +176,7 @@ int AMEBA_HOOK(
 }
 
 int AMEBA_HOOK(
-    "fexit/__sys_sendmsg",
+    BPF_EVENT_HOOK_NAME_FEXIT___SYS_SENDMSG,
     fexit__sys_sendmsg,
     RECORD_TYPE_SEND_RECV,
     int fd, 
@@ -208,7 +209,7 @@ int AMEBA_HOOK(
 // Begin syscall sys_recvfrom
 // hooks
 int AMEBA_HOOK(
-    "fentry/__sys_recvfrom",
+    BPF_EVENT_HOOK_NAME_FENTRY___SYS_RECVFROM,
     fentry__sys_recvfrom,
     RECORD_TYPE_SEND_RECV
 )
@@ -218,7 +219,7 @@ int AMEBA_HOOK(
 }
 
 int AMEBA_HOOK(
-    "fexit/__sys_recvfrom",
+    BPF_EVENT_HOOK_NAME_FEXIT___SYS_RECVFROM,
     fexit__sys_recvfrom,
     RECORD_TYPE_SEND_RECV,
     int fd, 
@@ -245,7 +246,7 @@ int AMEBA_HOOK(
 // Begin syscall sys_recvmsg
 // hooks
 int AMEBA_HOOK(
-    "fentry/__sys_recvmsg",
+    BPF_EVENT_HOOK_NAME_FENTRY___SYS_RECVMSG,
     fentry__sys_recvmsg,
     RECORD_TYPE_SEND_RECV
 )
@@ -255,7 +256,7 @@ int AMEBA_HOOK(
 }
 
 int AMEBA_HOOK(
-    "fexit/__sys_recvmsg",
+    BPF_EVENT_HOOK_NAME_FEXIT___SYS_RECVMSG,
     fexit__sys_recvmsg,
     RECORD_TYPE_SEND_RECV,
     int fd, 
@@ -286,7 +287,7 @@ int AMEBA_HOOK(
 
 // Intermediate state update functions
 int AMEBA_HOOK(
-    "fexit/sock_sendmsg",
+    BPF_EVENT_HOOK_NAME_FEXIT_SOCK_SENDMSG,
     fexit__sock_sendmsg,
     RECORD_TYPE_SEND_RECV,
     struct socket *sock,
@@ -306,7 +307,7 @@ int AMEBA_HOOK(
 }
 
 int AMEBA_HOOK(
-    "fexit/sock_recvmsg",
+    BPF_EVENT_HOOK_NAME_FEXIT_SOCK_RECVMSG,
     fexit__sock_recvmsg,
     RECORD_TYPE_SEND_RECV,
     struct socket *sock,

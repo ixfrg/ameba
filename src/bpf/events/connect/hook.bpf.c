@@ -31,6 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 #include "bpf/events/connect/storage.bpf.h"
+#include "bpf/events/hook_name.bpf.h"
 
 
 // local globals
@@ -118,7 +119,7 @@ static int send_connect_map_entry_on_syscall_exit(void)
 
 // hooks
 int AMEBA_HOOK(
-    "fentry/__sys_connect",
+    BPF_EVENT_HOOK_NAME_FENTRY___SYS_CONNECT,
     fentry__sys_connect,
     connect_record_type,
     int fd,
@@ -131,7 +132,7 @@ int AMEBA_HOOK(
 }
 
 int AMEBA_HOOK(
-    "fexit/__sys_connect",
+    BPF_EVENT_HOOK_NAME_FEXIT___SYS_CONNECT,
     fexit__sys_connect,
     connect_record_type,
     int fd,
@@ -157,7 +158,7 @@ int AMEBA_HOOK(
 
 struct sockaddr_storage;
 int AMEBA_HOOK(
-    "fexit/__sys_connect_file",
+    BPF_EVENT_HOOK_NAME_FEXIT___SYS_CONNECT_FILE,
     fexit__sys_connect_file,
     connect_record_type,
     struct file *file,

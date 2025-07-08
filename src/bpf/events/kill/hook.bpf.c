@@ -32,6 +32,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 #include "bpf/events/kill/storage.bpf.h"
+#include "bpf/events/hook_name.bpf.h"
 
 
 // UBSI kill values
@@ -115,7 +116,7 @@ static int send_kill_map_entry_on_syscall_exit(void)
 }
 
 int AMEBA_HOOK_TP(
-    "tracepoint/syscalls/sys_enter_kill",
+    BPF_EVENT_HOOK_NAME_TP_SYS_ENTER_KILL,
     trace_kill_enter,
     kill_record_type,
     struct trace_event_raw_sys_enter *, ctx
@@ -130,7 +131,7 @@ int AMEBA_HOOK_TP(
 }
 
 int AMEBA_HOOK_TP(
-    "tracepoint/syscalls/sys_exit_kill",
+    BPF_EVENT_HOOK_NAME_TP_SYS_EXIT_KILL,
     trace_kill_exit,
     kill_record_type,
     struct trace_event_raw_sys_exit *, ctx

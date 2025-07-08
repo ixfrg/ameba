@@ -32,6 +32,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "bpf/helpers/copy.bpf.h"
 #include "bpf/helpers/output.bpf.h"
 #include "bpf/events/bind/storage.bpf.h"
+#include "bpf/events/hook_name.bpf.h"
 
 
 static int common_sock_bind(
@@ -61,7 +62,7 @@ static int common_sock_bind(
 
 
 int AMEBA_HOOK(
-    "fexit/unix_bind",
+    BPF_EVENT_HOOK_NAME_FEXIT_UNIX_BIND,
     fexit__unix_bind,
     RECORD_TYPE_BIND,
     struct socket *sock, 
@@ -75,7 +76,7 @@ int AMEBA_HOOK(
 
 
 int AMEBA_HOOK(
-    "fexit/inet_bind",
+    BPF_EVENT_HOOK_NAME_FEXIT_INET_BIND,
     fexit__inet_bind,
     RECORD_TYPE_BIND,
     struct socket *sock, 
@@ -89,7 +90,7 @@ int AMEBA_HOOK(
 
 
 int AMEBA_HOOK(
-    "fexit/inet6_bind",
+    BPF_EVENT_HOOK_NAME_FEXIT_INET6_BIND,
     fexit__inet6_bind,
     RECORD_TYPE_BIND,
     struct socket *sock, 
@@ -103,7 +104,7 @@ int AMEBA_HOOK(
 
 
 int AMEBA_HOOK(
-    "fexit/__sys_bind",
+    BPF_EVENT_HOOK_NAME_FEXIT___SYS_BIND,
     fexit__sys_bind,
     RECORD_TYPE_BIND,
     int fd,
