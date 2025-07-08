@@ -31,9 +31,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 const struct elem_version record_version = {
-    .major = 1,
-    .minor = 0,
-    .patch = 0
+    .major = RECORD_VERSION_MAJOR,
+    .minor = RECORD_VERSION_MINOR,
+    .patch = RECORD_VERSION_PATCH
 };
 
 const struct elem_version app_version = {
