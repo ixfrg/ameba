@@ -1209,5 +1209,6 @@ AC_SUBST([am__untar])
 ]) # _AM_PROG_TAR
 
 m4_include([m4/args.m4])
+m4_include([m4/bpf.m4])
 m4_include([m4/host.m4])
 m4_include([m4/version.m4])

@@ -34,3 +34,17 @@ AC_DEFUN([AMEBA_ARG_ENABLE_TASK_CTX],
 
   AC_SUBST([CPPFLAGS_ENABLE_TASK_CTX])
 ])
+
+AC_DEFUN([AMEBA_ARG_REQUIRE_BPF_ARGS],
+[
+    AC_ARG_WITH([path-btf-vmlinux],
+        [AS_HELP_STRING([--with-path-btf-vmlinux=PATH], [Set path to readable /sys/kernel/btf/vmlinux])],
+        [AMEBA_ARG_BPF_VMLINUX="$withval"],
+        [AMEBA_ARG_BPF_VMLINUX="/sys/kernel/btf/vmlinux"]
+    )
+    AC_ARG_WITH([path-tracing-available-events],
+        [AS_HELP_STRING([--with-path-tracing-available-events=PATH], [Set path to readable /sys/kernel/tracing/available_events])],
+        [AMEBA_ARG_BPF_AVAILABLE_EVENTS="$withval"],
+        [AMEBA_ARG_BPF_AVAILABLE_EVENTS="/sys/kernel/tracing/available_events"]
+    )
+])
