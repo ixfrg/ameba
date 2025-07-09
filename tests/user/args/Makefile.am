@@ -18,8 +18,11 @@
 ## Process this file with automake to produce Makefile.in
 
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 TESTS = control
 check_PROGRAMS = control
-control_SOURCES = control.c
+control_SOURCES = control.cpp $(top_srcdir)/src/user/args/control.c
 control_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
-control_CFLAGS = -Wall
+control_CXXFLAGS = -Wall
+control_LDADD = -lCppUTest -lCppUTestExt

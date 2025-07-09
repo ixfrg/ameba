@@ -248,7 +248,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
 int user_args_control_must_parse_control_input(int argc, char **argv)
 {
-    error_t err = argp_parse(&global_control_input_argp, argc, argv, 0, 0, 0);
+    error_t err = argp_parse(&global_control_input_argp, argc, argv, ARGP_NO_EXIT, 0, 0);
 
     return err;
 }

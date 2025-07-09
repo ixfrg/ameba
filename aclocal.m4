@@ -1210,5 +1210,6 @@ AC_SUBST([am__untar])
 
 m4_include([m4/args.m4])
 m4_include([m4/bpf.m4])
+m4_include([m4/cpp.m4])
 m4_include([m4/host.m4])
 m4_include([m4/version.m4])

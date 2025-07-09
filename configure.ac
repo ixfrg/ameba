@@ -83,6 +83,9 @@ if test "$CC" != "clang"; then
   AC_MSG_ERROR([Clang compiler is required but not found or not functional. Force set using configure CC=clang.])
 fi
 
+AC_PROG_CXX
+AMEBA_CPP_REQUIRE_CPPUTEST
+
 # Check for bpftool
 AC_PATH_PROG([BPFTOOL], [bpftool], [no])
 test "$BPFTOOL" != "no" || AC_MSG_ERROR([bpftool not found in PATH. Please install it.])
