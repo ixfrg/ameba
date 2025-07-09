@@ -86,6 +86,7 @@ static void init_control_input(struct control_input *input)
     input->ppid_mode = IGNORE;
     input->ppids_len = 0;
     input->netio_mode = IGNORE;
+    input->parse_err = 0;
 }
 
 static int find_string_index(const char *haystack, const char *needle)
@@ -180,16 +181,19 @@ static error_t validate_control_input(struct control_input *input, struct argp_s
     */
     if (input->uid_mode == CAPTURE && input->uids_len == 0)
     {
+        input->parse_err = -1;
         argp_failure(state, -1, -1, "Must specify uids to capture in capture mode");
         return ARGP_ERR_UNKNOWN;
     }
     if (input->pid_mode == CAPTURE && input->pids_len == 0)
     {
+        input->parse_err = -1;
         argp_failure(state, -1, -1, "Must specify pids to capture in capture mode");
         return ARGP_ERR_UNKNOWN;
     }
     if (input->ppid_mode == CAPTURE && input->ppids_len == 0)
     {
+        input->parse_err = -1;
         argp_failure(state, -1, -1, "Must specify ppids to capture in capture mode");
         return ARGP_ERR_UNKNOWN;
     }
@@ -249,6 +253,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 int user_args_control_must_parse_control_input(int argc, char **argv)
 {
     error_t err = argp_parse(&global_control_input_argp, argc, argv, ARGP_NO_EXIT, 0, 0);
+    if (err)
+        return err;
 
-    return err;
+    return global_control_input.parse_err;
 }

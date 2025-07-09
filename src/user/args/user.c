@@ -72,18 +72,25 @@ static struct user_input *get_global_user_input()
 
 static void init_user_input(struct user_input *input)
 {
+    if (!input)
+        return;
     memset(input, 0, sizeof(*input));
     input->o_type = default_output_type;
     memcpy(&(input->output_file.path), default_output_file_path, strlen(default_output_file_path));
     input->output_net.ip_family = 0;
     input->output_net.port = -1;
     input->output_net.ip[0] = 0;
+    input->parse_err = 0;
 }
 
 static error_t validate_user_input(struct user_input *input, struct argp_state *state)
 {
+    if (input->show_version == 1)
+        return 0;
+
     if (input->o_type == OUTPUT_NONE)
     {
+        input->parse_err = -1;
         argp_failure(state, -1, -1, "Must specify exactly one output method");
         return ARGP_ERR_UNKNOWN;
     }
@@ -91,11 +98,13 @@ static error_t validate_user_input(struct user_input *input, struct argp_state *
     {
         if (input->output_net.ip[0] == 0)
         {
+            input->parse_err = -1;
             argp_failure(state, -1, -1, "Must specify IP for network output method");
             return ARGP_ERR_UNKNOWN;
         }
         if (input->output_net.port < 1 || input->output_net.port > 65535)
         {
+            input->parse_err = -1;
             argp_failure(state, -1, -1, "Must specify a valid port for network output method");
             return ARGP_ERR_UNKNOWN;
         }
@@ -231,5 +240,9 @@ int user_args_user_must_parse_user_input(int argc, char **argv)
     error_t err = argp_parse(&global_user_input_argp, argc, argv, ARGP_NO_EXIT, 0, 0);
     // Copy it even in case of failure since just a copy.
     memcpy(&(global_user_input.c_in), &global_control_input, sizeof(global_control_input));
-    return err;
+
+    if (err)
+        return err;
+
+    return global_user_input.parse_err;
 }

@@ -77,4 +77,5 @@ struct user_input
     struct output_net output_net;
     enum output_type o_type;
     int show_version;
+    int parse_err;
 };

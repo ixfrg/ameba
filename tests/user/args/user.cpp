@@ -100,23 +100,27 @@ TEST(UserArgUserInputGroup, TestOutputFile)
         strlen("/tmp/test.json")
     );
 }
-/*
+
 TEST(UserArgUserInputGroup, TestOutputNetValid)
 {
+    struct user_input *u_in = &global_user_input;
+
     char* argv[] = {
         (char*)"test",
         (char*)"--ip",
-        (char*)"0.0.0.0"
+        (char*)"0.0.0.0",
+        (char*)"--port",
+        (char*)"1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     int res = user_args_user_must_parse_user_input(argc, argv);
-    printf("res=%d\n", res);
     CHECK_EQUAL(0, res);
 
     CHECK_EQUAL(OUTPUT_NET, u_in->o_type);
     STRNCMP_EQUAL("0.0.0.0", u_in->output_net.ip, strlen("0.0.0.0"));
+    CHECK_EQUAL(1212, u_in->output_net.port);
 }
-*/
+
 int main(int argc, char** argv)
 {
     const char* verboseArgv[] = { argv[0], "-v" };
