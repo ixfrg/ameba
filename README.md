@@ -70,7 +70,7 @@ sudo local-install/bin/ameba --help
 
 ## Tests
 
-Install [check](https://libcheck.github.io/check/web/install.html#aptitude): `sudo apt-get install check`
+Install [CppUTest](https://cpputest.github.io/manual.html): `sudo apt-get install cpputest`
 
 
 # Use Cases
