@@ -69,6 +69,61 @@ TEST(UserArgUserInputGroup, TestDefaults)
     CHECK_EQUAL(0, u_in->output_net.ip[0]);
 }
 
+TEST(UserArgUserInputGroup, TestNonDefaults)
+{
+    struct user_input *u_in = &global_user_input;
+
+    char* argv[] = {
+        (char*)"test",
+        (char*)"--ip",
+        (char*)"0.0.0.0",
+        (char*)"--port",
+        (char*)"1212",
+        (char*)"--global-mode",
+        (char*)"capture",
+        (char*)"--uid-mode",
+        (char*)"capture",
+        (char*)"--uid-list",
+        (char*)"1000",
+        (char*)"--pid-mode",
+        (char*)"capture",
+        (char*)"--pid-list",
+        (char*)"2000",
+        (char*)"--ppid-mode",
+        (char*)"capture",
+        (char*)"--ppid-list",
+        (char*)"3000",
+        (char*)"--netio-mode",
+        (char*)"capture",
+    };
+    int argc = sizeof(argv) / sizeof(char*);
+    int res = user_args_user_must_parse_user_input(argc, argv);
+    CHECK_EQUAL(0, res);
+
+    CHECK_EQUAL(OUTPUT_NET, u_in->o_type);
+    CHECK_EQUAL(AF_INET, u_in->output_net.ip_family);
+    STRNCMP_EQUAL("0.0.0.0", u_in->output_net.ip, strlen("0.0.0.0"));
+    CHECK_EQUAL(1212, u_in->output_net.port);
+
+    CHECK_EQUAL(CAPTURE, u_in->c_in.global_mode);
+
+    CHECK_EQUAL(CAPTURE, u_in->c_in.uid_mode);
+    CHECK_EQUAL(1, u_in->c_in.uids_len);
+    CHECK_EQUAL(1000, u_in->c_in.uids[0]);
+
+    CHECK_EQUAL(CAPTURE, u_in->c_in.pid_mode);
+    CHECK_EQUAL(1, u_in->c_in.pids_len);
+    CHECK_EQUAL(2000, u_in->c_in.pids[0]);
+
+    CHECK_EQUAL(CAPTURE, u_in->c_in.ppid_mode);
+    CHECK_EQUAL(1, u_in->c_in.ppids_len);
+    CHECK_EQUAL(3000, u_in->c_in.ppids[0]);
+
+    CHECK_EQUAL(CAPTURE, u_in->c_in.netio_mode);
+
+    CHECK_EQUAL(0, u_in->show_version);
+}
+
 TEST(UserArgUserInputGroup, TestVersion)
 {
     struct user_input *u_in = &global_user_input;
@@ -78,6 +133,43 @@ TEST(UserArgUserInputGroup, TestVersion)
     int res = user_args_user_must_parse_user_input(argc, argv);
     CHECK_EQUAL(0, res);
     CHECK_EQUAL(1, u_in->show_version);
+}
+
+TEST(UserArgUserInputGroup, TestOutputFileInvalid)
+{
+    char* argv[] = {
+        (char*)"test",
+        (char*)"--file-path"
+    };
+    int argc = sizeof(argv) / sizeof(char*);
+    int res = user_args_user_must_parse_user_input(argc, argv);
+    CHECK(0 != res);
+}
+
+TEST(UserArgUserInputGroup, TestOutputNetInvalidArg1)
+{
+    char* argv[] = {
+        (char*)"test",
+        (char*)"--ip",
+        (char*)"--port",
+        (char*)"1212"
+    };
+    int argc = sizeof(argv) / sizeof(char*);
+    int res = user_args_user_must_parse_user_input(argc, argv);
+    CHECK(0 != res);
+}
+
+TEST(UserArgUserInputGroup, TestOutputNetInvalidArg2)
+{
+    char* argv[] = {
+        (char*)"test",
+        (char*)"--ip",
+        (char*)"0.0.0.0",
+        (char*)"--port"
+    };
+    int argc = sizeof(argv) / sizeof(char*);
+    int res = user_args_user_must_parse_user_input(argc, argv);
+    CHECK(0 != res);
 }
 
 TEST(UserArgUserInputGroup, TestOutputFile)
@@ -101,7 +193,7 @@ TEST(UserArgUserInputGroup, TestOutputFile)
     );
 }
 
-TEST(UserArgUserInputGroup, TestOutputNetValid)
+TEST(UserArgUserInputGroup, TestOutputNetValidIp4)
 {
     struct user_input *u_in = &global_user_input;
 
@@ -117,8 +209,82 @@ TEST(UserArgUserInputGroup, TestOutputNetValid)
     CHECK_EQUAL(0, res);
 
     CHECK_EQUAL(OUTPUT_NET, u_in->o_type);
+    CHECK_EQUAL(AF_INET, u_in->output_net.ip_family);
     STRNCMP_EQUAL("0.0.0.0", u_in->output_net.ip, strlen("0.0.0.0"));
     CHECK_EQUAL(1212, u_in->output_net.port);
+}
+
+TEST(UserArgUserInputGroup, TestOutputNetValidIp6)
+{
+    struct user_input *u_in = &global_user_input;
+
+    char* argv[] = {
+        (char*)"test",
+        (char*)"--ip",
+        (char*)"::1",
+        (char*)"--port",
+        (char*)"1212"
+    };
+    int argc = sizeof(argv) / sizeof(char*);
+    int res = user_args_user_must_parse_user_input(argc, argv);
+    CHECK_EQUAL(0, res);
+
+    CHECK_EQUAL(OUTPUT_NET, u_in->o_type);
+    CHECK_EQUAL(AF_INET6, u_in->output_net.ip_family);
+    STRNCMP_EQUAL("::1", u_in->output_net.ip, strlen("::1"));
+    CHECK_EQUAL(1212, u_in->output_net.port);
+}
+
+TEST(UserArgUserInputGroup, TestOutputNetNoIp)
+{
+    char* argv[] = {
+        (char*)"test",
+        (char*)"--port",
+        (char*)"1212"
+    };
+    int argc = sizeof(argv) / sizeof(char*);
+    int res = user_args_user_must_parse_user_input(argc, argv);
+    CHECK(0 != res);
+}
+
+TEST(UserArgUserInputGroup, TestOutputNetNoPort)
+{
+    char* argv[] = {
+        (char*)"test",
+        (char*)"--ip",
+        (char*)"0.0.0.0"
+    };
+    int argc = sizeof(argv) / sizeof(char*);
+    int res = user_args_user_must_parse_user_input(argc, argv);
+    CHECK(0 != res);
+}
+
+TEST(UserArgUserInputGroup, TestOutputNetInvalidIp4)
+{
+    char* argv[] = {
+        (char*)"test",
+        (char*)"--ip",
+        (char*)"0.0.0.0.0",
+        (char*)"--port",
+        (char*)"1212"
+    };
+    int argc = sizeof(argv) / sizeof(char*);
+    int res = user_args_user_must_parse_user_input(argc, argv);
+    CHECK(0 != res);
+}
+
+TEST(UserArgUserInputGroup, TestOutputNetInvalidIp6)
+{
+    char* argv[] = {
+        (char*)"test",
+        (char*)"--ip",
+        (char*)"::::::1",
+        (char*)"--port",
+        (char*)"1212"
+    };
+    int argc = sizeof(argv) / sizeof(char*);
+    int res = user_args_user_must_parse_user_input(argc, argv);
+    CHECK(0 != res);
 }
 
 int main(int argc, char** argv)
