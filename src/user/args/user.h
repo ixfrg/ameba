@@ -31,7 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     Default output values
 */
 static enum output_type default_output_type = OUTPUT_FILE;
-static char *default_output_file_path = "/tmp/current_prov_log.json";
+static const char *default_output_file_path = "/tmp/current_prov_log.json";
 
 /*
     A properly formed argp struct.

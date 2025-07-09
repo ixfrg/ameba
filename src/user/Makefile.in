@@ -127,44 +127,46 @@ AM_V_AR = $(am__v_AR_@AM_V@)
 am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
-libargs_a_AR = $(AR) $(ARFLAGS)
-libargs_a_LIBADD =
+args_lib_a_AR = $(AR) $(ARFLAGS)
+args_lib_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libargs_a_OBJECTS = args/user.$(OBJEXT) args/control.$(OBJEXT)
-libargs_a_OBJECTS = $(am_libargs_a_OBJECTS)
-libhelpers_a_AR = $(AR) $(ARFLAGS)
-libhelpers_a_LIBADD =
-am_libhelpers_a_OBJECTS = helpers/log.$(OBJEXT)
-libhelpers_a_OBJECTS = $(am_libhelpers_a_OBJECTS)
-libjsonify_a_AR = $(AR) $(ARFLAGS)
-libjsonify_a_LIBADD =
-am_libjsonify_a_OBJECTS = jsonify/user.$(OBJEXT) \
+am_args_lib_a_OBJECTS = args/user.$(OBJEXT) args/control.$(OBJEXT)
+args_lib_a_OBJECTS = $(am_args_lib_a_OBJECTS)
+helpers_lib_a_AR = $(AR) $(ARFLAGS)
+helpers_lib_a_LIBADD =
+am_helpers_lib_a_OBJECTS = helpers/log.$(OBJEXT)
+helpers_lib_a_OBJECTS = $(am_helpers_lib_a_OBJECTS)
+jsonify_lib_a_AR = $(AR) $(ARFLAGS)
+jsonify_lib_a_LIBADD =
+am_jsonify_lib_a_OBJECTS = jsonify/user.$(OBJEXT) \
 	jsonify/control.$(OBJEXT) jsonify/core.$(OBJEXT) \
 	jsonify/types.$(OBJEXT) jsonify/record.$(OBJEXT) \
 	jsonify/log_msg.$(OBJEXT)
-libjsonify_a_OBJECTS = $(am_libjsonify_a_OBJECTS)
-librecorddeserializer_a_AR = $(AR) $(ARFLAGS)
-librecorddeserializer_a_LIBADD =
-am_librecorddeserializer_a_OBJECTS =  \
+jsonify_lib_a_OBJECTS = $(am_jsonify_lib_a_OBJECTS)
+record_deserializer_lib_a_AR = $(AR) $(ARFLAGS)
+record_deserializer_lib_a_LIBADD =
+am_record_deserializer_lib_a_OBJECTS =  \
 	record/deserializer/binary.$(OBJEXT)
-librecorddeserializer_a_OBJECTS =  \
-	$(am_librecorddeserializer_a_OBJECTS)
-librecordserializer_a_AR = $(AR) $(ARFLAGS)
-librecordserializer_a_LIBADD =
-am_librecordserializer_a_OBJECTS = record/serializer/binary.$(OBJEXT) \
+record_deserializer_lib_a_OBJECTS =  \
+	$(am_record_deserializer_lib_a_OBJECTS)
+record_serializer_lib_a_AR = $(AR) $(ARFLAGS)
+record_serializer_lib_a_LIBADD =
+am_record_serializer_lib_a_OBJECTS =  \
+	record/serializer/binary.$(OBJEXT) \
 	record/serializer/json.$(OBJEXT) \
 	record/serializer/serializer.$(OBJEXT)
-librecordserializer_a_OBJECTS = $(am_librecordserializer_a_OBJECTS)
-librecordwriter_a_AR = $(AR) $(ARFLAGS)
-librecordwriter_a_LIBADD =
-am_librecordwriter_a_OBJECTS = record/writer/file.$(OBJEXT) \
+record_serializer_lib_a_OBJECTS =  \
+	$(am_record_serializer_lib_a_OBJECTS)
+record_writer_lib_a_AR = $(AR) $(ARFLAGS)
+record_writer_lib_a_LIBADD =
+am_record_writer_lib_a_OBJECTS = record/writer/file.$(OBJEXT) \
 	record/writer/net.$(OBJEXT)
-librecordwriter_a_OBJECTS = $(am_librecordwriter_a_OBJECTS)
+record_writer_lib_a_OBJECTS = $(am_record_writer_lib_a_OBJECTS)
 am_ameba_OBJECTS = ameba.$(OBJEXT)
 ameba_OBJECTS = $(am_ameba_OBJECTS)
-ameba_DEPENDENCIES = libargs.a librecorddeserializer.a \
-	librecordwriter.a librecordserializer.a libhelpers.a \
-	libjsonify.a
+ameba_DEPENDENCIES = args/lib.a record/deserializer/lib.a \
+	record/writer/lib.a record/serializer/lib.a helpers/lib.a \
+	jsonify/lib.a
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -203,14 +205,14 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libargs_a_SOURCES) $(libhelpers_a_SOURCES) \
-	$(libjsonify_a_SOURCES) $(librecorddeserializer_a_SOURCES) \
-	$(librecordserializer_a_SOURCES) $(librecordwriter_a_SOURCES) \
-	$(ameba_SOURCES)
-DIST_SOURCES = $(libargs_a_SOURCES) $(libhelpers_a_SOURCES) \
-	$(libjsonify_a_SOURCES) $(librecorddeserializer_a_SOURCES) \
-	$(librecordserializer_a_SOURCES) $(librecordwriter_a_SOURCES) \
-	$(ameba_SOURCES)
+SOURCES = $(args_lib_a_SOURCES) $(helpers_lib_a_SOURCES) \
+	$(jsonify_lib_a_SOURCES) $(record_deserializer_lib_a_SOURCES) \
+	$(record_serializer_lib_a_SOURCES) \
+	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES)
+DIST_SOURCES = $(args_lib_a_SOURCES) $(helpers_lib_a_SOURCES) \
+	$(jsonify_lib_a_SOURCES) $(record_deserializer_lib_a_SOURCES) \
+	$(record_serializer_lib_a_SOURCES) \
+	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -351,28 +353,35 @@ top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
 AM_CFLAGS = -Wall
-noinst_LIBRARIES = libargs.a librecorddeserializer.a librecordwriter.a librecordserializer.a libhelpers.a libjsonify.a
-libargs_a_SOURCES = \
+noinst_LIBRARIES = \
+    args/lib.a \
+    record/deserializer/lib.a \
+    record/writer/lib.a \
+    record/serializer/lib.a \
+    helpers/lib.a \
+    jsonify/lib.a
+
+args_lib_a_SOURCES = \
     args/user.h args/control.h \
     args/user.c args/control.c
 
-librecorddeserializer_a_SOURCES = \
+record_deserializer_lib_a_SOURCES = \
     record/deserializer/deserializer.h \
     record/deserializer/binary.c
 
-librecordwriter_a_SOURCES = \
+record_writer_lib_a_SOURCES = \
     record/writer/writer.h \
     record/writer/file.c record/writer/net.c
 
-librecordserializer_a_SOURCES = \
+record_serializer_lib_a_SOURCES = \
     record/serializer/serializer.h \
     record/serializer/binary.c record/serializer/json.c record/serializer/serializer.c
 
-libhelpers_a_SOURCES = \
+helpers_lib_a_SOURCES = \
     helpers/log.h \
     helpers/log.c
 
-libjsonify_a_SOURCES = \
+jsonify_lib_a_SOURCES = \
     jsonify/user.h jsonify/control.h jsonify/core.h jsonify/types.h jsonify/record.h jsonify/log_msg.h \
     jsonify/user.c jsonify/control.c jsonify/core.c jsonify/types.c jsonify/record.c jsonify/log_msg.c
 
@@ -382,7 +391,14 @@ ameba_SOURCES = \
     error.h \
     ameba.c
 
-ameba_LDADD = libargs.a librecorddeserializer.a librecordwriter.a librecordserializer.a libhelpers.a libjsonify.a
+ameba_LDADD = \
+    args/lib.a \
+    record/deserializer/lib.a \
+    record/writer/lib.a \
+    record/serializer/lib.a \
+    helpers/lib.a \
+    jsonify/lib.a
+
 all: all-am
 
 .SUFFIXES:
@@ -472,10 +488,10 @@ args/user.$(OBJEXT): args/$(am__dirstamp) \
 args/control.$(OBJEXT): args/$(am__dirstamp) \
 	args/$(DEPDIR)/$(am__dirstamp)
 
-libargs.a: $(libargs_a_OBJECTS) $(libargs_a_DEPENDENCIES) $(EXTRA_libargs_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libargs.a
-	$(AM_V_AR)$(libargs_a_AR) libargs.a $(libargs_a_OBJECTS) $(libargs_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libargs.a
+args/lib.a: $(args_lib_a_OBJECTS) $(args_lib_a_DEPENDENCIES) $(EXTRA_args_lib_a_DEPENDENCIES) args/$(am__dirstamp)
+	$(AM_V_at)-rm -f args/lib.a
+	$(AM_V_AR)$(args_lib_a_AR) args/lib.a $(args_lib_a_OBJECTS) $(args_lib_a_LIBADD)
+	$(AM_V_at)$(RANLIB) args/lib.a
 helpers/$(am__dirstamp):
 	@$(MKDIR_P) helpers
 	@: > helpers/$(am__dirstamp)
@@ -485,10 +501,10 @@ helpers/$(DEPDIR)/$(am__dirstamp):
 helpers/log.$(OBJEXT): helpers/$(am__dirstamp) \
 	helpers/$(DEPDIR)/$(am__dirstamp)
 
-libhelpers.a: $(libhelpers_a_OBJECTS) $(libhelpers_a_DEPENDENCIES) $(EXTRA_libhelpers_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libhelpers.a
-	$(AM_V_AR)$(libhelpers_a_AR) libhelpers.a $(libhelpers_a_OBJECTS) $(libhelpers_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libhelpers.a
+helpers/lib.a: $(helpers_lib_a_OBJECTS) $(helpers_lib_a_DEPENDENCIES) $(EXTRA_helpers_lib_a_DEPENDENCIES) helpers/$(am__dirstamp)
+	$(AM_V_at)-rm -f helpers/lib.a
+	$(AM_V_AR)$(helpers_lib_a_AR) helpers/lib.a $(helpers_lib_a_OBJECTS) $(helpers_lib_a_LIBADD)
+	$(AM_V_at)$(RANLIB) helpers/lib.a
 jsonify/$(am__dirstamp):
 	@$(MKDIR_P) jsonify
 	@: > jsonify/$(am__dirstamp)
@@ -508,10 +524,10 @@ jsonify/record.$(OBJEXT): jsonify/$(am__dirstamp) \
 jsonify/log_msg.$(OBJEXT): jsonify/$(am__dirstamp) \
 	jsonify/$(DEPDIR)/$(am__dirstamp)
 
-libjsonify.a: $(libjsonify_a_OBJECTS) $(libjsonify_a_DEPENDENCIES) $(EXTRA_libjsonify_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libjsonify.a
-	$(AM_V_AR)$(libjsonify_a_AR) libjsonify.a $(libjsonify_a_OBJECTS) $(libjsonify_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libjsonify.a
+jsonify/lib.a: $(jsonify_lib_a_OBJECTS) $(jsonify_lib_a_DEPENDENCIES) $(EXTRA_jsonify_lib_a_DEPENDENCIES) jsonify/$(am__dirstamp)
+	$(AM_V_at)-rm -f jsonify/lib.a
+	$(AM_V_AR)$(jsonify_lib_a_AR) jsonify/lib.a $(jsonify_lib_a_OBJECTS) $(jsonify_lib_a_LIBADD)
+	$(AM_V_at)$(RANLIB) jsonify/lib.a
 record/deserializer/$(am__dirstamp):
 	@$(MKDIR_P) record/deserializer
 	@: > record/deserializer/$(am__dirstamp)
@@ -522,10 +538,10 @@ record/deserializer/binary.$(OBJEXT):  \
 	record/deserializer/$(am__dirstamp) \
 	record/deserializer/$(DEPDIR)/$(am__dirstamp)
 
-librecorddeserializer.a: $(librecorddeserializer_a_OBJECTS) $(librecorddeserializer_a_DEPENDENCIES) $(EXTRA_librecorddeserializer_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f librecorddeserializer.a
-	$(AM_V_AR)$(librecorddeserializer_a_AR) librecorddeserializer.a $(librecorddeserializer_a_OBJECTS) $(librecorddeserializer_a_LIBADD)
-	$(AM_V_at)$(RANLIB) librecorddeserializer.a
+record/deserializer/lib.a: $(record_deserializer_lib_a_OBJECTS) $(record_deserializer_lib_a_DEPENDENCIES) $(EXTRA_record_deserializer_lib_a_DEPENDENCIES) record/deserializer/$(am__dirstamp)
+	$(AM_V_at)-rm -f record/deserializer/lib.a
+	$(AM_V_AR)$(record_deserializer_lib_a_AR) record/deserializer/lib.a $(record_deserializer_lib_a_OBJECTS) $(record_deserializer_lib_a_LIBADD)
+	$(AM_V_at)$(RANLIB) record/deserializer/lib.a
 record/serializer/$(am__dirstamp):
 	@$(MKDIR_P) record/serializer
 	@: > record/serializer/$(am__dirstamp)
@@ -540,10 +556,10 @@ record/serializer/serializer.$(OBJEXT):  \
 	record/serializer/$(am__dirstamp) \
 	record/serializer/$(DEPDIR)/$(am__dirstamp)
 
-librecordserializer.a: $(librecordserializer_a_OBJECTS) $(librecordserializer_a_DEPENDENCIES) $(EXTRA_librecordserializer_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f librecordserializer.a
-	$(AM_V_AR)$(librecordserializer_a_AR) librecordserializer.a $(librecordserializer_a_OBJECTS) $(librecordserializer_a_LIBADD)
-	$(AM_V_at)$(RANLIB) librecordserializer.a
+record/serializer/lib.a: $(record_serializer_lib_a_OBJECTS) $(record_serializer_lib_a_DEPENDENCIES) $(EXTRA_record_serializer_lib_a_DEPENDENCIES) record/serializer/$(am__dirstamp)
+	$(AM_V_at)-rm -f record/serializer/lib.a
+	$(AM_V_AR)$(record_serializer_lib_a_AR) record/serializer/lib.a $(record_serializer_lib_a_OBJECTS) $(record_serializer_lib_a_LIBADD)
+	$(AM_V_at)$(RANLIB) record/serializer/lib.a
 record/writer/$(am__dirstamp):
 	@$(MKDIR_P) record/writer
 	@: > record/writer/$(am__dirstamp)
@@ -555,10 +571,10 @@ record/writer/file.$(OBJEXT): record/writer/$(am__dirstamp) \
 record/writer/net.$(OBJEXT): record/writer/$(am__dirstamp) \
 	record/writer/$(DEPDIR)/$(am__dirstamp)
 
-librecordwriter.a: $(librecordwriter_a_OBJECTS) $(librecordwriter_a_DEPENDENCIES) $(EXTRA_librecordwriter_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f librecordwriter.a
-	$(AM_V_AR)$(librecordwriter_a_AR) librecordwriter.a $(librecordwriter_a_OBJECTS) $(librecordwriter_a_LIBADD)
-	$(AM_V_at)$(RANLIB) librecordwriter.a
+record/writer/lib.a: $(record_writer_lib_a_OBJECTS) $(record_writer_lib_a_DEPENDENCIES) $(EXTRA_record_writer_lib_a_DEPENDENCIES) record/writer/$(am__dirstamp)
+	$(AM_V_at)-rm -f record/writer/lib.a
+	$(AM_V_AR)$(record_writer_lib_a_AR) record/writer/lib.a $(record_writer_lib_a_OBJECTS) $(record_writer_lib_a_LIBADD)
+	$(AM_V_at)$(RANLIB) record/writer/lib.a
 
 ameba$(EXEEXT): $(ameba_OBJECTS) $(ameba_DEPENDENCIES) $(EXTRA_ameba_DEPENDENCIES) 
 	@rm -f ameba$(EXEEXT)

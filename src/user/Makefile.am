@@ -23,24 +23,30 @@ AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
 AM_CFLAGS = -Wall
 
-noinst_LIBRARIES = libargs.a librecorddeserializer.a librecordwriter.a librecordserializer.a libhelpers.a libjsonify.a
+noinst_LIBRARIES = \
+    args/lib.a \
+    record/deserializer/lib.a \
+    record/writer/lib.a \
+    record/serializer/lib.a \
+    helpers/lib.a \
+    jsonify/lib.a
 
-libargs_a_SOURCES = \
+args_lib_a_SOURCES = \
     args/user.h args/control.h \
     args/user.c args/control.c
-librecorddeserializer_a_SOURCES = \
+record_deserializer_lib_a_SOURCES = \
     record/deserializer/deserializer.h \
     record/deserializer/binary.c
-librecordwriter_a_SOURCES = \
+record_writer_lib_a_SOURCES = \
     record/writer/writer.h \
     record/writer/file.c record/writer/net.c
-librecordserializer_a_SOURCES = \
+record_serializer_lib_a_SOURCES = \
     record/serializer/serializer.h \
     record/serializer/binary.c record/serializer/json.c record/serializer/serializer.c
-libhelpers_a_SOURCES = \
+helpers_lib_a_SOURCES = \
     helpers/log.h \
     helpers/log.c
-libjsonify_a_SOURCES = \
+jsonify_lib_a_SOURCES = \
     jsonify/user.h jsonify/control.h jsonify/core.h jsonify/types.h jsonify/record.h jsonify/log_msg.h \
     jsonify/user.c jsonify/control.c jsonify/core.c jsonify/types.c jsonify/record.c jsonify/log_msg.c
 
@@ -50,4 +56,10 @@ ameba_SOURCES = \
     types.h \
     error.h \
     ameba.c
-ameba_LDADD = libargs.a librecorddeserializer.a librecordwriter.a librecordserializer.a libhelpers.a libjsonify.a
+ameba_LDADD = \
+    args/lib.a \
+    record/deserializer/lib.a \
+    record/writer/lib.a \
+    record/serializer/lib.a \
+    helpers/lib.a \
+    jsonify/lib.a

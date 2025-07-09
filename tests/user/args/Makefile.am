@@ -20,9 +20,15 @@
 
 AUTOMAKE_OPTIONS = subdir-objects
 
-TESTS = control
-check_PROGRAMS = control
-control_SOURCES = control.cpp $(top_srcdir)/src/user/args/control.c
-control_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
-control_CXXFLAGS = -Wall
-control_LDADD = -lCppUTest -lCppUTestExt
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
+AM_CXXFLAGS = -Wall
+COMMON_LDADD = $(top_builddir)/src/user/args/lib.a -lCppUTest -lCppUTestExt
+
+TESTS = control user
+check_PROGRAMS = control user
+
+control_SOURCES = control.cpp
+control_LDADD = $(COMMON_LDADD)
+
+user_SOURCES = user.cpp
+user_LDADD = $(COMMON_LDADD)

@@ -43,9 +43,9 @@ enum
 
 // Option definitions
 static struct argp_option options[] = {
-    {"file-path", OPT_RECORD_OUTPUT_FILE, "FILE_PATH", OPTION_ARG_OPTIONAL, "Path of the file to write the records to", 0},
-    {"ip", OPT_RECORD_OUTPUT_NET_IP, "IP", OPTION_ARG_OPTIONAL, "IP address to write the records to", 0},
-    {"port", OPT_RECORD_OUTPUT_NET_PORT, "PORT", OPTION_ARG_OPTIONAL, "IP port to write the records to", 0},
+    {"file-path", OPT_RECORD_OUTPUT_FILE, "FILE_PATH", 0, "Path of the file to write the records to", 0},
+    {"ip", OPT_RECORD_OUTPUT_NET_IP, "IP", 0, "IP address to write the records to", 0},
+    {"port", OPT_RECORD_OUTPUT_NET_PORT, "PORT", 0, "IP port to write the records to", 0},
     {"version", OPT_VERSION, 0, 0, "Show version"},
     {0}
 };
@@ -75,6 +75,9 @@ static void init_user_input(struct user_input *input)
     memset(input, 0, sizeof(*input));
     input->o_type = default_output_type;
     memcpy(&(input->output_file.path), default_output_file_path, strlen(default_output_file_path));
+    input->output_net.ip_family = 0;
+    input->output_net.port = -1;
+    input->output_net.ip[0] = 0;
 }
 
 static error_t validate_user_input(struct user_input *input, struct argp_state *state)
@@ -225,7 +228,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
 int user_args_user_must_parse_user_input(int argc, char **argv)
 {
-    error_t err = argp_parse(&global_user_input_argp, argc, argv, 0, 0, 0);
+    error_t err = argp_parse(&global_user_input_argp, argc, argv, ARGP_NO_EXIT, 0, 0);
     // Copy it even in case of failure since just a copy.
     memcpy(&(global_user_input.c_in), &global_control_input, sizeof(global_control_input));
     return err;

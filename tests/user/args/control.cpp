@@ -64,6 +64,14 @@ TEST(UserArgControlGroup, TestGlobalModeCapture)
     CHECK_EQUAL(global_control_input.global_mode, CAPTURE);
 }
 
+TEST(UserArgControlGroup, TestGlobalModeInvalid)
+{
+    int argc = 3;
+    char* argv[] = {(char*)"test", (char*)"--global-mode", (char*)"invalid"};
+    int res = user_args_control_must_parse_control_input(argc, argv);
+    CHECK(res != 0);
+}
+
 TEST(UserArgControlGroup, TestNetioModeCapture)
 {
     int argc = 3;

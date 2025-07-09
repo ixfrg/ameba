@@ -104,8 +104,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-TESTS = control$(EXEEXT)
-check_PROGRAMS = control$(EXEEXT)
+TESTS = control$(EXEEXT) user$(EXEEXT)
+check_PROGRAMS = control$(EXEEXT) user$(EXEEXT)
 subdir = tests/user/args
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/args.m4 $(top_srcdir)/m4/bpf.m4 \
@@ -118,13 +118,13 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/common/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__dirstamp = $(am__leading_dot)dirstamp
-am_control_OBJECTS = control-control.$(OBJEXT) \
-	$(top_builddir)/src/user/args/control-control.$(OBJEXT)
+am_control_OBJECTS = control.$(OBJEXT)
 control_OBJECTS = $(am_control_OBJECTS)
-control_DEPENDENCIES =
-control_LINK = $(CXXLD) $(control_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
+am__DEPENDENCIES_1 = $(top_builddir)/src/user/args/lib.a
+control_DEPENDENCIES = $(am__DEPENDENCIES_1)
+am_user_OBJECTS = user.$(OBJEXT)
+user_OBJECTS = $(am_user_OBJECTS)
+user_DEPENDENCIES = $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -140,26 +140,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade =  \
-	$(top_builddir)/src/user/args/$(DEPDIR)/control-control.Po \
-	./$(DEPDIR)/control-control.Po
+am__depfiles_remade = ./$(DEPDIR)/control.Po ./$(DEPDIR)/user.Po
 am__mv = mv -f
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-AM_V_CC = $(am__v_CC_@AM_V@)
-am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
-am__v_CC_0 = @echo "  CC      " $@;
-am__v_CC_1 = 
-CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CCLD = $(am__v_CCLD_@AM_V@)
-am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
-am__v_CCLD_0 = @echo "  CCLD    " $@;
-am__v_CCLD_1 = 
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 AM_V_CXX = $(am__v_CXX_@AM_V@)
@@ -173,8 +155,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(control_SOURCES)
-DIST_SOURCES = $(control_SOURCES)
+SOURCES = $(control_SOURCES) $(user_SOURCES)
+DIST_SOURCES = $(control_SOURCES) $(user_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -519,14 +501,17 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
-control_SOURCES = control.cpp $(top_srcdir)/src/user/args/control.c
-control_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
-control_CXXFLAGS = -Wall
-control_LDADD = -lCppUTest -lCppUTestExt
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
+AM_CXXFLAGS = -Wall
+COMMON_LDADD = $(top_builddir)/src/user/args/lib.a -lCppUTest -lCppUTestExt
+control_SOURCES = control.cpp
+control_LDADD = $(COMMON_LDADD)
+user_SOURCES = user.cpp
+user_LDADD = $(COMMON_LDADD)
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .log .o .obj .test .test$(EXEEXT) .trs
+.SUFFIXES: .cpp .log .o .obj .test .test$(EXEEXT) .trs
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -559,65 +544,29 @@ $(am__aclocal_m4_deps):
 
 clean-checkPROGRAMS:
 	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
-$(top_builddir)/src/user/args/$(am__dirstamp):
-	@$(MKDIR_P) $(top_builddir)/src/user/args
-	@: > $(top_builddir)/src/user/args/$(am__dirstamp)
-$(top_builddir)/src/user/args/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) $(top_builddir)/src/user/args/$(DEPDIR)
-	@: > $(top_builddir)/src/user/args/$(DEPDIR)/$(am__dirstamp)
-$(top_builddir)/src/user/args/control-control.$(OBJEXT):  \
-	$(top_builddir)/src/user/args/$(am__dirstamp) \
-	$(top_builddir)/src/user/args/$(DEPDIR)/$(am__dirstamp)
 
 control$(EXEEXT): $(control_OBJECTS) $(control_DEPENDENCIES) $(EXTRA_control_DEPENDENCIES) 
 	@rm -f control$(EXEEXT)
-	$(AM_V_CXXLD)$(control_LINK) $(control_OBJECTS) $(control_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(CXXLINK) $(control_OBJECTS) $(control_LDADD) $(LIBS)
+
+user$(EXEEXT): $(user_OBJECTS) $(user_DEPENDENCIES) $(EXTRA_user_DEPENDENCIES) 
+	@rm -f user$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(user_OBJECTS) $(user_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f $(top_builddir)/src/user/args/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/src/user/args/$(DEPDIR)/control-control.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control-control.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/user.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
 	@echo '# dummy' >$@-t && $(am__mv) $@-t $@
 
 am--depfiles: $(am__depfiles_remade)
-
-.c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
-
-.c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-$(top_builddir)/src/user/args/control-control.o: $(top_builddir)/src/user/args/control.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(control_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/user/args/control-control.o -MD -MP -MF $(top_builddir)/src/user/args/$(DEPDIR)/control-control.Tpo -c -o $(top_builddir)/src/user/args/control-control.o `test -f '$(top_builddir)/src/user/args/control.c' || echo '$(srcdir)/'`$(top_builddir)/src/user/args/control.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(top_builddir)/src/user/args/$(DEPDIR)/control-control.Tpo $(top_builddir)/src/user/args/$(DEPDIR)/control-control.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$(top_builddir)/src/user/args/control.c' object='$(top_builddir)/src/user/args/control-control.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(control_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/user/args/control-control.o `test -f '$(top_builddir)/src/user/args/control.c' || echo '$(srcdir)/'`$(top_builddir)/src/user/args/control.c
-
-$(top_builddir)/src/user/args/control-control.obj: $(top_builddir)/src/user/args/control.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(control_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/user/args/control-control.obj -MD -MP -MF $(top_builddir)/src/user/args/$(DEPDIR)/control-control.Tpo -c -o $(top_builddir)/src/user/args/control-control.obj `if test -f '$(top_builddir)/src/user/args/control.c'; then $(CYGPATH_W) '$(top_builddir)/src/user/args/control.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/user/args/control.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(top_builddir)/src/user/args/$(DEPDIR)/control-control.Tpo $(top_builddir)/src/user/args/$(DEPDIR)/control-control.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$(top_builddir)/src/user/args/control.c' object='$(top_builddir)/src/user/args/control-control.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(control_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/user/args/control-control.obj `if test -f '$(top_builddir)/src/user/args/control.c'; then $(CYGPATH_W) '$(top_builddir)/src/user/args/control.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/user/args/control.c'; fi`
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -634,20 +583,6 @@ $(top_builddir)/src/user/args/control-control.obj: $(top_builddir)/src/user/args
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-control-control.o: control.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(control_CPPFLAGS) $(CPPFLAGS) $(control_CXXFLAGS) $(CXXFLAGS) -MT control-control.o -MD -MP -MF $(DEPDIR)/control-control.Tpo -c -o control-control.o `test -f 'control.cpp' || echo '$(srcdir)/'`control.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/control-control.Tpo $(DEPDIR)/control-control.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='control.cpp' object='control-control.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(control_CPPFLAGS) $(CPPFLAGS) $(control_CXXFLAGS) $(CXXFLAGS) -c -o control-control.o `test -f 'control.cpp' || echo '$(srcdir)/'`control.cpp
-
-control-control.obj: control.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(control_CPPFLAGS) $(CPPFLAGS) $(control_CXXFLAGS) $(CXXFLAGS) -MT control-control.obj -MD -MP -MF $(DEPDIR)/control-control.Tpo -c -o control-control.obj `if test -f 'control.cpp'; then $(CYGPATH_W) 'control.cpp'; else $(CYGPATH_W) '$(srcdir)/control.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/control-control.Tpo $(DEPDIR)/control-control.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='control.cpp' object='control-control.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(control_CPPFLAGS) $(CPPFLAGS) $(control_CXXFLAGS) $(CXXFLAGS) -c -o control-control.obj `if test -f 'control.cpp'; then $(CYGPATH_W) 'control.cpp'; else $(CYGPATH_W) '$(srcdir)/control.cpp'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -849,6 +784,13 @@ control.log: control$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+user.log: user$(EXEEXT)
+	@p='user$(EXEEXT)'; \
+	b='user'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 .test.log:
 	@p='$<'; \
 	$(am__set_b); \
@@ -931,8 +873,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-test -z "$(top_builddir)/src/user/args/$(DEPDIR)/$(am__dirstamp)" || rm -f $(top_builddir)/src/user/args/$(DEPDIR)/$(am__dirstamp)
-	-test -z "$(top_builddir)/src/user/args/$(am__dirstamp)" || rm -f $(top_builddir)/src/user/args/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -942,8 +882,8 @@ clean: clean-am
 clean-am: clean-checkPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-		-rm -f $(top_builddir)/src/user/args/$(DEPDIR)/control-control.Po
-	-rm -f ./$(DEPDIR)/control-control.Po
+		-rm -f ./$(DEPDIR)/control.Po
+	-rm -f ./$(DEPDIR)/user.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -989,8 +929,8 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f $(top_builddir)/src/user/args/$(DEPDIR)/control-control.Po
-	-rm -f ./$(DEPDIR)/control-control.Po
+		-rm -f ./$(DEPDIR)/control.Po
+	-rm -f ./$(DEPDIR)/user.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
