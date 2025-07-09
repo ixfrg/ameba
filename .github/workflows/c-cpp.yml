@@ -42,7 +42,7 @@ jobs:
     - name: Install requirements
       run: |
         sudo apt-get update
-        sudo apt-get install -y jq llvm linux-tools-common libbpf-dev linux-headers-$(uname -r) gcc-multilib
+        sudo apt-get install -y jq llvm linux-tools-common libbpf-dev linux-headers-$(uname -r) gcc-multilib cpputest
     - name: Install bpftool
       run: |
         BPFTOOL_TMP_DIR="/tmp"

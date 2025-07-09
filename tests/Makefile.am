@@ -18,11 +18,4 @@
 ## Process this file with automake to produce Makefile.in
 
 
-vmlinux_h = $(top_builddir)/src/common/vmlinux.h
-
-$(vmlinux_h):
-	@BPFTOOL_EXE_FILE@ btf dump file @AMEBA_SYS_KERNEL_BTF_VMLINUX@ format c > $@
-
-CLEANFILES = $(vmlinux_h)
-
-all-local: $(vmlinux_h)
+SUBDIRS = user/args

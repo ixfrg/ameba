@@ -347,6 +347,8 @@ void print_app_version()
     jsonify_core_open_obj(&s);
 
     jsonify_types_write_version(&s, "app_version", &app_version);
+    jsonify_types_write_version(&s, "record_version", &record_version);
+    jsonify_core_write_str(&s, "libbpf_version", libbpf_version_string());
 
     jsonify_core_close_obj(&s);
 

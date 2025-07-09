@@ -42,6 +42,7 @@ AC_DEFUN([AMEBA_ARG_REQUIRE_BPF_ARGS],
         [AMEBA_ARG_BPF_VMLINUX="$withval"],
         [AMEBA_ARG_BPF_VMLINUX="/sys/kernel/btf/vmlinux"]
     )
+    AC_SUBST([AMEBA_SYS_KERNEL_BTF_VMLINUX], [$AMEBA_ARG_BPF_VMLINUX])
     AC_ARG_WITH([path-tracing-available-events],
         [AS_HELP_STRING([--with-path-tracing-available-events=PATH], [Set path to readable /sys/kernel/tracing/available_events])],
         [AMEBA_ARG_BPF_AVAILABLE_EVENTS="$withval"],

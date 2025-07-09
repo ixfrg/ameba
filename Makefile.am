@@ -20,7 +20,7 @@
 
 AM_DISTCHECK_CONFIGURE_FLAGS = CC=clang --prefix=${PWD}/ameba-local-dist-check-install
 
-SUBDIRS = src/common src/bpf src/user src/utils
+SUBDIRS = src/common src/bpf src/user src/utils tests
 dist_doc_DATA = README.md
 
 dist-hook:

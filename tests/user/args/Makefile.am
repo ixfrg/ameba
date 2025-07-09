@@ -18,11 +18,11 @@
 ## Process this file with automake to produce Makefile.in
 
 
-vmlinux_h = $(top_builddir)/src/common/vmlinux.h
+AUTOMAKE_OPTIONS = subdir-objects
 
-$(vmlinux_h):
-	@BPFTOOL_EXE_FILE@ btf dump file @AMEBA_SYS_KERNEL_BTF_VMLINUX@ format c > $@
-
-CLEANFILES = $(vmlinux_h)
-
-all-local: $(vmlinux_h)
+TESTS = control
+check_PROGRAMS = control
+control_SOURCES = control.cpp $(top_srcdir)/src/user/args/control.c
+control_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
+control_CXXFLAGS = -Wall
+control_LDADD = -lCppUTest -lCppUTestExt

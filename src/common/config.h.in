@@ -8,6 +8,13 @@
 /* Define to 1 if you have the `clock_gettime' function. */
 #undef HAVE_CLOCK_GETTIME
 
+/* Define if CppUTest is available */
+#undef HAVE_CPPUTEST
+
+/* Define to 1 if you have the <CppUTest/CommandLineTestRunner.h> header file.
+   */
+#undef HAVE_CPPUTEST_COMMANDLINETESTRUNNER_H
+
 /* Define to 1 if you have the declaration of `__NR_fork', and to 0 if you
    don't. */
 #undef HAVE_DECL___NR_FORK
