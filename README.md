@@ -1,6 +1,8 @@
 # Ameba
 AMEBA (A Minimal EBPF Based Audit) is an eBPF-based Linux telemetry collection tool focused on capturing system-level audit events.
 
+# Status
+[![C/C++ CI](https://github.com/ixfrg/ameba/actions/workflows/c-cpp.yml/badge.svg?branch=main)](https://github.com/ixfrg/ameba/actions/workflows/c-cpp.yml)
 
 # Features
 * Collects system telemetry via eBPF.
