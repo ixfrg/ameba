@@ -110,7 +110,7 @@ static error_t parse_mode(trace_mode_t *dst, char *mode_str, struct argp_state *
     else
     {
         // argp_error(state, "Invalid mode '%s'. Use 'ignore' or 'capture'", mode_str);
-        argp_failure(state, -1, -1, "Invalid mode '%s'. Use 'ignore' or 'capture'", mode_str);
+        fprintf(stderr, "Invalid mode '%s'. Use 'ignore' or 'capture'. Use --help.\n", mode_str);
         return ARGP_ERR_UNKNOWN;
     }
 }
@@ -132,7 +132,7 @@ static error_t parse_int_list(
         {
             // NOTE: Free str_copy if not using argp_error anymore.
             // argp_error(state, "Invalid number in list: '%s'", token);
-            argp_failure(state, -1, -1, "Invalid number in list: '%s'", token);
+            fprintf(stderr, "Invalid number in list: '%s'. Use --help.\n", token);
             free(str_copy);
             return ARGP_ERR_UNKNOWN;
         }
@@ -143,7 +143,7 @@ static error_t parse_int_list(
             {
                 // NOTE: Free str_copy if not using argp_error anymore.
                 // argp_error(state, "Negative number not allowed in list: '%ld'", val);
-                argp_failure(state, -1, -1, "Negative number not allowed in list: '%ld'", val);
+                fprintf(stderr, "Negative number not allowed in list: '%ld'. Use --help.\n", val);
                 free(str_copy);
                 return ARGP_ERR_UNKNOWN;
             }
@@ -159,7 +159,7 @@ static error_t parse_int_list(
     if (token != NULL)
     {
         // argp_error(state, "Too many items in list (max %d)", max_items);
-        argp_failure(state, -1, -1, "Too many items in list (max %d)", max_items);
+        fprintf(stderr, "Too many items in list (max %d). Use --help.\n", max_items);
         return ARGP_ERR_UNKNOWN;
     }
 
@@ -182,19 +182,19 @@ static error_t validate_control_input(struct control_input *input, struct argp_s
     if (input->uid_mode == CAPTURE && input->uids_len == 0)
     {
         input->parse_err = -1;
-        argp_failure(state, -1, -1, "Must specify uids to capture in capture mode");
+        fprintf(stderr, "Must specify uids to capture in capture mode. Use --help.\n");
         return ARGP_ERR_UNKNOWN;
     }
     if (input->pid_mode == CAPTURE && input->pids_len == 0)
     {
         input->parse_err = -1;
-        argp_failure(state, -1, -1, "Must specify pids to capture in capture mode");
+        fprintf(stderr, "Must specify pids to capture in capture mode. Use --help.\n");
         return ARGP_ERR_UNKNOWN;
     }
     if (input->ppid_mode == CAPTURE && input->ppids_len == 0)
     {
         input->parse_err = -1;
-        argp_failure(state, -1, -1, "Must specify ppids to capture in capture mode");
+        fprintf(stderr, "Must specify ppids to capture in capture mode. Use --help.\n");
         return ARGP_ERR_UNKNOWN;
     }
     return 0;
@@ -252,7 +252,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
 int user_args_control_must_parse_control_input(int argc, char **argv)
 {
-    error_t err = argp_parse(&global_control_input_argp, argc, argv, ARGP_NO_EXIT, 0, 0);
+    error_t err = argp_parse(&global_control_input_argp, argc, argv, ARGP_SILENT, 0, 0);
     if (err)
         return err;
 

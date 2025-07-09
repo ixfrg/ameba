@@ -91,7 +91,7 @@ static error_t validate_user_input(struct user_input *input, struct argp_state *
     if (input->o_type == OUTPUT_NONE)
     {
         input->parse_err = -1;
-        argp_failure(state, -1, -1, "Must specify exactly one output method");
+        fprintf(stderr, "Must specify exactly one output method. Use --help.\n");
         return ARGP_ERR_UNKNOWN;
     }
     if (input->o_type == OUTPUT_NET)
@@ -99,13 +99,13 @@ static error_t validate_user_input(struct user_input *input, struct argp_state *
         if (input->output_net.ip[0] == 0)
         {
             input->parse_err = -1;
-            argp_failure(state, -1, -1, "Must specify IP for network output method");
+            fprintf(stderr, "Must specify IP for network output method. Use --help.\n");
             return ARGP_ERR_UNKNOWN;
         }
         if (input->output_net.port < 1 || input->output_net.port > 65535)
         {
             input->parse_err = -1;
-            argp_failure(state, -1, -1, "Must specify a valid port for network output method");
+            fprintf(stderr, "Must specify a valid port for network output method. Use --help.\n");
             return ARGP_ERR_UNKNOWN;
         }
     }
@@ -121,12 +121,12 @@ static int parse_arg_output_file(struct user_input *dst, char *arg, struct argp_
     // }
     if (!arg)
     {
-        argp_failure(state, -1, -1, "NULL output file path.");
+        fprintf(stderr, "NULL output file path. Use --help.\n");
         return ARGP_ERR_UNKNOWN;
     }
     if (snprintf(&(dst->output_file.path[0]), PATH_MAX, "%s", arg) >= PATH_MAX)
     {
-        argp_failure(state, -1, -1, "Output file path too long.");
+        fprintf(stderr, "Output file path too long. Use --help.\n");
         return ARGP_ERR_UNKNOWN;
     }
     dst->o_type = OUTPUT_FILE;
@@ -145,7 +145,7 @@ static int parse_ip(struct user_input *dst, char *arg, struct argp_state *state)
     struct in6_addr ipv6;
 
     if (!arg) {
-        argp_failure(state, -1, -1, "NULL ip.");
+        fprintf(stderr, "NULL ip. Use --help.\n");
         return ARGP_ERR_UNKNOWN;
     }
 
@@ -167,19 +167,19 @@ static int parse_ip(struct user_input *dst, char *arg, struct argp_state *state)
         }
     }
 
-    argp_failure(state, -1, -1, "Not an ip address: '%s'.", arg);
+    fprintf(stderr, "Not an ip address: '%s'. Use --help.\n", arg);
     return ARGP_ERR_UNKNOWN;
 }
 
 static int parse_port(struct user_input *dst, char *arg, struct argp_state *state) {
     if (dst->o_type == OUTPUT_FILE)
     {
-        argp_failure(state, -1, -1, "Cannot specify multiple output types.");
+        fprintf(stderr, "Cannot specify multiple output types. Use --help.\n");
         return ARGP_ERR_UNKNOWN;
     }
 
     if (!arg) {
-        argp_failure(state, -1, -1, "NULL port.");
+        fprintf(stderr, "NULL port. Use --help.\n");
         return ARGP_ERR_UNKNOWN;
     }
 
@@ -189,7 +189,7 @@ static int parse_port(struct user_input *dst, char *arg, struct argp_state *stat
 
     if (*endptr != '\0' || errno != 0 || port < 1 || port > 65535)
     {
-        argp_failure(state, -1, -1, "Not a port number: '%s'.", arg);
+        fprintf(stderr, "Not a port number: '%s'. Use --help.\n", arg);
         return ARGP_ERR_UNKNOWN;
     }
 
@@ -237,7 +237,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
 int user_args_user_must_parse_user_input(int argc, char **argv)
 {
-    error_t err = argp_parse(&global_user_input_argp, argc, argv, ARGP_NO_EXIT, 0, 0);
+    error_t err = argp_parse(&global_user_input_argp, argc, argv, ARGP_SILENT, 0, 0);
     // Copy it even in case of failure since just a copy.
     memcpy(&(global_user_input.c_in), &global_control_input, sizeof(global_control_input));
 
