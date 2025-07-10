@@ -120,7 +120,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am_control_OBJECTS = control.$(OBJEXT)
 control_OBJECTS = $(am_control_OBJECTS)
-am__DEPENDENCIES_1 = $(top_builddir)/src/user/args/lib.a
+am__DEPENDENCIES_1 = $(top_builddir)/src/user/args/lib.a \
+	$(top_builddir)/src/user/jsonify/lib.a
 control_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_user_OBJECTS = user.$(OBJEXT)
 user_OBJECTS = $(am_user_OBJECTS)
@@ -503,7 +504,12 @@ top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
 AM_CXXFLAGS = -Wall
-COMMON_LDADD = $(top_builddir)/src/user/args/lib.a -lCppUTest -lCppUTestExt
+COMMON_LDADD = \
+    $(top_builddir)/src/user/args/lib.a \
+    $(top_builddir)/src/user/jsonify/lib.a \
+    -lCppUTest \
+    -lCppUTestExt
+
 control_SOURCES = control.cpp
 control_LDADD = $(COMMON_LDADD)
 user_SOURCES = user.cpp

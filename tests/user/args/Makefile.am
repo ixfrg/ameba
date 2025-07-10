@@ -22,7 +22,11 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
 AM_CXXFLAGS = -Wall
-COMMON_LDADD = $(top_builddir)/src/user/args/lib.a -lCppUTest -lCppUTestExt
+COMMON_LDADD = \
+    $(top_builddir)/src/user/args/lib.a \
+    $(top_builddir)/src/user/jsonify/lib.a \
+    -lCppUTest \
+    -lCppUTestExt
 
 TESTS = control user
 check_PROGRAMS = control user
