@@ -130,7 +130,8 @@ am__v_AR_1 =
 args_lib_a_AR = $(AR) $(ARFLAGS)
 args_lib_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_args_lib_a_OBJECTS = args/user.$(OBJEXT) args/control.$(OBJEXT)
+am_args_lib_a_OBJECTS = args/helper.$(OBJEXT) args/user.$(OBJEXT) \
+	args/control.$(OBJEXT)
 args_lib_a_OBJECTS = $(am_args_lib_a_OBJECTS)
 helpers_lib_a_AR = $(AR) $(ARFLAGS)
 helpers_lib_a_LIBADD =
@@ -183,10 +184,11 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/ameba.Po args/$(DEPDIR)/control.Po \
-	args/$(DEPDIR)/user.Po helpers/$(DEPDIR)/log.Po \
-	jsonify/$(DEPDIR)/control.Po jsonify/$(DEPDIR)/core.Po \
-	jsonify/$(DEPDIR)/log_msg.Po jsonify/$(DEPDIR)/record.Po \
-	jsonify/$(DEPDIR)/types.Po jsonify/$(DEPDIR)/user.Po \
+	args/$(DEPDIR)/helper.Po args/$(DEPDIR)/user.Po \
+	helpers/$(DEPDIR)/log.Po jsonify/$(DEPDIR)/control.Po \
+	jsonify/$(DEPDIR)/core.Po jsonify/$(DEPDIR)/log_msg.Po \
+	jsonify/$(DEPDIR)/record.Po jsonify/$(DEPDIR)/types.Po \
+	jsonify/$(DEPDIR)/user.Po \
 	record/deserializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/json.Po \
@@ -362,8 +364,8 @@ noinst_LIBRARIES = \
     jsonify/lib.a
 
 args_lib_a_SOURCES = \
-    args/user.h args/control.h \
-    args/user.c args/control.c
+    args/helper.h args/user.h args/control.h \
+    args/helper.c args/user.c args/control.c
 
 record_deserializer_lib_a_SOURCES = \
     record/deserializer/deserializer.h \
@@ -483,6 +485,8 @@ args/$(am__dirstamp):
 args/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) args/$(DEPDIR)
 	@: > args/$(DEPDIR)/$(am__dirstamp)
+args/helper.$(OBJEXT): args/$(am__dirstamp) \
+	args/$(DEPDIR)/$(am__dirstamp)
 args/user.$(OBJEXT): args/$(am__dirstamp) \
 	args/$(DEPDIR)/$(am__dirstamp)
 args/control.$(OBJEXT): args/$(am__dirstamp) \
@@ -594,6 +598,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/control.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/helper.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/user.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/log.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/control.Po@am__quote@ # am--include-marker
@@ -772,6 +777,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/ameba.Po
 	-rm -f args/$(DEPDIR)/control.Po
+	-rm -f args/$(DEPDIR)/helper.Po
 	-rm -f args/$(DEPDIR)/user.Po
 	-rm -f helpers/$(DEPDIR)/log.Po
 	-rm -f jsonify/$(DEPDIR)/control.Po
@@ -833,6 +839,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/ameba.Po
 	-rm -f args/$(DEPDIR)/control.Po
+	-rm -f args/$(DEPDIR)/helper.Po
 	-rm -f args/$(DEPDIR)/user.Po
 	-rm -f helpers/$(DEPDIR)/log.Po
 	-rm -f jsonify/$(DEPDIR)/control.Po

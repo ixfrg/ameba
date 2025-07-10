@@ -42,8 +42,6 @@ void user_args_user_copy(struct user_input *dst);
     Parse user arguments (i.e. int main(int argc, char **argv)), and populate dst.
 
     Return:
-        0    => Success
-        +ive => Failure
-        -ive => Failure
+        Always returns. Error (if any) in (struct user_input)->(struct arg_parse_state).
 */
-int user_args_user_parse(struct user_input *dst, int argc, char **argv);
+void user_args_user_parse(struct user_input *dst, int argc, char **argv);

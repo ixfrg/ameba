@@ -17,55 +17,48 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-/*
-
-    A module for defining control_input i.e. the input to the BPF
-    programs to control the tracing of events.
-
-*/
-
-
 #include "user/args/helper.h"
 
 
-#define MAX_LIST_ITEMS 10
-
-typedef enum
+void user_args_helper_state_init(struct arg_parse_state *s)
 {
-    FREE = 1,
-    TAKEN = 2
-} control_lock_t;
+    if (!s)
+        return;
+    s->exit = 0;
+    s->code = 0;
+}
 
-typedef enum
+void user_args_helper_state_set_exit_error(struct arg_parse_state *s, int code)
 {
-    IGNORE = 1,
-    CAPTURE
-} trace_mode_t;
+    if (!s)
+        return;
+    s->exit = 1;
+    s->code = code;
+}
 
-/*
-    See argp_option definition in src/user/args/control.c
-*/
-struct control_input
+void user_args_helper_state_set_exit_no_error(struct arg_parse_state *s)
 {
-    trace_mode_t global_mode;
+    if (!s)
+        return;
+    s->exit = 1;
+    s->code = 0;
+}
 
-    trace_mode_t uid_mode;
-    int uids[MAX_LIST_ITEMS];
-    int uids_len;
+void user_args_helper_state_set_no_exit(struct arg_parse_state *s)
+{
+    user_args_helper_state_init(s);
+}
 
-    trace_mode_t pid_mode;
-    int pids[MAX_LIST_ITEMS];
-    int pids_len;
+int user_args_helper_state_is_exit_set(struct arg_parse_state *s)
+{
+    if (!s)
+        return 0;
+    return s->exit;
+}
 
-    trace_mode_t ppid_mode;
-    int ppids[MAX_LIST_ITEMS];
-    int ppids_len;
-
-    trace_mode_t netio_mode;
-
-    control_lock_t lock;
-
-    struct arg_parse_state parse_state;
-};
+int user_args_helper_state_get_code(struct arg_parse_state *s)
+{
+    if (!s)
+        return 0;
+    return s->code;
+}

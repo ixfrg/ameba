@@ -36,11 +36,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "user/args/control.h"
 #include "user/args/user.h"
+#include "user/args/helper.h"
 #include "user/jsonify/control.h"
 #include "user/jsonify/user.h"
 #include "user/jsonify/types.h"
 #include "common/constants.h"
-#include "common/version.h"
 #include "user/error.h"
 
 #include "user/record/serializer/serializer.h"
@@ -49,10 +49,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/helpers/log.h"
 
 #include "ameba.skel.h"
-
-//
-
-extern const struct elem_version app_version;
 
 //
 
@@ -249,14 +245,12 @@ static void sig_handler(int sig)
 
 static void parse_user_input(struct user_input *input, int argc, char *argv[])
 {
-    int ret = user_args_user_parse(input, argc, argv);
-    if (input->parse_state.exit == 1)
+    user_args_user_parse(input, argc, argv);
+
+    struct arg_parse_state *a_p_s = &(input->parse_state);
+    if (user_args_helper_state_is_exit_set(a_p_s))
     {
-        exit(input->parse_state.code);
-    }
-    if (ret)
-    {
-        exit(-1);
+        exit(user_args_helper_state_get_code(a_p_s));
     }
 }
 

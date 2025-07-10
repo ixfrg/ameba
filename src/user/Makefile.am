@@ -32,8 +32,8 @@ noinst_LIBRARIES = \
     jsonify/lib.a
 
 args_lib_a_SOURCES = \
-    args/user.h args/control.h \
-    args/user.c args/control.c
+    args/helper.h args/user.h args/control.h \
+    args/helper.c args/user.c args/control.c
 record_deserializer_lib_a_SOURCES = \
     record/deserializer/deserializer.h \
     record/deserializer/binary.c

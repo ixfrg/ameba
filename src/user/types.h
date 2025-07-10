@@ -29,6 +29,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "user/jsonify/core.h"
 
+#include "user/args/helper.h"
+
 
 typedef enum
 {
@@ -67,12 +69,6 @@ enum output_type {
     OUTPUT_NONE,
     OUTPUT_FILE,
     OUTPUT_NET
-};
-
-struct arg_parse_state
-{
-    int exit;
-    int code;
 };
 
 struct user_input

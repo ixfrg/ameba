@@ -24,6 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/jsonify/control.h"
 
 #include "user/args/control.h"
+#include "user/args/helper.h"
 
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
@@ -86,6 +87,7 @@ static void init_control_input(struct control_input *input)
     input->ppid_mode = IGNORE;
     input->ppids_len = 0;
     input->netio_mode = IGNORE;
+    user_args_helper_state_init(&(input->parse_state));
 }
 
 static int find_string_index(const char *haystack, const char *needle)
@@ -94,27 +96,29 @@ static int find_string_index(const char *haystack, const char *needle)
     return result ? (int)(result - haystack) : -1;
 }
 
-static error_t parse_mode(trace_mode_t *dst, char *mode_str, struct argp_state *state)
+static void parse_mode(struct control_input *input, trace_mode_t *dst, char *mode_str, struct argp_state *state)
 {
     if (find_string_index("ignore", mode_str) == 0 && strlen(mode_str) <= strlen("ignore"))
     {
         *dst = IGNORE;
-        return 0;
+        return;
     }
     else if (find_string_index("capture", mode_str) == 0 && strlen(mode_str) <= strlen("capture"))
     {
         *dst = CAPTURE;
-        return 0;
+        return;
     }
     else
     {
         // argp_error(state, "Invalid mode '%s'. Use 'ignore' or 'capture'", mode_str);
         fprintf(stderr, "Invalid mode '%s'. Use 'ignore' or 'capture'. Use --help.\n", mode_str);
-        return ARGP_ERR_UNKNOWN;
+        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        return;
     }
 }
 
-static error_t parse_int_list(
+static void parse_int_list(
+    struct control_input *input,
     const char *list_str, int *array, int *array_len, int max_items, int negative_disallowed, struct argp_state *state
 )
 {
@@ -133,7 +137,8 @@ static error_t parse_int_list(
             // argp_error(state, "Invalid number in list: '%s'", token);
             fprintf(stderr, "Invalid number in list: '%s'. Use --help.\n", token);
             free(str_copy);
-            return ARGP_ERR_UNKNOWN;
+            user_args_helper_state_set_exit_error(&input->parse_state, -1);
+            return;
         }
 
         if (negative_disallowed)
@@ -144,7 +149,8 @@ static error_t parse_int_list(
                 // argp_error(state, "Negative number not allowed in list: '%ld'", val);
                 fprintf(stderr, "Negative number not allowed in list: '%ld'. Use --help.\n", val);
                 free(str_copy);
-                return ARGP_ERR_UNKNOWN;
+                user_args_helper_state_set_exit_error(&input->parse_state, -1);
+                return;
             }
         }
 
@@ -159,17 +165,16 @@ static error_t parse_int_list(
     {
         // argp_error(state, "Too many items in list (max %d)", max_items);
         fprintf(stderr, "Too many items in list (max %d). Use --help.\n", max_items);
-        return ARGP_ERR_UNKNOWN;
+        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        return;
     }
 
     *array_len = len;
-
-    return 0;
 }
 
-static error_t validate_control_input(struct control_input *input, struct argp_state *state)
+static void validate_control_input(struct control_input *input, struct argp_state *state)
 {
-    return 0;
+    // Nothing
 }
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -180,38 +185,52 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     switch (key)
     {
     case OPT_GLOBAL_MODE:
-        return parse_mode(&input->global_mode, arg, state);
+        parse_mode(input, &input->global_mode, arg, state);
+        break;
 
     case OPT_UID_MODE:
-        return parse_mode(&input->uid_mode, arg, state);
+        parse_mode(input, &input->uid_mode, arg, state);
+        break;
 
     case OPT_UID_LIST:
-        return parse_int_list(arg, (int *)input->uids, &input->uids_len, MAX_LIST_ITEMS, negative_disallowed, state);
+        parse_int_list(input, arg, (int *)input->uids, &input->uids_len, MAX_LIST_ITEMS, negative_disallowed, state);
+        break;
 
     case OPT_PID_MODE:
-        return parse_mode(&input->pid_mode, arg, state);
+        parse_mode(input, &input->pid_mode, arg, state);
+        break;
 
     case OPT_PID_LIST:
-        return parse_int_list(arg, (int *)input->pids, &input->pids_len, MAX_LIST_ITEMS, negative_disallowed, state);
+        parse_int_list(input, arg, (int *)input->pids, &input->pids_len, MAX_LIST_ITEMS, negative_disallowed, state);
+        break;
 
     case OPT_PPID_MODE:
-        return parse_mode(&input->ppid_mode, arg, state);
+        parse_mode(input, &input->ppid_mode, arg, state);
+        break;
 
     case OPT_PPID_LIST:
-        return parse_int_list(arg, (int *)input->ppids, &input->ppids_len, MAX_LIST_ITEMS, negative_disallowed, state);
+        parse_int_list(input, arg, (int *)input->ppids, &input->ppids_len, MAX_LIST_ITEMS, negative_disallowed, state);
+        break;
 
     case OPT_NETIO_MODE:
-        return parse_mode(&input->netio_mode, arg, state);
+        parse_mode(input, &input->netio_mode, arg, state);
+        break;
 
     case ARGP_KEY_INIT:
         init_control_input(input);
         break;
 
     case ARGP_KEY_END:
-        return validate_control_input(input, state);
+        validate_control_input(input, state);
+        break;
+
+    case ARGP_KEY_ERROR:
+    case ARGP_KEY_ARG:
+        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        break;
 
     default:
-        return ARGP_ERR_UNKNOWN;
+        break;
     }
 
     return 0;
@@ -224,17 +243,15 @@ void user_args_control_copy(struct control_input *dst)
     memcpy(dst, get_global_control_input(), sizeof(struct control_input));
 }
 
-int user_args_control_parse(struct control_input *dst, int argc, char **argv)
+void user_args_control_parse(struct control_input *dst, int argc, char **argv)
 {
     if (!dst)
-        return -1;
+        return;
 
     int argp_flags = 0;
     // ARGP_NO_EXIT & ARGP_NO_HELP because self-managed
     argp_flags = ARGP_NO_EXIT | ARGP_NO_HELP;
-    error_t err = argp_parse(&global_control_input_argp, argc, argv, argp_flags, 0, 0);
+    argp_parse(&global_control_input_argp, argc, argv, argp_flags, 0, 0);
 
     user_args_control_copy(dst);
-
-    return err;
 }

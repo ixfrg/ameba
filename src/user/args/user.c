@@ -26,8 +26,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "user/args/control.h"
 #include "user/args/user.h"
+#include "user/args/helper.h"
 #include "common/version.h"
 #include "user/jsonify/types.h"
+
+
+extern const struct elem_version app_version;
+extern const struct elem_version record_version;
 
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
@@ -77,30 +82,6 @@ static struct user_input *get_global_user_input()
     return &global_user_input;
 }
 
-static void init_arg_parse_state(struct arg_parse_state *s)
-{
-    if (!s)
-        return;
-    s->exit = 0;
-    s->code = 0;
-}
-
-static void set_arg_parser_exit_error(struct user_input *input, int code)
-{
-    if (!input)
-        return;
-    input->parse_state.exit = 1;
-    input->parse_state.code = code;
-}
-
-static void set_arg_parser_exit_no_error(struct user_input *input)
-{
-    if (!input)
-        return;
-    input->parse_state.exit = 1;
-    input->parse_state.code = 0;
-}
-
 static void init_user_input(struct user_input *input)
 {
     if (!input)
@@ -111,70 +92,60 @@ static void init_user_input(struct user_input *input)
     input->output_net.ip_family = 0;
     input->output_net.port = -1;
     input->output_net.ip[0] = 0;
-    init_arg_parse_state(&(input->parse_state));
+    user_args_helper_state_init(&(input->parse_state));
 }
 
-static error_t validate_user_input(struct user_input *input, struct argp_state *state)
+static void validate_user_input(struct user_input *input, struct argp_state *state)
 {
     if (input->o_type == OUTPUT_NONE)
     {
-        set_arg_parser_exit_error(input, -1);
         fprintf(stderr, "Must specify exactly one output method. Use --help.\n");
-        return ARGP_ERR_UNKNOWN;
+        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        return;
     }
     if (input->o_type == OUTPUT_NET)
     {
         if (input->output_net.ip[0] == 0)
         {
-            set_arg_parser_exit_error(input, -1);
             fprintf(stderr, "Must specify IP for network output method. Use --help.\n");
-            return ARGP_ERR_UNKNOWN;
+            user_args_helper_state_set_exit_error(&input->parse_state, -1);
+            return;
         }
         if (input->output_net.port < 1 || input->output_net.port > 65535)
         {
-            set_arg_parser_exit_error(input, -1);
             fprintf(stderr, "Must specify a valid port for network output method. Use --help.\n");
-            return ARGP_ERR_UNKNOWN;
+            user_args_helper_state_set_exit_error(&input->parse_state, -1);
+            return;
         }
     }
-    return 0;
 }
 
-static int parse_arg_output_file(struct user_input *dst, char *arg, struct argp_state *state)
+static void parse_arg_output_file(struct user_input *dst, char *arg, struct argp_state *state)
 {
-    // if (dst->o_type == OUTPUT_NET)
-    // {
-    //     argp_failure(state, -1, -1, "Cannot specify multiple output types.");
-    //     return ARGP_ERR_UNKNOWN;
-    // }
     if (!arg)
     {
         fprintf(stderr, "NULL output file path. Use --help.\n");
-        return ARGP_ERR_UNKNOWN;
+        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        return;
     }
     if (snprintf(&(dst->output_file.path[0]), PATH_MAX, "%s", arg) >= PATH_MAX)
     {
         fprintf(stderr, "Output file path too long. Use --help.\n");
-        return ARGP_ERR_UNKNOWN;
+        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        return;
     }
     dst->o_type = OUTPUT_FILE;
-    return 0;
 }
 
-static int parse_ip(struct user_input *dst, char *arg, struct argp_state *state)
+static void parse_ip(struct user_input *dst, char *arg, struct argp_state *state)
 {
-    // if (dst->o_type == OUTPUT_FILE)
-    // {
-    //     argp_failure(state, -1, -1, "Cannot specify multiple output types.");
-    //     return ARGP_ERR_UNKNOWN;
-    // }
-
     struct in_addr ipv4;
     struct in6_addr ipv6;
 
     if (!arg) {
         fprintf(stderr, "NULL ip. Use --help.\n");
-        return ARGP_ERR_UNKNOWN;
+        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        return;
     }
 
     if (inet_pton(AF_INET, arg, &ipv4) == 1) {
@@ -182,7 +153,7 @@ static int parse_ip(struct user_input *dst, char *arg, struct argp_state *state)
         if (inet_ntop(AF_INET, &ipv4, buf, INET6_ADDRSTRLEN)) {
             dst->output_net.ip_family = AF_INET;
             dst->o_type = OUTPUT_NET;
-            return 0;
+            return;
         }
     }
 
@@ -191,24 +162,26 @@ static int parse_ip(struct user_input *dst, char *arg, struct argp_state *state)
         if (inet_ntop(AF_INET6, &ipv6, buf, INET6_ADDRSTRLEN)) {
             dst->output_net.ip_family = AF_INET6;
             dst->o_type = OUTPUT_NET;
-            return 0;
+            return;
         }
     }
 
     fprintf(stderr, "Not an ip address: '%s'. Use --help.\n", arg);
-    return ARGP_ERR_UNKNOWN;
+    user_args_helper_state_set_exit_error(&dst->parse_state, -1);
 }
 
-static int parse_port(struct user_input *dst, char *arg, struct argp_state *state) {
+static void parse_port(struct user_input *dst, char *arg, struct argp_state *state) {
     if (dst->o_type == OUTPUT_FILE)
     {
         fprintf(stderr, "Cannot specify multiple output types. Use --help.\n");
-        return ARGP_ERR_UNKNOWN;
+        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        return;
     }
 
     if (!arg) {
         fprintf(stderr, "NULL port. Use --help.\n");
-        return ARGP_ERR_UNKNOWN;
+        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        return;
     }
 
     char *endptr = NULL;
@@ -218,12 +191,12 @@ static int parse_port(struct user_input *dst, char *arg, struct argp_state *stat
     if (*endptr != '\0' || errno != 0 || port < 1 || port > 65535)
     {
         fprintf(stderr, "Not a port number: '%s'. Use --help.\n", arg);
-        return ARGP_ERR_UNKNOWN;
+        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        return;
     }
 
     dst->output_net.port = (uint16_t)port;
     dst->o_type = OUTPUT_NET;
-    return 0;
 }
 
 void print_app_version()
@@ -237,7 +210,6 @@ void print_app_version()
 
     jsonify_types_write_version(&s, "app_version", &app_version);
     jsonify_types_write_version(&s, "record_version", &record_version);
-    jsonify_core_write_str(&s, "libbpf_version", libbpf_version_string());
 
     jsonify_core_close_obj(&s);
 
@@ -251,42 +223,48 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     switch (key)
     {
     case OPT_RECORD_OUTPUT_FILE:
-        return parse_arg_output_file(input, arg, state);
+        parse_arg_output_file(input, arg, state);
+        break;
 
     case OPT_RECORD_OUTPUT_NET_IP:
-        return parse_ip(input, arg, state);
+        parse_ip(input, arg, state);
+        break;
 
     case OPT_RECORD_OUTPUT_NET_PORT:
-        return parse_port(input, arg, state);
+        parse_port(input, arg, state);
+        break;
 
     case OPT_VERSION:
         print_app_version();
-        set_arg_parser_exit_no_error(input);
+        user_args_helper_state_set_exit_no_error(&input->parse_state);
         break;
 
     case OPT_HELP:
         argp_state_help(state, stdout, ARGP_HELP_STD_HELP);
-        set_arg_parser_exit_no_error(input);
+        user_args_helper_state_set_exit_no_error(&input->parse_state);
         break;
 
     case OPT_USAGE:
         argp_state_help(state, stdout, ARGP_HELP_USAGE);
-        set_arg_parser_exit_no_error(input);
+        user_args_helper_state_set_exit_no_error(&input->parse_state);
         break;
 
     case ARGP_KEY_INIT:
         init_user_input(input);
         break;
 
+    case ARGP_KEY_ERROR:
     case ARGP_KEY_ARG:
-        argp_usage(state);
+        argp_state_help(state, stdout, ARGP_HELP_USAGE);
+        user_args_helper_state_set_exit_error(&input->parse_state, -1);
         break;
 
     case ARGP_KEY_END:
-        return validate_user_input(input, state);
+        validate_user_input(input, state);
+        break;
 
     default:
-        return ARGP_ERR_UNKNOWN;
+        break;
     }
 
     return 0;
@@ -299,18 +277,16 @@ void user_args_user_copy(struct user_input *dst)
     memcpy(dst, get_global_user_input(), sizeof(struct user_input));
 }
 
-int user_args_user_parse(struct user_input *dst, int argc, char **argv)
+void user_args_user_parse(struct user_input *dst, int argc, char **argv)
 {
     if (!dst)
-        return -1;
+        return;
 
     int argp_flags = 0;
     // ARGP_NO_EXIT & ARGP_NO_HELP because self-managed
     argp_flags = ARGP_NO_EXIT | ARGP_NO_HELP;
-    error_t err = argp_parse(&global_user_input_argp, argc, argv, argp_flags, 0, 0);
+    argp_parse(&global_user_input_argp, argc, argv, argp_flags, 0, 0);
     
     user_args_user_copy(dst);
     user_args_control_copy(&(dst->c_in));
-
-    return err;
 }
