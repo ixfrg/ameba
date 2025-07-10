@@ -28,11 +28,14 @@ COMMON_LDADD = \
     -lCppUTest \
     -lCppUTestExt
 
-TESTS = control user
-check_PROGRAMS = control user
+check_PROGRAMS = control user helper
+TESTS = $(check_PROGRAMS)
 
 control_SOURCES = control.cpp
 control_LDADD = $(COMMON_LDADD)
 
 user_SOURCES = user.cpp
 user_LDADD = $(COMMON_LDADD)
+
+helper_SOURCES = helper.cpp
+helper_LDADD = $(COMMON_LDADD)
