@@ -48,32 +48,63 @@ ameba
 
 ```
 apt-get update && \
-    apt-get install -y llvm linux-tools-common libbpf-dev linux-headers-$(uname -r) gcc-multilib
+    apt-get install -y \
+        llvm \
+        linux-tools-common \
+        libbpf-dev \
+        linux-headers-$(uname -r) \
+        gcc-multilib
 ```
 
 For `bpftool` installation, directly download version [v7.2.0](https://github.com/libbpf/bpftool/releases/tag/v7.2.0) and add it to your path. For more details, see the issue [here](https://github.com/xdp-project/xdp-tutorial/issues/368).
 
 ## Build & Install
 
+The configuration requires read access to the file `/sys/kernel/tracing/available_events`. By default, it can be only accessed by `root` user. To avoid configuration as `root` user, create a temporary copy of the file and delete it after configuration. The steps below show how to do that.
+
 ```
-mkdir build && \
-    pushd build && \
-    ../configure CC=clang --prefix=${PWD}/local-install && \
-    make all && \
-    make install && \
-    popd
+# Create and cd into build directory.
+mkdir build
+pushd build
+
+# Copy the file "/sys/kernel/tracing/available_events" as root and make the copy readable to the current user.
+sudo cp "/sys/kernel/tracing/available_events" "${PWD}/tmp_available_events"
+sudo chown $(whoami) "${PWD}/tmp_available_events"
+
+# Configuration
+../configure \
+    CC=clang \
+    --prefix="${PWD}/local-install" \
+    --with-path-tracing-available-events="${PWD}/tmp_available_events"
+
+# Build & install
+make all
+make install
+
+# Remove the temp file
+rm "${PWD}/tmp_available_events"
 ```
 
 ## See help
 
 ```
-sudo local-install/bin/ameba --help
+pushd build
+local-install/bin/ameba --help
 ```
 
-## Tests
+# Tests
 
-Install [CppUTest](https://cpputest.github.io/manual.html): `sudo apt-get install cpputest`
+## Requirements
 
+* [CppUTest](https://cpputest.github.io/manual.html) (On Ubuntu use `sudo apt-get install cpputest`)
+
+## Execute
+
+Use the following command to execute tests:
+```
+pushd build
+make check
+```
 
 # Use Cases
 

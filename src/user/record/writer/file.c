@@ -52,7 +52,7 @@ static int init_file() {
     if (state.initialized)
         return 0;
 
-    state.fd = open(state.init_args.path, O_RDWR | O_CREAT | O_TRUNC, 0666);
+    state.fd = open(state.init_args.path, O_RDWR | O_CREAT | O_TRUNC, 0600);
     if (state.fd == -1)
         return -1;
 
