@@ -29,14 +29,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 
-struct control_input global_control_input;
+static struct control_input global_control_input;
 
 
 enum
 {
     OPT_GLOBAL_MODE = 'g',
-    OPT_UID_MODE = 'u',
-    OPT_UID_LIST = 'U',
+    OPT_UID_MODE = 'c',
+    OPT_UID_LIST = 'C',
     OPT_PID_MODE = 'p',
     OPT_PID_LIST = 'P',
     OPT_PPID_MODE = 'k',
@@ -86,7 +86,6 @@ static void init_control_input(struct control_input *input)
     input->ppid_mode = IGNORE;
     input->ppids_len = 0;
     input->netio_mode = IGNORE;
-    input->parse_err = 0;
 }
 
 static int find_string_index(const char *haystack, const char *needle)
@@ -170,33 +169,6 @@ static error_t parse_int_list(
 
 static error_t validate_control_input(struct control_input *input, struct argp_state *state)
 {
-    // TODO
-    /*
-    if (input->global_mode == NOT_SET)
-    {
-        // argp_error(state, "Required option -%c is missing", OPT_GLOBAL_MODE);
-        argp_failure(state, -1, -1, "Required option -%c is missing", OPT_GLOBAL_MODE);
-        return ARGP_ERR_UNKNOWN;
-    }
-    */
-    if (input->uid_mode == CAPTURE && input->uids_len == 0)
-    {
-        input->parse_err = -1;
-        fprintf(stderr, "Must specify uids to capture in capture mode. Use --help.\n");
-        return ARGP_ERR_UNKNOWN;
-    }
-    if (input->pid_mode == CAPTURE && input->pids_len == 0)
-    {
-        input->parse_err = -1;
-        fprintf(stderr, "Must specify pids to capture in capture mode. Use --help.\n");
-        return ARGP_ERR_UNKNOWN;
-    }
-    if (input->ppid_mode == CAPTURE && input->ppids_len == 0)
-    {
-        input->parse_err = -1;
-        fprintf(stderr, "Must specify ppids to capture in capture mode. Use --help.\n");
-        return ARGP_ERR_UNKNOWN;
-    }
     return 0;
 }
 
@@ -235,11 +207,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         init_control_input(input);
         break;
 
-    case ARGP_KEY_ARG:
-        // No positional arguments expected
-        argp_usage(state);
-        break;
-
     case ARGP_KEY_END:
         return validate_control_input(input, state);
 
@@ -250,11 +217,24 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-int user_args_control_must_parse_control_input(int argc, char **argv)
+void user_args_control_copy(struct control_input *dst)
 {
-    error_t err = argp_parse(&global_control_input_argp, argc, argv, ARGP_SILENT, 0, 0);
-    if (err)
-        return err;
+    if (!dst)
+        return;
+    memcpy(dst, get_global_control_input(), sizeof(struct control_input));
+}
 
-    return global_control_input.parse_err;
+int user_args_control_parse(struct control_input *dst, int argc, char **argv)
+{
+    if (!dst)
+        return -1;
+
+    int argp_flags = 0;
+    // ARGP_NO_EXIT & ARGP_NO_HELP because self-managed
+    argp_flags = ARGP_NO_EXIT | ARGP_NO_HELP;
+    error_t err = argp_parse(&global_control_input_argp, argc, argv, argp_flags, 0, 0);
+
+    user_args_control_copy(dst);
+
+    return err;
 }

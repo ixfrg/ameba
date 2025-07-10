@@ -247,13 +247,17 @@ static void sig_handler(int sig)
     }
 }
 
-static int parse_user_input(struct user_input *input, int argc, char *argv[])
+static void parse_user_input(struct user_input *input, int argc, char *argv[])
 {
-    int ret = user_args_user_must_parse_user_input(argc, argv);
-    if(ret == 0){
-        memcpy(input, &global_user_input, sizeof(*input));
+    int ret = user_args_user_parse(input, argc, argv);
+    if (input->parse_state.exit == 1)
+    {
+        exit(input->parse_state.code);
     }
-    return ret;
+    if (ret)
+    {
+        exit(-1);
+    }
 }
 
 static int update_control_input_map(struct control_input *input)
@@ -337,24 +341,6 @@ static void print_user_input(struct user_input *user_input)
     );
 }
 
-void print_app_version()
-{
-    int dst_len = 512;
-    char dst[dst_len];
-
-    struct json_buffer s;
-    jsonify_core_init(&s, dst, dst_len);
-    jsonify_core_open_obj(&s);
-
-    jsonify_types_write_version(&s, "app_version", &app_version);
-    jsonify_types_write_version(&s, "record_version", &record_version);
-    jsonify_core_write_str(&s, "libbpf_version", libbpf_version_string());
-
-    jsonify_core_close_obj(&s);
-
-    printf("%s\n", &dst[0]);
-}
-
 int main(int argc, char *argv[])
 {
     int result;
@@ -362,18 +348,7 @@ int main(int argc, char *argv[])
     int err, ringbuf_map_fd;
     struct user_input input;
     
-    result = parse_user_input(&input, argc, argv);
-
-    if (result != 0)
-    {
-        return result;
-    }
-
-    if (input.show_version == 1)
-    {
-        print_app_version();
-        return 0;
-    }
+    parse_user_input(&input, argc, argv);
 
     print_user_input(&input);
 

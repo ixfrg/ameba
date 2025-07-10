@@ -33,10 +33,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 extern struct argp global_control_input_argp;
 
 /*
-    Parsed control input.
-    Assumes successful call to 'user_args_control_must_parse_control_input'.
+    Copy value of internal global struct control_input to dst.
 */
-extern struct control_input global_control_input;
+void user_args_control_copy(struct control_input *dst);
 
 /*
     Parse user arguments (i.e. int main(int argc, char **argv)), and populate dst.
@@ -46,4 +45,4 @@ extern struct control_input global_control_input;
         +ive => Failure
         -ive => Failure
 */
-int user_args_control_must_parse_control_input(int argc, char **argv);
+int user_args_control_parse(struct control_input *dst, int argc, char **argv);

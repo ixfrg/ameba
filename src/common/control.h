@@ -62,6 +62,4 @@ struct control_input
     trace_mode_t netio_mode;
 
     control_lock_t lock;
-
-    int parse_err;
 };

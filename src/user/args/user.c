@@ -23,14 +23,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <sys/types.h>
 #include <arpa/inet.h>
 
+
 #include "user/args/control.h"
 #include "user/args/user.h"
+#include "common/version.h"
+#include "user/jsonify/types.h"
 
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 
-struct user_input global_user_input;
+static struct user_input global_user_input;
 
 
 enum
@@ -38,7 +41,9 @@ enum
     OPT_RECORD_OUTPUT_FILE = 'f',
     OPT_RECORD_OUTPUT_NET_IP = 'N',
     OPT_RECORD_OUTPUT_NET_PORT = 's',
-    OPT_VERSION = 'V'
+    OPT_VERSION = 'v',
+    OPT_HELP = '?',
+    OPT_USAGE = 'u'
 };
 
 // Option definitions
@@ -47,6 +52,8 @@ static struct argp_option options[] = {
     {"ip", OPT_RECORD_OUTPUT_NET_IP, "IP", 0, "IP address to write the records to", 0},
     {"port", OPT_RECORD_OUTPUT_NET_PORT, "PORT", 0, "IP port to write the records to", 0},
     {"version", OPT_VERSION, 0, 0, "Show version"},
+    {"help", OPT_HELP, 0, 0, "Show help"},
+    {"usage", OPT_USAGE, 0, 0, "Show usage"},
     {0}
 };
 
@@ -55,7 +62,7 @@ static struct argp_child argp_children[] = {
     {0}
 };
 
-struct argp global_user_input_argp = {
+static struct argp global_user_input_argp = {
     .options = options,
     .parser = parse_opt,
     .args_doc = "",
@@ -70,6 +77,30 @@ static struct user_input *get_global_user_input()
     return &global_user_input;
 }
 
+static void init_arg_parse_state(struct arg_parse_state *s)
+{
+    if (!s)
+        return;
+    s->exit = 0;
+    s->code = 0;
+}
+
+static void set_arg_parser_exit_error(struct user_input *input, int code)
+{
+    if (!input)
+        return;
+    input->parse_state.exit = 1;
+    input->parse_state.code = code;
+}
+
+static void set_arg_parser_exit_no_error(struct user_input *input)
+{
+    if (!input)
+        return;
+    input->parse_state.exit = 1;
+    input->parse_state.code = 0;
+}
+
 static void init_user_input(struct user_input *input)
 {
     if (!input)
@@ -80,17 +111,14 @@ static void init_user_input(struct user_input *input)
     input->output_net.ip_family = 0;
     input->output_net.port = -1;
     input->output_net.ip[0] = 0;
-    input->parse_err = 0;
+    init_arg_parse_state(&(input->parse_state));
 }
 
 static error_t validate_user_input(struct user_input *input, struct argp_state *state)
 {
-    if (input->show_version == 1)
-        return 0;
-
     if (input->o_type == OUTPUT_NONE)
     {
-        input->parse_err = -1;
+        set_arg_parser_exit_error(input, -1);
         fprintf(stderr, "Must specify exactly one output method. Use --help.\n");
         return ARGP_ERR_UNKNOWN;
     }
@@ -98,13 +126,13 @@ static error_t validate_user_input(struct user_input *input, struct argp_state *
     {
         if (input->output_net.ip[0] == 0)
         {
-            input->parse_err = -1;
+            set_arg_parser_exit_error(input, -1);
             fprintf(stderr, "Must specify IP for network output method. Use --help.\n");
             return ARGP_ERR_UNKNOWN;
         }
         if (input->output_net.port < 1 || input->output_net.port > 65535)
         {
-            input->parse_err = -1;
+            set_arg_parser_exit_error(input, -1);
             fprintf(stderr, "Must specify a valid port for network output method. Use --help.\n");
             return ARGP_ERR_UNKNOWN;
         }
@@ -198,6 +226,24 @@ static int parse_port(struct user_input *dst, char *arg, struct argp_state *stat
     return 0;
 }
 
+void print_app_version()
+{
+    int dst_len = 512;
+    char dst[dst_len];
+
+    struct json_buffer s;
+    jsonify_core_init(&s, dst, dst_len);
+    jsonify_core_open_obj(&s);
+
+    jsonify_types_write_version(&s, "app_version", &app_version);
+    jsonify_types_write_version(&s, "record_version", &record_version);
+    jsonify_core_write_str(&s, "libbpf_version", libbpf_version_string());
+
+    jsonify_core_close_obj(&s);
+
+    fprintf(stdout, "%s\n", &dst[0]);
+}
+
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
     struct user_input *input = get_global_user_input();
@@ -214,7 +260,18 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         return parse_port(input, arg, state);
 
     case OPT_VERSION:
-        input->show_version = 1;
+        print_app_version();
+        set_arg_parser_exit_no_error(input);
+        break;
+
+    case OPT_HELP:
+        argp_state_help(state, stdout, ARGP_HELP_STD_HELP);
+        set_arg_parser_exit_no_error(input);
+        break;
+
+    case OPT_USAGE:
+        argp_state_help(state, stdout, ARGP_HELP_USAGE);
+        set_arg_parser_exit_no_error(input);
         break;
 
     case ARGP_KEY_INIT:
@@ -235,14 +292,25 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-int user_args_user_must_parse_user_input(int argc, char **argv)
+void user_args_user_copy(struct user_input *dst)
 {
-    error_t err = argp_parse(&global_user_input_argp, argc, argv, ARGP_SILENT, 0, 0);
-    // Copy it even in case of failure since just a copy.
-    memcpy(&(global_user_input.c_in), &global_control_input, sizeof(global_control_input));
+    if (!dst)
+        return;
+    memcpy(dst, get_global_user_input(), sizeof(struct user_input));
+}
 
-    if (err)
-        return err;
+int user_args_user_parse(struct user_input *dst, int argc, char **argv)
+{
+    if (!dst)
+        return -1;
 
-    return global_user_input.parse_err;
+    int argp_flags = 0;
+    // ARGP_NO_EXIT & ARGP_NO_HELP because self-managed
+    argp_flags = ARGP_NO_EXIT | ARGP_NO_HELP;
+    error_t err = argp_parse(&global_user_input_argp, argc, argv, argp_flags, 0, 0);
+    
+    user_args_user_copy(dst);
+    user_args_control_copy(&(dst->c_in));
+
+    return err;
 }

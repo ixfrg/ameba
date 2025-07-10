@@ -69,6 +69,11 @@ enum output_type {
     OUTPUT_NET
 };
 
+struct arg_parse_state
+{
+    int exit;
+    int code;
+};
 
 struct user_input
 {
@@ -76,6 +81,5 @@ struct user_input
     struct output_file output_file;
     struct output_net output_net;
     enum output_type o_type;
-    int show_version;
-    int parse_err;
+    struct arg_parse_state parse_state;
 };
