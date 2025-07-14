@@ -97,10 +97,8 @@ TEST(UserArgUserInputGroup, TestNonDefaults)
 
     char* argv[] = {
         (char*)"test",
-        (char*)"--ip",
-        (char*)"0.0.0.0",
-        (char*)"--port",
-        (char*)"1212",
+        (char*)"--output-uri",
+        (char*)"udp://0.0.0.0:1212",
         (char*)"--global-mode",
         (char*)"capture",
         (char*)"--uid-mode",
@@ -175,12 +173,12 @@ TEST(UserArgUserInputGroup, TestUsage)
     check_parse_state_exit_no_error(&u_in);
 }
 
-TEST(UserArgUserInputGroup, TestOutputFileInvalid)
+TEST(UserArgUserInputGroup, TestOutputURIMissing)
 {
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"--file-path"
+        (char*)"--output-uri"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -192,9 +190,8 @@ TEST(UserArgUserInputGroup, TestOutputNetInvalidArg1)
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"--ip",
-        (char*)"--port",
-        (char*)"1212"
+        (char*)"--output-uri",
+        (char*)"udp://:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -206,23 +203,22 @@ TEST(UserArgUserInputGroup, TestOutputNetInvalidArg2)
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"--ip",
-        (char*)"0.0.0.0",
-        (char*)"--port"
+        (char*)"--output-uri",
+        (char*)"udp://0.0.0.0"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
     check_parse_state_exit_error(&u_in);
 }
 
-TEST(UserArgUserInputGroup, TestOutputFile)
+TEST(UserArgUserInputGroup, TestOutputFileAbsolute)
 {
     struct user_input u_in;
 
     char* argv[] = {
         (char*)"test",
-        (char*)"--file-path",
-        (char*)"/tmp/test.json"
+        (char*)"--output-uri",
+        (char*)"file:///tmp/test.json"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -236,16 +232,28 @@ TEST(UserArgUserInputGroup, TestOutputFile)
     );
 }
 
+TEST(UserArgUserInputGroup, TestOutputFileRelativeInvalid)
+{
+    struct user_input u_in;
+
+    char* argv[] = {
+        (char*)"test",
+        (char*)"--output-uri",
+        (char*)"file://tmp/test.json"
+    };
+    int argc = sizeof(argv) / sizeof(char*);
+    user_args_user_parse(&u_in, argc, argv);
+    check_parse_state_exit_error(&u_in);
+}
+
 TEST(UserArgUserInputGroup, TestOutputNetValidIp4)
 {
     struct user_input u_in;
 
     char* argv[] = {
         (char*)"test",
-        (char*)"--ip",
-        (char*)"0.0.0.0",
-        (char*)"--port",
-        (char*)"1212"
+        (char*)"--output-uri",
+        (char*)"udp://0.0.0.0:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -263,10 +271,8 @@ TEST(UserArgUserInputGroup, TestOutputNetValidIp6)
 
     char* argv[] = {
         (char*)"test",
-        (char*)"--ip",
-        (char*)"::1",
-        (char*)"--port",
-        (char*)"1212"
+        (char*)"--output-uri",
+        (char*)"udp://[::1]:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -278,41 +284,13 @@ TEST(UserArgUserInputGroup, TestOutputNetValidIp6)
     CHECK_EQUAL(1212, u_in.output_net.port);
 }
 
-TEST(UserArgUserInputGroup, TestOutputNetNoIp)
-{
-    struct user_input u_in;
-    char* argv[] = {
-        (char*)"test",
-        (char*)"--port",
-        (char*)"1212"
-    };
-    int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
-}
-
-TEST(UserArgUserInputGroup, TestOutputNetNoPort)
-{
-    struct user_input u_in;
-    char* argv[] = {
-        (char*)"test",
-        (char*)"--ip",
-        (char*)"0.0.0.0"
-    };
-    int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
-}
-
 TEST(UserArgUserInputGroup, TestOutputNetInvalidIp4)
 {
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"--ip",
-        (char*)"0.0.0.0.0",
-        (char*)"--port",
-        (char*)"1212"
+        (char*)"--output-uri",
+        (char*)"udp://0.0.0.0.0:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -324,10 +302,8 @@ TEST(UserArgUserInputGroup, TestOutputNetInvalidIp6)
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"--ip",
-        (char*)"::::::1",
-        (char*)"--port",
-        (char*)"1212"
+        (char*)"--output-uri",
+        (char*)"udp://[::::::1]:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -340,10 +316,8 @@ TEST(UserArgUserInputGroup, TestNonDefaultsShort)
 
     char* argv[] = {
         (char*)"test",
-        (char*)"-N",
-        (char*)"0.0.0.0",
-        (char*)"-s",
-        (char*)"1212",
+        (char*)"-o",
+        (char*)"udp://0.0.0.0:1212",
         (char*)"--global-mode",
         (char*)"capture",
         (char*)"--uid-mode",
@@ -418,7 +392,7 @@ TEST(UserArgUserInputGroup, TestOutputFileInvalidShort)
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"-f"
+        (char*)"-o"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -430,9 +404,8 @@ TEST(UserArgUserInputGroup, TestOutputNetInvalidArg1Short)
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"-N",
-        (char*)"-s",
-        (char*)"1212"
+        (char*)"-o",
+        (char*)"udp://:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -444,9 +417,8 @@ TEST(UserArgUserInputGroup, TestOutputNetInvalidArg2Short)
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"-N",
-        (char*)"0.0.0.0",
-        (char*)"-s"
+        (char*)"-o",
+        (char*)"udp://0.0.0.0"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -459,8 +431,8 @@ TEST(UserArgUserInputGroup, TestOutputFileShort)
 
     char* argv[] = {
         (char*)"test",
-        (char*)"-f",
-        (char*)"/tmp/test.json"
+        (char*)"-o",
+        (char*)"file:///tmp/test.json"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -476,10 +448,8 @@ TEST(UserArgUserInputGroup, TestOutputNetValidIp4Short)
 
     char* argv[] = {
         (char*)"test",
-        (char*)"-N",
-        (char*)"0.0.0.0",
-        (char*)"-s",
-        (char*)"1212"
+        (char*)"-o",
+        (char*)"udp://0.0.0.0:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -497,10 +467,8 @@ TEST(UserArgUserInputGroup, TestOutputNetValidIp6Short)
 
     char* argv[] = {
         (char*)"test",
-        (char*)"-N",
-        (char*)"::1",
-        (char*)"-s",
-        (char*)"1212"
+        (char*)"-o",
+        (char*)"udp://[::1]:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -517,8 +485,8 @@ TEST(UserArgUserInputGroup, TestOutputNetNoIpShort)
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"-s",
-        (char*)"1212"
+        (char*)"-o",
+        (char*)"udp://:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -530,8 +498,8 @@ TEST(UserArgUserInputGroup, TestOutputNetNoPortShort)
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"-N",
-        (char*)"0.0.0.0"
+        (char*)"-o",
+        (char*)"udp://0.0.0.0"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -543,10 +511,8 @@ TEST(UserArgUserInputGroup, TestOutputNetInvalidIp4Short)
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"-N",
-        (char*)"0.0.0.0.0",
-        (char*)"-s",
-        (char*)"1212"
+        (char*)"-o",
+        (char*)"udp://0.0.0.0.0:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);
@@ -558,10 +524,8 @@ TEST(UserArgUserInputGroup, TestOutputNetInvalidIp6Short)
     struct user_input u_in;
     char* argv[] = {
         (char*)"test",
-        (char*)"-N",
-        (char*)"::::::1",
-        (char*)"-s",
-        (char*)"1212"
+        (char*)"-o",
+        (char*)"udp://[::::::1]:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
     user_args_user_parse(&u_in, argc, argv);

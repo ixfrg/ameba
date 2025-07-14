@@ -43,9 +43,7 @@ static struct user_input global_user_input;
 
 enum
 {
-    OPT_RECORD_OUTPUT_FILE = 'f',
-    OPT_RECORD_OUTPUT_NET_IP = 'N',
-    OPT_RECORD_OUTPUT_NET_PORT = 's',
+    OPT_RECORD_OUTPUT_URI = 'o',
     OPT_VERSION = 'v',
     OPT_HELP = '?',
     OPT_USAGE = 'u'
@@ -53,9 +51,7 @@ enum
 
 // Option definitions
 static struct argp_option options[] = {
-    {"file-path", OPT_RECORD_OUTPUT_FILE, "FILE_PATH", 0, "Path of the file to write the records to", 0},
-    {"ip", OPT_RECORD_OUTPUT_NET_IP, "IP", 0, "IP address to write the records to", 0},
-    {"port", OPT_RECORD_OUTPUT_NET_PORT, "PORT", 0, "IP port to write the records to", 0},
+    {"output-uri", OPT_RECORD_OUTPUT_URI, "URI", 0, "URI to write the records to. Supported: [file://<absolute file path>], or [udp://<ip>:port]", 0},
     {"version", OPT_VERSION, 0, 0, "Show version"},
     {"help", OPT_HELP, 0, 0, "Show help"},
     {"usage", OPT_USAGE, 0, 0, "Show usage"},
@@ -120,83 +116,135 @@ static void validate_user_input(struct user_input *input, struct argp_state *sta
     }
 }
 
-static void parse_arg_output_file(struct user_input *dst, char *arg, struct argp_state *state)
+static void parse_arg_output_uri_file(struct user_input *dst, struct argp_state *state, const char* path)
 {
-    if (!arg)
-    {
-        fprintf(stderr, "NULL output file path. Use --help.\n");
+    if (!path || strlen(path) == 0) {
+        fprintf(stderr, "Invalid file URI: missing path\n");
         user_args_helper_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
-    if (snprintf(&(dst->output_file.path[0]), PATH_MAX, "%s", arg) >= PATH_MAX)
-    {
-        fprintf(stderr, "Output file path too long. Use --help.\n");
+
+    if (path[0] != '/') {
+        fprintf(stderr, "Invalid file URI: path is not absolute\n");
         user_args_helper_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
+
+    if (strlen(path) > PATH_MAX) {
+        fprintf(stderr, "Invalid file URI: path too long\n");
+        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        return;
+    }
+
+    strncpy(&(dst->output_file.path[0]), path, PATH_MAX);
+
     dst->o_type = OUTPUT_FILE;
 }
 
-static void parse_ip(struct user_input *dst, char *arg, struct argp_state *state)
+static void parse_arg_output_uri_net_udp(struct user_input *dst, struct argp_state *state, const char *uri_stripped_val)
 {
-    struct in_addr ipv4;
-    struct in6_addr ipv6;
+    const char *ip_start = uri_stripped_val;
+    const char *ip_end = NULL;
+    const char *port_str = NULL;
+    size_t ip_len;
 
-    if (!arg) {
-        fprintf(stderr, "NULL ip. Use --help.\n");
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
-        return;
-    }
-
-    if (inet_pton(AF_INET, arg, &ipv4) == 1) {
-        char *buf = (char*)&(dst->output_net.ip[0]);
-        if (inet_ntop(AF_INET, &ipv4, buf, INET6_ADDRSTRLEN)) {
-            dst->output_net.ip_family = AF_INET;
-            dst->o_type = OUTPUT_NET;
+    if (*ip_start == '[') {
+        // ipv6
+        ip_start++; // skip '['
+        ip_end = strchr(ip_start, ']');
+        if (!ip_end) {
+            fprintf(stderr, "Invalid UDP URI: unmatched '['\n");
+            user_args_helper_state_set_exit_error(&dst->parse_state, -1);
             return;
         }
-    }
 
-    if (inet_pton(AF_INET6, arg, &ipv6) == 1) {
-        char *buf = (char*)&(dst->output_net.ip[0]);
-        if (inet_ntop(AF_INET6, &ipv6, buf, INET6_ADDRSTRLEN)) {
-            dst->output_net.ip_family = AF_INET6;
-            dst->o_type = OUTPUT_NET;
+        if (*(ip_end + 1) != ':') {
+            fprintf(stderr, "Invalid UDP URI: expected ':' after ']'\n");
+            user_args_helper_state_set_exit_error(&dst->parse_state, -1);
             return;
         }
+
+        ip_len = ip_end - ip_start;
+        if (ip_len == 0) {
+            fprintf(stderr, "Invalid UDP URI: empty IP\n");
+            user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+            return;
+        }
+
+        strncpy(&(dst->output_net.ip[0]), ip_start, ip_len);
+        struct in6_addr ipv6;
+        if (inet_pton(AF_INET6, &(dst->output_net.ip[0]), &ipv6) == 0) {
+            fprintf(stderr, "Invalid UDP URI: invalid IPv6\n");
+            user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+            return;
+        }
+
+        port_str = ip_end + 2; // skip "]:" to point to port
+        dst->output_net.ip_family = AF_INET6;
+    } else {
+        // ipv4
+        ip_end = strchr(ip_start, ':');
+        if (!ip_end) {
+            fprintf(stderr, "Invalid UDP URI: missing port\n");
+            user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+            return;
+        }
+
+        ip_len = ip_end - ip_start;
+        if (ip_len == 0) {
+            fprintf(stderr, "Invalid UDP URI: empty IP\n");
+            user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+            return;
+        }
+
+        strncpy(&(dst->output_net.ip[0]), ip_start, ip_len);
+        struct in_addr ipv4;
+        if (inet_pton(AF_INET, &(dst->output_net.ip[0]), &ipv4) == 0) {
+            fprintf(stderr, "Invalid UDP URI: invalid IPv4\n");
+            user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+            return;
+        }
+
+        port_str = ip_end + 1;
+        dst->output_net.ip_family = AF_INET;
     }
 
-    fprintf(stderr, "Not an ip address: '%s'. Use --help.\n", arg);
-    user_args_helper_state_set_exit_error(&dst->parse_state, -1);
-}
-
-static void parse_port(struct user_input *dst, char *arg, struct argp_state *state) {
-    if (dst->o_type == OUTPUT_FILE)
-    {
-        fprintf(stderr, "Cannot specify multiple output types. Use --help.\n");
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
-        return;
-    }
-
-    if (!arg) {
-        fprintf(stderr, "NULL port. Use --help.\n");
+    if (strlen(port_str) == 0) {
+        fprintf(stderr, "Invalid UDP URI: empty port\n");
         user_args_helper_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
     char *endptr = NULL;
-    errno = 0;
-    long port = strtol(arg, &endptr, 10);
-
-    if (*endptr != '\0' || errno != 0 || port < 1 || port > 65535)
-    {
-        fprintf(stderr, "Not a port number: '%s'. Use --help.\n", arg);
+    long port = strtol(port_str, &endptr, 10);
+    if (*endptr != '\0' || port <= 0 || port > 65535) {
+        fprintf(stderr, "Invalid UDP URI: invalid port number\n");
         user_args_helper_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
-    dst->output_net.port = (uint16_t)port;
+    dst->output_net.port = (int)port;
     dst->o_type = OUTPUT_NET;
+}
+
+static void parse_arg_output_uri(struct user_input *dst, char *arg, struct argp_state *state)
+{
+    if (!arg || strlen(arg) == 0) {
+        fprintf(stderr, "Invalid URI: argument is empty\n");
+        return;
+    }
+
+    if (strncmp(arg, "file://", 7) == 0) {
+        const char *path = arg + 7;
+        parse_arg_output_uri_file(dst, state, path);
+    } else if (strncmp(arg, "udp://", 6) == 0) {
+        const char *addr = arg + 6;
+        parse_arg_output_uri_net_udp(dst, state, addr);
+    } else {
+        fprintf(stderr, "Unsupported URI scheme. Use file:// or udp://\n");
+        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        return;
+    }
 }
 
 void print_app_version()
@@ -222,16 +270,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     switch (key)
     {
-    case OPT_RECORD_OUTPUT_FILE:
-        parse_arg_output_file(input, arg, state);
-        break;
-
-    case OPT_RECORD_OUTPUT_NET_IP:
-        parse_ip(input, arg, state);
-        break;
-
-    case OPT_RECORD_OUTPUT_NET_PORT:
-        parse_port(input, arg, state);
+    case OPT_RECORD_OUTPUT_URI:
+        parse_arg_output_uri(input, arg, state);
         break;
 
     case OPT_VERSION:
