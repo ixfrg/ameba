@@ -33,7 +33,8 @@ struct
     __uint(map_flags, BPF_F_NO_PREALLOC);
     __type(key, int);
     __type(value, struct record_accept);
-} task_map_accept_remote SEC(".maps");
+} AMEBA_MAP_NAME(task_map_accept_remote) SEC(".maps");
+static void *task_map_accept_remote = &AMEBA_MAP_NAME(task_map_accept_remote);
 
 
 int accept_storage_insert_remote_fd(struct record_accept *map_val)
@@ -41,7 +42,7 @@ int accept_storage_insert_remote_fd(struct record_accept *map_val)
     if (!map_val)
         return 0;
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    void *result = bpf_task_storage_get(&task_map_accept_remote, current_task, map_val, BPF_LOCAL_STORAGE_GET_F_CREATE);
+    void *result = bpf_task_storage_get(task_map_accept_remote, current_task, map_val, BPF_LOCAL_STORAGE_GET_F_CREATE);
     return result != NULL;
 }
 
@@ -50,7 +51,7 @@ int accept_storage_set_remote_fd_saddrs(
 )
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    struct record_accept *result = bpf_task_storage_get(&task_map_accept_remote, current_task, 0, 0);
+    struct record_accept *result = bpf_task_storage_get(task_map_accept_remote, current_task, 0, 0);
     if (!result)
         return 0;
     result->ns_net = net_ns_inum;
@@ -65,7 +66,7 @@ int accept_storage_set_remote_fd_saddrs(
 int accept_storage_set_remote_fd_props_on_sys_exit(pid_t pid, int ret_fd, event_id_t event_id)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    struct record_accept *result = bpf_task_storage_get(&task_map_accept_remote, current_task, 0, 0);
+    struct record_accept *result = bpf_task_storage_get(task_map_accept_remote, current_task, 0, 0);
     if (!result)
         return 0;
     result->pid = pid;
@@ -77,7 +78,7 @@ int accept_storage_set_remote_fd_props_on_sys_exit(pid_t pid, int ret_fd, event_
 int accept_storage_delete_remote_fd(void)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    return bpf_task_storage_delete(&task_map_accept_remote, current_task);
+    return bpf_task_storage_delete(task_map_accept_remote, current_task);
 }
 
 int accept_storage_delete_both_fds(void)
@@ -89,7 +90,7 @@ int accept_storage_delete_both_fds(void)
 int accept_storage_output_remote_fd(void)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    struct record_accept *result = bpf_task_storage_get(&task_map_accept_remote, current_task, 0, 0);
+    struct record_accept *result = bpf_task_storage_get(task_map_accept_remote, current_task, 0, 0);
     if (!result)
         return 0;
     output_record_accept(result);

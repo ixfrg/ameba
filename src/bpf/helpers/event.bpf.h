@@ -84,11 +84,11 @@ int event_is_netio_set_to_ignore(void);
     3. Use BPF_PROG to unmarshall arguments.
 */
 #define AMEBA_HOOK(sec_name, f_name, record_type, args...) \
-__ameba__##f_name(unsigned long long *ctx); \
-static __always_inline typeof(__ameba__##f_name(0)) __ameba__bpf__##f_name(unsigned long long *ctx); \
+AMEBA_PROG_NAME(f_name)(unsigned long long *ctx); \
+static __always_inline typeof(AMEBA_PROG_NAME(f_name)(0)) __ameba__bpf__##f_name(unsigned long long *ctx); \
 SEC(sec_name) \
-typeof(__ameba__##f_name(0)) \
-__ameba__##f_name(unsigned long long *ctx)				    \
+typeof(AMEBA_PROG_NAME(f_name)(0)) \
+AMEBA_PROG_NAME(f_name)(unsigned long long *ctx)				    \
 {									    \
     struct event_context e_ctx; \
     event_init_context(&e_ctx, record_type); \
@@ -97,7 +97,7 @@ __ameba__##f_name(unsigned long long *ctx)				    \
     } \
 	return __ameba__bpf__##f_name(ctx);			    \
 }	\
-typeof(__ameba__##f_name(0)) \
+typeof(AMEBA_PROG_NAME(f_name)(0)) \
 BPF_PROG(__ameba__bpf__##f_name, ##args)
 
 
@@ -109,11 +109,11 @@ BPF_PROG(__ameba__bpf__##f_name, ##args)
     3. Use (ctx_struct_type, ctx_arg_name) to pass BPF context to hook function.
 */
 #define AMEBA_HOOK_TP(sec_name, f_name, record_type, ctx_struct_type, ctx_arg_name) \
-__ameba__##f_name(ctx_struct_type ctx_arg_name); \
-static __always_inline typeof(__ameba__##f_name(0)) __ameba__bpf__##f_name(ctx_struct_type ctx_arg_name); \
+AMEBA_PROG_NAME(f_name)(ctx_struct_type ctx_arg_name); \
+static __always_inline typeof(AMEBA_PROG_NAME(f_name)(0)) __ameba__bpf__##f_name(ctx_struct_type ctx_arg_name); \
 SEC(sec_name) \
-typeof(__ameba__##f_name(0)) \
-__ameba__##f_name(ctx_struct_type ctx_arg_name)				    \
+typeof(AMEBA_PROG_NAME(f_name)(0)) \
+AMEBA_PROG_NAME(f_name)(ctx_struct_type ctx_arg_name)				    \
 {									    \
     struct event_context e_ctx; \
     event_init_context(&e_ctx, record_type); \
@@ -122,5 +122,5 @@ __ameba__##f_name(ctx_struct_type ctx_arg_name)				    \
     } \
 	return __ameba__bpf__##f_name(ctx_arg_name);			    \
 }	\
-typeof(__ameba__##f_name(0)) \
+typeof(AMEBA_PROG_NAME(f_name)(0)) \
 __ameba__bpf__##f_name(ctx_struct_type ctx_arg_name)

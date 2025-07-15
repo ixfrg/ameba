@@ -199,7 +199,7 @@ static int update_control_input_map(struct control_input *input)
 
     int key = 0;
     int ret = bpf_map__update_elem(
-        skel->maps.control_input_map, 
+        skel->maps.AMEBA_MAP_NAME(control_input_map), 
         &key, sizeof(key),
         input, sizeof(struct control_input),
         update_flags
@@ -216,7 +216,7 @@ static int get_control_input_from_map(struct control_input *result)
 
     int key = 0;
     int ret = bpf_map__lookup_elem(
-        skel->maps.control_input_map, 
+        skel->maps.AMEBA_MAP_NAME(control_input_map), 
         &key, sizeof(key),
         result, sizeof(struct control_input),
         lookup_flags
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
     }
 
     // Locate ring buffer
-    ringbuf_map_fd = bpf_object__find_map_fd_by_name(skel->obj, OUTPUT_RINGBUF_MAP_NAME_STR);
+    ringbuf_map_fd = bpf_object__find_map_fd_by_name(skel->obj, AMEBA_MAP_NAME_OUTPUT_RINGBUF_STR);
     if (ringbuf_map_fd < 0)
     {
         log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to find ring buffer map object");

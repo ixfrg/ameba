@@ -37,7 +37,8 @@ struct {
     __type(key, __u32);
     __type(value, struct control_input);
     __uint(max_entries, 1);
-} control_input_map SEC(".maps");
+} AMEBA_MAP_NAME(control_input_map) SEC(".maps");
+static void *control_input_map = &AMEBA_MAP_NAME(control_input_map);
 
 
 int event_init_context(struct event_context *e_ctx, record_type_t r_type)
@@ -58,7 +59,7 @@ int event_init_context(struct event_context *e_ctx, record_type_t r_type)
         if (global_control_input_is_set == 0)
         {
             int key = 0;
-            struct control_input *val = bpf_map_lookup_elem(&control_input_map, &key);
+            struct control_input *val = bpf_map_lookup_elem(control_input_map, &key);
             if (val)
             {
                 __builtin_memcpy(&global_control_input, val, sizeof(struct control_input));

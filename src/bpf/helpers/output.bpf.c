@@ -32,68 +32,69 @@ struct
 {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
     __uint(max_entries, 1 << 12);
-} OUTPUT_RINGBUF_MAP_NAME SEC(".maps");
+} AMEBA_MAP_NAME_OUTPUT_RINGBUF SEC(".maps");
+static void *ameba_output_ringbuf = &AMEBA_MAP_NAME_OUTPUT_RINGBUF;
 
 
 long output_record_cred(struct record_cred *ptr)
 {
     if (!ptr)
         return -1;
-    return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_CRED, 0);
+    return bpf_ringbuf_output(ameba_output_ringbuf, ptr, RECORD_SIZE_CRED, 0);
 }
 
 long output_record_namespace(struct record_namespace *ptr)
 {
     if (!ptr)
         return -1;
-    return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_NAMESPACE, 0);
+    return bpf_ringbuf_output(ameba_output_ringbuf, ptr, RECORD_SIZE_NAMESPACE, 0);
 }
 
 long output_record_new_process(struct record_new_process *ptr)
 {
     if (!ptr)
         return -1;
-    return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_NEW_PROCESS, 0);
+    return bpf_ringbuf_output(ameba_output_ringbuf, ptr, RECORD_SIZE_NEW_PROCESS, 0);
 }
 
 long output_record_accept(struct record_accept *ptr)
 {
     if (!ptr)
         return -1;
-    return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_ACCEPT, 0);
+    return bpf_ringbuf_output(ameba_output_ringbuf, ptr, RECORD_SIZE_ACCEPT, 0);
 }
 
 long output_record_bind(struct record_bind *ptr)
 {
     if (!ptr)
         return -1;
-    return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_BIND, 0);
+    return bpf_ringbuf_output(ameba_output_ringbuf, ptr, RECORD_SIZE_BIND, 0);
 }
 
 long output_record_kill(struct record_kill *ptr)
 {
     if (!ptr)
         return -1;
-    return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_KILL, 0);
+    return bpf_ringbuf_output(ameba_output_ringbuf, ptr, RECORD_SIZE_KILL, 0);
 }
 
 long output_record_send_recv(struct record_send_recv *ptr)
 {
     if (!ptr)
         return -1;
-    return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_SEND_RECV, 0);
+    return bpf_ringbuf_output(ameba_output_ringbuf, ptr, RECORD_SIZE_SEND_RECV, 0);
 }
 
 long output_record_connect(struct record_connect *ptr)
 {
     if (!ptr)
         return -1;
-    return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_CONNECT, 0);
+    return bpf_ringbuf_output(ameba_output_ringbuf, ptr, RECORD_SIZE_CONNECT, 0);
 }
 
 long output_record_audit_log_exit(struct record_audit_log_exit *ptr)
 {
     if (!ptr)
         return -1;
-    return bpf_ringbuf_output(&ameba_output_ringbuf, ptr, RECORD_SIZE_AUDIT_LOG_EXIT, 0);
+    return bpf_ringbuf_output(ameba_output_ringbuf, ptr, RECORD_SIZE_AUDIT_LOG_EXIT, 0);
 }

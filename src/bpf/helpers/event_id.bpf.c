@@ -36,7 +36,7 @@ struct
     __uint(map_flags, BPF_F_NO_PREALLOC);
     __type(key, int);
     __type(value, event_id_t);
-} task_map_event_id SEC(".maps");
+} AMEBA_MAP_NAME(task_map_event_id) SEC(".maps");
 */
 
 /*
