@@ -97,70 +97,6 @@ static int select_default_record_serializer()
     return 0;
 }
 
-/*
-    Helper function to use the json logger to log a string.
-*/
-static void _log_state_msg(app_state_t st, const char *s)
-{
-    int buf_size = 512;
-    char buf[buf_size];
-
-    struct json_buffer js_msg;
-    jsonify_core_init(&js_msg, &buf[0], buf_size);
-    jsonify_core_open_obj(&js_msg);
-    jsonify_core_write_str(&js_msg, "msg", s);
-    jsonify_core_close_obj(&js_msg);
-
-    log_state(st, &js_msg);
-}
-
-/*
-    Helper function to use the json logger to log a json_obj.
-*/
-static void _log_state_msg_and_js(
-    app_state_t st, 
-    const char *msg_val,
-    const char *js_key, struct json_buffer *js_val
-)
-{
-    char *js_val_buf_ptr;
-    int js_val_buf_size;
-
-    int buf_size = 512;
-    char buf[buf_size];
-
-    struct json_buffer js_msg;
-    jsonify_core_init(&js_msg, &buf[0], buf_size);
-    jsonify_core_open_obj(&js_msg);
-    jsonify_core_write_str(&js_msg, "msg", msg_val);
-    if (jsonify_core_get_internal_buf_ptr(js_val, &js_val_buf_ptr, &js_val_buf_size) == 0)
-    {
-        jsonify_core_write_as_literal(&js_msg, js_key, js_val_buf_ptr);
-    }
-    jsonify_core_close_obj(&js_msg);
-
-    log_state(st, &js_msg);
-}
-
-static void _log_state_msg_with_pid(
-    app_state_t st,
-    const char *msg_val,
-    pid_t pid
-)
-{
-    int buf_size = 128;
-    char buf[buf_size];
-
-    struct json_buffer js_msg;
-    jsonify_core_init(&js_msg, &buf[0], buf_size);
-    jsonify_core_open_obj(&js_msg);
-    jsonify_core_write_str(&js_msg, "msg", msg_val);
-    jsonify_core_write_int(&js_msg, "pid", pid);
-    jsonify_core_close_obj(&js_msg);
-
-    log_state(st, &js_msg);
-}
-
 static int init_output_writer(struct user_input *input){
     void *record_writer_init_args = NULL;
     size_t record_writer_init_args_size = 0;
@@ -168,14 +104,14 @@ static int init_output_writer(struct user_input *input){
     int err = select_default_output_writer(input, &record_writer_init_args, &record_writer_init_args_size);
     if (err)
     {
-        _log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error selecting a valid output writer");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error selecting a valid output writer");
         return -1;
     }
 
     err = select_default_record_serializer();
     if (err)
     {
-        _log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error selecting a valid record serializer");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error selecting a valid record serializer");
         return -1;
     }
 
@@ -184,14 +120,14 @@ static int init_output_writer(struct user_input *input){
     );
     if (err != 0)
     {
-        _log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error setting init args for the output writer");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error setting init args for the output writer");
         return -1;
     }
 
     err = default_record_writer->init();
     if (err != 0)
     {
-        _log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error initing output writer");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error initing output writer");
         return -1;
     }
     return 0;
@@ -212,14 +148,14 @@ static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
     long data_copied_to_dst = default_record_serializer->serialize(dst, dst_len, data, data_len);
     if (data_copied_to_dst <= 0)
     {
-        _log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data conversion");
+        log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data conversion");
         goto free_dst;
     }
 
     int write_result = default_record_writer->write(dst, data_copied_to_dst);
     if (write_result < 0)
     {
-        _log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data write");
+        log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data write");
         goto free_dst;
     }
 
@@ -238,7 +174,7 @@ static void sig_handler(int sig)
         {
             ameba__destroy(skel);
         }
-        _log_state_msg(APP_STATE_STOPPED_NORMALLY, "Stopped... received termination signal");
+        log_state_msg(APP_STATE_STOPPED_NORMALLY, "Stopped... received termination signal");
         exit(0);
     }
 }
@@ -296,7 +232,7 @@ static void print_current_control_input()
 
     if (get_control_input_from_map(&result) != 0)
     {
-        _log_state_msg(APP_STATE_STARTING, "Failed to get control input entry from BPF map");
+        log_state_msg(APP_STATE_STARTING, "Failed to get control input entry from BPF map");
         return;
     }
 
@@ -308,7 +244,7 @@ static void print_current_control_input()
 
     jsonify_core_close_obj(&s);
 
-    _log_state_msg_and_js(
+    log_state_msg_and_child_js(
         APP_STATE_STARTING, 
         "Control input in BPF map",
         "control_input", &s
@@ -328,7 +264,7 @@ static void print_user_input(struct user_input *user_input)
 
     jsonify_core_close_obj(&s);
 
-    _log_state_msg_and_js(
+    log_state_msg_and_child_js(
         APP_STATE_STARTING, 
         "User arguments",
         "user_input", &s
@@ -347,12 +283,12 @@ int main(int argc, char *argv[])
     print_user_input(&input);
 
     signal(SIGTERM, sig_handler);
-    _log_state_msg(APP_STATE_STARTING, "Registered signal handler");
+    log_state_msg(APP_STATE_STARTING, "Registered signal handler");
 
     skel = ameba__open_and_load();
     if (!skel)
     {
-        _log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to load bpf skeleton");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to load bpf skeleton");
         result = 1;
         return result;
     }
@@ -360,7 +296,7 @@ int main(int argc, char *argv[])
     result = update_control_input_map(&input.c_in);
     if (result != 0)
     {
-        _log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error updating control input");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error updating control input");
         result = 1;
         goto skel_destroy;
     }
@@ -370,7 +306,7 @@ int main(int argc, char *argv[])
     err = ameba__attach(skel);
     if (err != 0)
     {
-        _log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error attaching skeleton");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error attaching skeleton");
         result = 1;
         goto skel_destroy;
     }
@@ -379,7 +315,7 @@ int main(int argc, char *argv[])
     ringbuf_map_fd = bpf_object__find_map_fd_by_name(skel->obj, OUTPUT_RINGBUF_MAP_NAME_STR);
     if (ringbuf_map_fd < 0)
     {
-        _log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to find ring buffer map object");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to find ring buffer map object");
         result = 1;
         goto skel_detach;
     }
@@ -389,12 +325,12 @@ int main(int argc, char *argv[])
     int writer_error = init_output_writer(&input);
     if (writer_error != 0)
     {
-        _log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error creating output writer");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error creating output writer");
         result = 1;
         goto skel_detach;
     }
 
-     _log_state_msg_with_pid(APP_STATE_OPERATIONAL_PID, "Started successfully", getpid());
+    log_state_msg_with_current_pid(APP_STATE_OPERATIONAL_PID, "Started successfully");
 
     while (ring_buffer__poll(ringbuf, -1) >= 0)
     {

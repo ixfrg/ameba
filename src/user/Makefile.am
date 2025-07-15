@@ -52,7 +52,7 @@ jsonify_lib_a_SOURCES = \
 
 bin_PROGRAMS = ameba
 ameba_SOURCES = \
-    ../common/control.h ../common/version.h ../common/constants.h ../common/types.h \
+    $(top_srcdir)/src/common/control.h $(top_srcdir)/src/common/version.h $(top_srcdir)/src/common/constants.h $(top_srcdir)/src/common/types.h \
     types.h \
     error.h \
     ameba.c

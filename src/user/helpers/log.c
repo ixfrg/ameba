@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "user/jsonify/log_msg.h"
 #include "user/helpers/log.h"
@@ -78,4 +79,70 @@ void log_state_stopped_with_error(struct json_buffer *js)
 void log_state_stopped_normally(struct json_buffer *js)
 {
     log_state(APP_STATE_STOPPED_NORMALLY, js);
+}
+
+void log_state_msg(app_state_t st, const char *msg)
+{
+    int buf_size = 512;
+    char buf[buf_size];
+
+    struct json_buffer js_msg;
+    jsonify_core_init(&js_msg, &buf[0], buf_size);
+    jsonify_core_open_obj(&js_msg);
+    jsonify_core_write_str(&js_msg, "msg", msg);
+    jsonify_core_close_obj(&js_msg);
+
+    log_state(st, &js_msg);
+}
+
+void log_state_msg_and_child_js(
+    app_state_t st, 
+    const char *msg,
+    const char *child_js_key, struct json_buffer *child_js_val
+)
+{
+    char *js_val_buf_ptr;
+    int js_val_buf_size;
+
+    int buf_size = 512;
+    char buf[buf_size];
+
+    struct json_buffer js_msg;
+    jsonify_core_init(&js_msg, &buf[0], buf_size);
+    jsonify_core_open_obj(&js_msg);
+    jsonify_core_write_str(&js_msg, "msg", msg);
+    if (jsonify_core_get_internal_buf_ptr(child_js_val, &js_val_buf_ptr, &js_val_buf_size) == 0)
+    {
+        jsonify_core_write_as_literal(&js_msg, child_js_key, js_val_buf_ptr);
+    }
+    jsonify_core_close_obj(&js_msg);
+
+    log_state(st, &js_msg);
+}
+
+void log_state_msg_with_pid(
+    app_state_t st,
+    const char *msg,
+    pid_t pid
+)
+{
+    int buf_size = 128;
+    char buf[buf_size];
+
+    struct json_buffer js_msg;
+    jsonify_core_init(&js_msg, &buf[0], buf_size);
+    jsonify_core_open_obj(&js_msg);
+    jsonify_core_write_str(&js_msg, "msg", msg);
+    jsonify_core_write_int(&js_msg, "pid", pid);
+    jsonify_core_close_obj(&js_msg);
+
+    log_state(st, &js_msg);
+}
+
+void log_state_msg_with_current_pid(
+    app_state_t st,
+    const char *msg
+)
+{
+    log_state_msg_with_pid(st, msg, getpid());
 }
