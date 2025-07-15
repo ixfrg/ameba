@@ -81,15 +81,23 @@ void log_state_stopped_normally(struct json_buffer *js)
     log_state(APP_STATE_STOPPED_NORMALLY, js);
 }
 
-void log_state_msg(app_state_t st, const char *msg)
+void log_state_msg(app_state_t st, const char *fmt, ...)
 {
+    const int formatted_buf_size = 256;
+    char formatted_buf[formatted_buf_size];
+
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(&(formatted_buf[0]), formatted_buf_size, fmt, args);
+    va_end(args);
+
     int buf_size = 512;
     char buf[buf_size];
 
     struct json_buffer js_msg;
     jsonify_core_init(&js_msg, &buf[0], buf_size);
     jsonify_core_open_obj(&js_msg);
-    jsonify_core_write_str(&js_msg, "msg", msg);
+    jsonify_core_write_str(&js_msg, "msg", &formatted_buf[0]);
     jsonify_core_close_obj(&js_msg);
 
     log_state(st, &js_msg);

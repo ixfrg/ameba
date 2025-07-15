@@ -34,7 +34,7 @@ void log_state_operational_with_error(struct json_buffer *js);
 void log_state_stopped_with_error(struct json_buffer *js);
 void log_state_stopped_normally(struct json_buffer *js);
 
-void log_state_msg(app_state_t st, const char *msg);
+void log_state_msg(app_state_t st, const char *fmt, ...);
 void log_state_msg_and_child_js(
     app_state_t st, 
     const char *msg,
