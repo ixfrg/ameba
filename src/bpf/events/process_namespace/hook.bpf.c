@@ -39,12 +39,6 @@ static int send_record_cred(
     const sys_id_t sys_id
 )
 {
-    struct event_context e_ctx;
-    event_init_context(&e_ctx, RECORD_TYPE_CRED);
-    if (!event_is_auditable(&e_ctx)){
-        return 0;
-    }
-
     struct record_cred r_c;
     datatype_init_record_cred(
         &r_c,
@@ -73,12 +67,6 @@ static int send_record_namespace(
     const sys_id_t sys_id
 )
 {
-    struct event_context e_ctx;
-    event_init_context(&e_ctx, RECORD_TYPE_NAMESPACE);
-    if (!event_is_auditable(&e_ctx)){
-        return 0;
-    }
-
     struct record_namespace r_ns;
     datatype_init_record_namespace(
         &r_ns,
@@ -104,12 +92,6 @@ static int send_record_new_process(
     sys_id_t sys_id
 )
 {
-    struct event_context e_ctx;
-    event_init_context(&e_ctx, RECORD_TYPE_NEW_PROCESS);
-    if (!event_is_auditable(&e_ctx)){
-        return 0;
-    }
-
     const struct task_struct *parent_task = (struct task_struct *)bpf_get_current_task_btf();
 
     struct record_new_process r_np;
