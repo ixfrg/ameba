@@ -81,10 +81,6 @@ static int update_send_recv_map_entry_with_local_saddr(struct socket *sock)
 
     if (sockaddrs_are_set)
     {
-        // possible_net_t skc_net = sk_c.skc_net;
-        // struct net *net_ns = skc_net.net;
-        // struct ns_common ns = BPF_CORE_READ(net_ns, ns);
-        // inode_num_t net_ns_inum = ns.inum;
         inode_num_t net_ns_inum;
         copy_net_ns_inum_from_current_task(&net_ns_inum);
         short int sock_type = (short int)BPF_CORE_READ(sock, type);
@@ -106,16 +102,6 @@ static int update_send_recv_map_entry_on_syscall_exit(
     const pid_t pid = BPF_CORE_READ(current_task, pid);
 
     send_recv_storage_set_props_on_sys_exit(pid, fd, ret, event_id_increment());
-
-    // Shouldn't have to do the following since we got it from another hook
-    // if (addr)
-    // {
-    //     // Sometimes NULL like in send/sendmsg syscall.
-    //     struct elem_sockaddr *remote_sa = (struct elem_sockaddr *)&(map_val->remote);
-    //     remote_sa->byte_order = BYTE_ORDER_NETWORK;
-    //     remote_sa->addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
-    //     bpf_probe_read_user(&(remote_sa->addr[0]), remote_sa->addrlen, addr);
-    // }
 
     return 0;
 }

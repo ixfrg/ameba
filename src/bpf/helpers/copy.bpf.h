@@ -83,4 +83,3 @@ int copy_las_timestamp_from_audit_context_timestamp(struct elem_las_timestamp *d
         0 => Always
 */
 int copy_net_ns_inum_from_current_task(inode_num_t *dst);
-// int copy_sock_type_from_socket(short int *dst, struct socket *sock);

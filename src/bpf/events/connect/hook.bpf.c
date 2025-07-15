@@ -36,7 +36,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // local globals
 static const record_type_t connect_record_type = RECORD_TYPE_CONNECT;
-// static const record_size_t connect_record_size = RECORD_SIZE_CONNECT;
 
 
 static int insert_connect_map_entry_at_syscall_enter(void)
@@ -188,60 +187,3 @@ int AMEBA_HOOK(
 
     return 0;
 }
-
-
-// static u16 local_ntohs(u16 netshort) {
-//     return (netshort >> 8) | (netshort << 8);
-// }
-
-// SEC("fmod_ret/__arm64_sys_connect")
-// int BPF_PROG(
-//     fmod_ret__arm64_sys_connect
-// )
-// {
-//     //bpf_override_return() kprobe
-//     //__weak
-//     if (!is_event_auditable(connect_record_type))
-//         return 0;
-
-//     struct pt_regs *regs = (struct pt_regs *)PT_REGS_PARM1(ctx);
-
-//     int fd;
-//     struct sockaddr *addr;
-//     int addrlen;
-
-//     fd = (int)PT_REGS_PARM1(regs);
-//     addr = (struct sockaddr *)PT_REGS_PARM2(regs);
-//     addrlen = (int)PT_REGS_PARM3(regs);
-
-//     // LOG_WARN("[fmod_ret__arm64_sys_connect] fd=%d", fd);
-//     // LOG_WARN("[fmod_ret__arm64_sys_connect] addr=%p", addr);
-//     // LOG_WARN("[fmod_ret__arm64_sys_connect] addrlen=%d", addrlen);
-
-//     if (addr != NULL) {
-
-//         struct elem_sockaddr e_sa;
-//         e_sa.addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
-//         bpf_probe_read_user(&(e_sa.addr[0]), e_sa.addrlen, addr);
-
-//         struct sockaddr *xaddr = (struct sockaddr *)e_sa.addr;
-
-//         unsigned short sa_family = xaddr->sa_family;
-//         // LOG_WARN("[fmod_ret__arm64_sys_connect] sa_family=%u", sa_family);
-//         if (sa_family == AF_INET)
-//         {
-//             struct sockaddr_in *sin = (struct sockaddr_in *)xaddr;
-//             u16 port = local_ntohs(sin->sin_port);
-//             // LOG_WARN("[fmod_ret__arm64_sys_connect] port=%u", port);
-//             if (port == 5689)
-//             {
-//                 // return -13; // EACCESS
-//                 // return -1; // EPERM
-//                 // return -22; // EINVAL
-//                 return 0;
-//             }
-//         }
-//     }
-
-//     return 0;
-// }

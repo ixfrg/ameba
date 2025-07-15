@@ -376,7 +376,7 @@ int main(int argc, char *argv[])
     }
 
     // Locate ring buffer
-    ringbuf_map_fd = bpf_object__find_map_fd_by_name(skel->obj, OUTPUT_RINGBUF_MAP_NAME);
+    ringbuf_map_fd = bpf_object__find_map_fd_by_name(skel->obj, OUTPUT_RINGBUF_MAP_NAME_STR);
     if (ringbuf_map_fd < 0)
     {
         _log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to find ring buffer map object");

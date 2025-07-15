@@ -70,5 +70,5 @@ int event_id_get_last_from_task_map(event_id_t *event_id)
 
 event_id_t event_id_increment(void)
 {
-    return ++current_event_id;
+    return __sync_fetch_and_add(&current_event_id, 1);
 }

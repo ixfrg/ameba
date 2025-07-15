@@ -119,11 +119,3 @@ int copy_net_ns_inum_from_current_task(inode_num_t *dst)
     *dst = net_ns_inum;
     return 0;
 }
-
-// int copy_sock_type_from_socket(short int *dst, struct socket *sock)
-// {
-//     if (sock != NULL && dst != NULL) {
-//         *dst = BPF_CORE_READ(sock, type);
-//     }
-//     return 0;
-// }

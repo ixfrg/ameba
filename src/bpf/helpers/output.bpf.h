@@ -98,4 +98,3 @@ long output_record_connect(struct record_connect *ptr);
         See 'bpf_ringbuf_output'.
 */
 long output_record_audit_log_exit(struct record_audit_log_exit *ptr);
-// long output_record_as_dynptr(struct bpf_dynptr *ptr, record_type_t record_type);

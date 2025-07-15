@@ -29,8 +29,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // 32 bits
 #define AMEBA_MAGIC 0x616D6562
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 // Name of the BPF ringbuf where all records are written to.
-#define OUTPUT_RINGBUF_MAP_NAME "ameba_output_ringbuf"
+#define OUTPUT_RINGBUF_MAP_NAME ameba_output_ringbuf
+#define OUTPUT_RINGBUF_MAP_NAME_STR TOSTRING(OUTPUT_RINGBUF_MAP_NAME)
 
 // Sockaddr max size in kernel.
 #define SOCKADDR_MAX_SIZE 128

@@ -45,21 +45,7 @@ typedef enum {
 // local globals
 static const record_type_t accept_record_type = RECORD_TYPE_ACCEPT;
 
-/*
-static int insert_accept_local_map_entry_at_syscall_enter(sys_id_t sys_id, int fd)
-{
-    struct record_accept map_val;
-    datatype_zero_out_record_accept(&map_val, sys_id);
-    datatype_init_fd_record_accept(&map_val, fd);
 
-    if (!accept_storage_insert_local_fd(&map_val))
-    {
-        LOG_WARN("[insert_accept_local_map_entry_at_syscall_enter] Failed to insert map entry for local fd");
-    }
-
-    return 0;
-}
-*/
 static int insert_accept_remote_map_entry_at_syscall_enter(sys_id_t sys_id, int fd)
 {
     struct record_accept map_val;
@@ -115,7 +101,6 @@ static int update_accept_map_entry_with_file(accept_type_fd_t fd_type, struct fi
 
 static int sys_accept_enter(sys_id_t sys_id, int fd)
 {
-    // insert_accept_local_map_entry_at_syscall_enter(sys_id, fd);
     insert_accept_remote_map_entry_at_syscall_enter(sys_id, fd);
     return 0;
 }
@@ -133,10 +118,8 @@ static int sys_accept_exit(int ret_fd)
 
     event_id_t event_id = event_id_increment();
 
-    // accept_storage_set_local_fd_props_on_sys_exit(pid, event_id);
     accept_storage_set_remote_fd_props_on_sys_exit(pid, ret_fd, event_id);
 
-    // accept_storage_output_local_fd();
     accept_storage_output_remote_fd();
 
     accept_storage_delete_both_fds();
