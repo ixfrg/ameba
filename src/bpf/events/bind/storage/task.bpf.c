@@ -33,8 +33,8 @@ struct
     __uint(map_flags, BPF_F_NO_PREALLOC);
     __type(key, int);
     __type(value, struct record_bind);
-} AMEBA_MAP_NAME(task_map_bind) SEC(".maps");
-static void *task_map_bind = &AMEBA_MAP_NAME(task_map_bind);
+} AMEBA_TASK_MAP_NAME(storage_bind) SEC(".maps");
+static void *storage_bind = &AMEBA_TASK_MAP_NAME(storage_bind);
 
 
 int bind_storage_insert(struct record_bind *r_bind)
@@ -42,14 +42,14 @@ int bind_storage_insert(struct record_bind *r_bind)
     if (!r_bind)
         return 0;
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    void *result = bpf_task_storage_get(task_map_bind, current_task, r_bind, BPF_LOCAL_STORAGE_GET_F_CREATE);
+    void *result = bpf_task_storage_get(storage_bind, current_task, r_bind, BPF_LOCAL_STORAGE_GET_F_CREATE);
     return result != NULL;
 }
 
 int bind_storage_set(int fd, event_id_t event_id, struct elem_sockaddr *local_sa)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    struct record_bind *result = bpf_task_storage_get(task_map_bind, current_task, 0, 0);
+    struct record_bind *result = bpf_task_storage_get(storage_bind, current_task, 0, 0);
     if (!result)
         return 0;
     result->fd = fd;
@@ -62,7 +62,7 @@ int bind_storage_set(int fd, event_id_t event_id, struct elem_sockaddr *local_sa
 int bind_storage_output(void)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    struct record_bind *result = bpf_task_storage_get(task_map_bind, current_task, 0, 0);
+    struct record_bind *result = bpf_task_storage_get(storage_bind, current_task, 0, 0);
     if (!result)
         return 0;
     output_record_bind(result);
@@ -72,5 +72,5 @@ int bind_storage_output(void)
 int bind_storage_delete(void)
 {
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
-    return bpf_task_storage_delete(task_map_bind, current_task);
+    return bpf_task_storage_delete(storage_bind, current_task);
 }

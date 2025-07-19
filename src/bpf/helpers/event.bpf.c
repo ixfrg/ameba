@@ -44,8 +44,8 @@ struct
     __uint(map_flags, BPF_F_NO_PREALLOC);
     __type(key, int);
     __type(value, struct control_input);
-} AMEBA_MAP_NAME(control_input_map_per_task) SEC(".maps");
-static void *control_input_map_per_task = &AMEBA_MAP_NAME(control_input_map_per_task);
+} AMEBA_TASK_MAP_NAME(storage_task_control_input) SEC(".maps");
+static void *storage_task_control_input = &AMEBA_TASK_MAP_NAME(storage_task_control_input);
 
 
 int event_init_context(struct event_context *e_ctx, record_type_t r_type)
@@ -61,7 +61,7 @@ int event_init_context(struct event_context *e_ctx, record_type_t r_type)
     {
         struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
         void *task_control_input_ptr = bpf_task_storage_get(
-            control_input_map_per_task, current_task, control_input_ptr, BPF_LOCAL_STORAGE_GET_F_CREATE
+            storage_task_control_input, current_task, control_input_ptr, BPF_LOCAL_STORAGE_GET_F_CREATE
         );
         if (task_control_input_ptr)
         {
@@ -234,7 +234,7 @@ int event_is_auditable(struct event_context *e_ctx)
     struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
 
     struct control_input *ci = bpf_task_storage_get(
-        control_input_map_per_task, current_task, 0, 0
+        storage_task_control_input, current_task, 0, 0
     );
     if (!ci)
         return 0;
