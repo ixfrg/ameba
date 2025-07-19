@@ -42,8 +42,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     Used for event filtering decision making.
 */
 struct event_context {
-    int use_global_control_input;
     record_type_t record_type;
+    struct control_input c_in;
 };
 
 /*
@@ -73,7 +73,7 @@ int event_init_context(struct event_context *e_ctx, record_type_t r_type);
         0 -> False
         1 -> True
 */
-int event_is_netio_set_to_ignore(void);
+int event_is_netio_set_to_ignore(struct event_context *e_ctx);
 
 
 /*

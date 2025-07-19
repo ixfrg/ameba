@@ -27,18 +27,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/control.h"
 
 
-static volatile control_lock_t global_control_lock = FREE;
-static volatile int global_control_input_is_set = 0;
-static struct control_input global_control_input;
-
-
 struct {
     __uint(type, BPF_MAP_TYPE_ARRAY);
     __type(key, __u32);
     __type(value, struct control_input);
     __uint(max_entries, 1);
-} AMEBA_MAP_NAME(control_input_map) SEC(".maps");
-static void *control_input_map = &AMEBA_MAP_NAME(control_input_map);
+} AMEBA_MAP_NAME_CONTROL_INPUT SEC(".maps");
+static void *control_input_map = &AMEBA_MAP_NAME_CONTROL_INPUT;
 
 
 int event_init_context(struct event_context *e_ctx, record_type_t r_type)
@@ -48,32 +43,14 @@ int event_init_context(struct event_context *e_ctx, record_type_t r_type)
 
     e_ctx->record_type = r_type;
 
-    if (global_control_input_is_set == 1)
+    int key = 0;
+    struct control_input *ptr = bpf_map_lookup_elem(control_input_map, &key);
+    if (ptr)
     {
-        e_ctx->use_global_control_input = 1;
-        return 0;
-    }
+        __builtin_memcpy(&(e_ctx->c_in), ptr, sizeof(struct control_input));
 
-    if (__sync_val_compare_and_swap(&global_control_lock, FREE, TAKEN) == FREE)
-    {   
-        if (global_control_input_is_set == 0)
-        {
-            int key = 0;
-            struct control_input *val = bpf_map_lookup_elem(control_input_map, &key);
-            if (val)
-            {
-                __builtin_memcpy(&global_control_input, val, sizeof(struct control_input));
-
-                log_control_input(&global_control_input);
-
-                global_control_input_is_set = 1;
-
-                // Use it for this event since it is set.
-                e_ctx->use_global_control_input = 1;
-            }
-        }
-
-        __sync_val_compare_and_swap(&global_control_lock, TAKEN, FREE);
+        // TODO: Find an approp. location for this.
+        // log_control_input(&global_control_input);
     }
 
     return 0;
@@ -158,9 +135,11 @@ int is_record_of_type_network_io(record_type_t t)
     }
 }
 
-int event_is_netio_set_to_ignore(void)
+int event_is_netio_set_to_ignore(struct event_context *e_ctx)
 {
-    return global_control_input.netio_mode == IGNORE;
+    if (!e_ctx)
+        return 0;
+    return e_ctx->c_in.netio_mode == IGNORE;
 }
 
 int event_is_auditable(struct event_context *e_ctx)
@@ -168,10 +147,7 @@ int event_is_auditable(struct event_context *e_ctx)
     if (!e_ctx)
         return 0;
 
-    if (e_ctx->use_global_control_input == 0)
-        return 0;
-
-    struct control_input *ci = &global_control_input;
+    struct control_input *ci = &e_ctx->c_in;
 
     trace_mode_t global_mode = ci->global_mode;
     if (global_mode == IGNORE)
