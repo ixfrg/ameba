@@ -78,14 +78,7 @@ static void init_control_input(struct control_input *input)
 {
     if (!input)
         return;
-    input->global_mode = IGNORE;
-    input->uid_mode = IGNORE;
-    input->uids_len = 0;
-    input->pid_mode = IGNORE;
-    input->pids_len = 0;
-    input->ppid_mode = IGNORE;
-    input->ppids_len = 0;
-    input->netio_mode = IGNORE;
+    control_set_default(input);
     user_args_helper_state_init(&(input->parse_state));
 }
 

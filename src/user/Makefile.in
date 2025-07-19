@@ -163,7 +163,8 @@ record_writer_lib_a_LIBADD =
 am_record_writer_lib_a_OBJECTS = record/writer/file.$(OBJEXT) \
 	record/writer/net.$(OBJEXT)
 record_writer_lib_a_OBJECTS = $(am_record_writer_lib_a_OBJECTS)
-am_ameba_OBJECTS = ameba.$(OBJEXT)
+am_ameba_OBJECTS = $(top_builddir)/src/common/control.$(OBJEXT) \
+	ameba.$(OBJEXT)
 ameba_OBJECTS = $(am_ameba_OBJECTS)
 ameba_DEPENDENCIES = args/lib.a record/deserializer/lib.a \
 	record/writer/lib.a record/serializer/lib.a helpers/lib.a \
@@ -183,7 +184,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/ameba.Po args/$(DEPDIR)/control.Po \
+am__depfiles_remade = $(top_builddir)/src/common/$(DEPDIR)/control.Po \
+	./$(DEPDIR)/ameba.Po args/$(DEPDIR)/control.Po \
 	args/$(DEPDIR)/helper.Po args/$(DEPDIR)/user.Po \
 	helpers/$(DEPDIR)/log.Po jsonify/$(DEPDIR)/control.Po \
 	jsonify/$(DEPDIR)/core.Po jsonify/$(DEPDIR)/log_msg.Po \
@@ -389,6 +391,7 @@ jsonify_lib_a_SOURCES = \
 
 ameba_SOURCES = \
     $(top_srcdir)/src/common/control.h $(top_srcdir)/src/common/version.h $(top_srcdir)/src/common/constants.h $(top_srcdir)/src/common/types.h \
+    $(top_srcdir)/src/common/control.c \
     types.h \
     error.h \
     ameba.c
@@ -579,6 +582,15 @@ record/writer/lib.a: $(record_writer_lib_a_OBJECTS) $(record_writer_lib_a_DEPEND
 	$(AM_V_at)-rm -f record/writer/lib.a
 	$(AM_V_AR)$(record_writer_lib_a_AR) record/writer/lib.a $(record_writer_lib_a_OBJECTS) $(record_writer_lib_a_LIBADD)
 	$(AM_V_at)$(RANLIB) record/writer/lib.a
+$(top_builddir)/src/common/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/common
+	@: > $(top_builddir)/src/common/$(am__dirstamp)
+$(top_builddir)/src/common/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/common/$(DEPDIR)
+	@: > $(top_builddir)/src/common/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/common/control.$(OBJEXT):  \
+	$(top_builddir)/src/common/$(am__dirstamp) \
+	$(top_builddir)/src/common/$(DEPDIR)/$(am__dirstamp)
 
 ameba$(EXEEXT): $(ameba_OBJECTS) $(ameba_DEPENDENCIES) $(EXTRA_ameba_DEPENDENCIES) 
 	@rm -f ameba$(EXEEXT)
@@ -586,6 +598,7 @@ ameba$(EXEEXT): $(ameba_OBJECTS) $(ameba_DEPENDENCIES) $(EXTRA_ameba_DEPENDENCIE
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f $(top_builddir)/src/common/*.$(OBJEXT)
 	-rm -f args/*.$(OBJEXT)
 	-rm -f helpers/*.$(OBJEXT)
 	-rm -f jsonify/*.$(OBJEXT)
@@ -596,6 +609,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/src/common/$(DEPDIR)/control.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/control.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/helper.Po@am__quote@ # am--include-marker
@@ -765,6 +779,8 @@ distclean-generic:
 	-rm -f record/serializer/$(am__dirstamp)
 	-rm -f record/writer/$(DEPDIR)/$(am__dirstamp)
 	-rm -f record/writer/$(am__dirstamp)
+	-test -z "$(top_builddir)/src/common/$(DEPDIR)/$(am__dirstamp)" || rm -f $(top_builddir)/src/common/$(DEPDIR)/$(am__dirstamp)
+	-test -z "$(top_builddir)/src/common/$(am__dirstamp)" || rm -f $(top_builddir)/src/common/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -775,7 +791,8 @@ clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/ameba.Po
+		-rm -f $(top_builddir)/src/common/$(DEPDIR)/control.Po
+	-rm -f ./$(DEPDIR)/ameba.Po
 	-rm -f args/$(DEPDIR)/control.Po
 	-rm -f args/$(DEPDIR)/helper.Po
 	-rm -f args/$(DEPDIR)/user.Po
@@ -837,7 +854,8 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/ameba.Po
+		-rm -f $(top_builddir)/src/common/$(DEPDIR)/control.Po
+	-rm -f ./$(DEPDIR)/ameba.Po
 	-rm -f args/$(DEPDIR)/control.Po
 	-rm -f args/$(DEPDIR)/helper.Po
 	-rm -f args/$(DEPDIR)/user.Po

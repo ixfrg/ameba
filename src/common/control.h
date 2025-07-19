@@ -67,3 +67,8 @@ struct control_input
 
     struct arg_parse_state parse_state;
 };
+
+/*
+    Set default value for control_input
+*/
+void control_set_default(struct control_input *dst);
