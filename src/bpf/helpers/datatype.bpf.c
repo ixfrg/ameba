@@ -19,25 +19,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "common/vmlinux.h"
 #include "common/types.h"
-#include "common/version.h"
+
+#include "bpf/helpers/version.bpf.h"
 
 #include <bpf/bpf_helpers.h>
 
-// externs
-extern const struct elem_version record_version;
 
-
-// extern functions
 int datatype_init_elem_version(
     struct elem_version *e_version
 )
 {
     if (!e_version)
         return 0;
-    e_version->major = record_version.major;
-    e_version->minor = record_version.minor;
-    e_version->patch = record_version.patch;
-    return 0;
+    return version_record_version_map_lookup(e_version);
 }
 
 int datatype_init_elem_common(

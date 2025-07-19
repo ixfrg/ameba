@@ -29,8 +29,8 @@ bpf_skel_header = $(top_builddir)/src/$(bpf_skel_name).skel.h
 noinst_LIBRARIES = libbpfobjs.a
 
 libbpfobjs_a_SOURCES = \
-    helpers/event.bpf.h helpers/copy.bpf.h helpers/map.bpf.h helpers/log.bpf.h helpers/output.bpf.h helpers/event_id.bpf.h helpers/datatype.bpf.h \
-    helpers/event.bpf.c helpers/copy.bpf.c helpers/map.bpf.c helpers/log.bpf.c helpers/output.bpf.c helpers/event_id.bpf.c helpers/datatype.bpf.c \
+    helpers/event.bpf.h helpers/copy.bpf.h helpers/map.bpf.h helpers/log.bpf.h helpers/output.bpf.h helpers/event_id.bpf.h helpers/datatype.bpf.h helpers/version.bpf.h \
+    helpers/event.bpf.c helpers/copy.bpf.c helpers/map.bpf.c helpers/log.bpf.c helpers/output.bpf.c helpers/event_id.bpf.c helpers/datatype.bpf.c helpers/version.bpf.c \
     events/process_namespace/hook.bpf.c \
     events/hook_name.bpf.h \
     events/kill/storage.bpf.h \

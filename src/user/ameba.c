@@ -56,6 +56,9 @@ extern const struct record_serializer record_serializer_json;
 extern const struct record_writer record_writer_file;
 extern const struct record_writer record_writer_net;
 
+extern const struct elem_version app_version;
+extern const struct elem_version record_version;
+
 //
 
 static const struct record_serializer *default_record_serializer;
@@ -199,7 +202,7 @@ static int update_control_input_map(struct control_input *input)
 
     int key = 0;
     int ret = bpf_map__update_elem(
-        skel->maps.AMEBA_MAP_NAME(control_input_map), 
+        skel->maps.AMEBA_MAP_NAME_CONTROL_INPUT,
         &key, sizeof(key),
         input, sizeof(struct control_input),
         update_flags
@@ -216,7 +219,7 @@ static int get_control_input_from_map(struct control_input *result)
 
     int key = 0;
     int ret = bpf_map__lookup_elem(
-        skel->maps.AMEBA_MAP_NAME(control_input_map), 
+        skel->maps.AMEBA_MAP_NAME_CONTROL_INPUT,
         &key, sizeof(key),
         result, sizeof(struct control_input),
         lookup_flags
@@ -271,6 +274,36 @@ static void print_user_input(struct user_input *user_input)
     );
 }
 
+static int update_bpf_version_maps_with_current_versions()
+{
+    int ret;
+
+    int update_flags;
+
+    update_flags = BPF_ANY;
+
+    int app_version_key = 0;
+    ret = bpf_map__update_elem(
+        skel->maps.AMEBA_MAP_NAME_APP_VERSION,
+        &app_version_key, sizeof(app_version_key),
+        &app_version, sizeof(struct elem_version),
+        update_flags
+    );
+
+    if (ret != 0)
+        return ret;
+
+    int record_version_key = 0;
+    ret = bpf_map__update_elem(
+        skel->maps.AMEBA_MAP_NAME_RECORD_VERSION,
+        &record_version_key, sizeof(record_version_key),
+        &record_version, sizeof(struct elem_version),
+        update_flags
+    );
+
+    return ret;
+}
+
 int main(int argc, char *argv[])
 {
     int result;
@@ -302,6 +335,7 @@ int main(int argc, char *argv[])
     }
 
     print_current_control_input();
+    update_bpf_version_maps_with_current_versions();
 
     err = ameba__attach(skel);
     if (err != 0)
@@ -312,7 +346,7 @@ int main(int argc, char *argv[])
     }
 
     // Locate ring buffer
-    ringbuf_map_fd = bpf_object__find_map_fd_by_name(skel->obj, AMEBA_MAP_NAME_OUTPUT_RINGBUF_STR);
+    ringbuf_map_fd = bpf_map__fd(skel->maps.AMEBA_MAP_NAME_OUTPUT_RINGBUF);
     if (ringbuf_map_fd < 0)
     {
         log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to find ring buffer map object");

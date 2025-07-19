@@ -46,9 +46,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define AMEBA_MAP_NAME_OUTPUT_RINGBUF AMEBA_MAP_NAME(output_ringbuf)
 #define AMEBA_MAP_NAME_OUTPUT_RINGBUF_STR TOSTRING(AMEBA_MAP_NAME_OUTPUT_RINGBUF)
 
-#define BPF_FS_DIR_PATH "/sys/fs/bpf"
-#define AMEBA_BPF_FS_DIR_NAME "ameba"
-#define AMEBA_BPF_FS_DIR_PATH BPF_FS_DIR_PATH "/" AMEBA_BPF_FS_DIR_NAME
+#define AMEBA_MAP_NAME_APP_VERSION AMEBA_MAP_NAME(app_version_map)
+#define AMEBA_MAP_NAME_RECORD_VERSION AMEBA_MAP_NAME(record_version_map)
+
+#define AMEBA_MAP_NAME_CONTROL_INPUT AMEBA_MAP_NAME(control_input_map)
 
 // Sockaddr max size in kernel.
 #define SOCKADDR_MAX_SIZE 128

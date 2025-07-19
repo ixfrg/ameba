@@ -130,6 +130,7 @@ am_libbpfobjs_a_OBJECTS = helpers/event.bpf.$(OBJEXT) \
 	helpers/copy.bpf.$(OBJEXT) helpers/map.bpf.$(OBJEXT) \
 	helpers/log.bpf.$(OBJEXT) helpers/output.bpf.$(OBJEXT) \
 	helpers/event_id.bpf.$(OBJEXT) helpers/datatype.bpf.$(OBJEXT) \
+	helpers/version.bpf.$(OBJEXT) \
 	events/process_namespace/hook.bpf.$(OBJEXT) \
 	events/kill/storage/task.bpf.$(OBJEXT) \
 	events/kill/hook.bpf.$(OBJEXT) \
@@ -175,7 +176,8 @@ am__depfiles_remade = ./$(DEPDIR)/license.bpf.Po \
 	helpers/$(DEPDIR)/datatype.bpf.Po \
 	helpers/$(DEPDIR)/event.bpf.Po \
 	helpers/$(DEPDIR)/event_id.bpf.Po helpers/$(DEPDIR)/log.bpf.Po \
-	helpers/$(DEPDIR)/map.bpf.Po helpers/$(DEPDIR)/output.bpf.Po
+	helpers/$(DEPDIR)/map.bpf.Po helpers/$(DEPDIR)/output.bpf.Po \
+	helpers/$(DEPDIR)/version.bpf.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -336,8 +338,8 @@ bpf_skel_name = ameba
 bpf_skel_header = $(top_builddir)/src/$(bpf_skel_name).skel.h
 noinst_LIBRARIES = libbpfobjs.a
 libbpfobjs_a_SOURCES = \
-    helpers/event.bpf.h helpers/copy.bpf.h helpers/map.bpf.h helpers/log.bpf.h helpers/output.bpf.h helpers/event_id.bpf.h helpers/datatype.bpf.h \
-    helpers/event.bpf.c helpers/copy.bpf.c helpers/map.bpf.c helpers/log.bpf.c helpers/output.bpf.c helpers/event_id.bpf.c helpers/datatype.bpf.c \
+    helpers/event.bpf.h helpers/copy.bpf.h helpers/map.bpf.h helpers/log.bpf.h helpers/output.bpf.h helpers/event_id.bpf.h helpers/datatype.bpf.h helpers/version.bpf.h \
+    helpers/event.bpf.c helpers/copy.bpf.c helpers/map.bpf.c helpers/log.bpf.c helpers/output.bpf.c helpers/event_id.bpf.c helpers/datatype.bpf.c helpers/version.bpf.c \
     events/process_namespace/hook.bpf.c \
     events/hook_name.bpf.h \
     events/kill/storage.bpf.h \
@@ -409,6 +411,8 @@ helpers/output.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
 helpers/event_id.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
 	helpers/$(DEPDIR)/$(am__dirstamp)
 helpers/datatype.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
+	helpers/$(DEPDIR)/$(am__dirstamp)
+helpers/version.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
 	helpers/$(DEPDIR)/$(am__dirstamp)
 events/process_namespace/$(am__dirstamp):
 	@$(MKDIR_P) events/process_namespace
@@ -558,6 +562,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/log.bpf.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/map.bpf.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/output.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/version.bpf.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -751,6 +756,7 @@ distclean: distclean-am
 	-rm -f helpers/$(DEPDIR)/log.bpf.Po
 	-rm -f helpers/$(DEPDIR)/map.bpf.Po
 	-rm -f helpers/$(DEPDIR)/output.bpf.Po
+	-rm -f helpers/$(DEPDIR)/version.bpf.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -816,6 +822,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f helpers/$(DEPDIR)/log.bpf.Po
 	-rm -f helpers/$(DEPDIR)/map.bpf.Po
 	-rm -f helpers/$(DEPDIR)/output.bpf.Po
+	-rm -f helpers/$(DEPDIR)/version.bpf.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
