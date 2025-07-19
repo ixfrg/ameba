@@ -40,24 +40,6 @@ static int jsonify_control_write_trace_mode(struct json_buffer *s, char *key, tr
     return jsonify_core_write_str(s, key, p);
 }
 
-static int jsonify_control_write_control_lock(struct json_buffer *s, char *key, control_lock_t t)
-{
-    char *p = NULL;
-    if (t == FREE)
-    {
-        p = "free";
-    }
-    else if (t == TAKEN)
-    {
-        p = "taken";
-    }
-    else
-    {
-        p = "unknown";
-    }
-    return jsonify_core_write_str(s, key, p);
-}
-
 static int jsonify_control_write_int_list(struct json_buffer *s, char *key, int list[], int len)
 {
     char list_str_len = 64;
@@ -80,7 +62,6 @@ int jsonify_control_write_control_input(struct json_buffer *s, struct control_in
     int total = 0;
 
     total += jsonify_control_write_trace_mode(s, "global_mode", val->global_mode);
-    total += jsonify_control_write_control_lock(s, "lock", val->lock);
     total += jsonify_control_write_trace_mode(s, "netio_mode", val->netio_mode);
     total += jsonify_control_write_trace_mode(s, "pid_mode", val->pid_mode);
     total += jsonify_control_write_trace_mode(s, "ppid_mode", val->ppid_mode);

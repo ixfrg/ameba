@@ -40,25 +40,6 @@ int log_trace_mode(char *key, trace_mode_t t)
     return 0;
 }
 
-int log_control_lock(char *key, control_lock_t t)
-{
-    char *p;
-    switch (t)
-    {
-        case FREE:
-            p = "free";
-            break;
-        case TAKEN:
-            p = "taken";
-            break;
-        default:
-            p = "unknown";
-            break;
-    }
-    LOG_WARN("%s: %s", key, p);
-    return 0;
-}
-
 int log_control_input(struct control_input *ctrl) {
     if (!ctrl) {
         LOG_WARN("control_input is NULL");
@@ -93,9 +74,7 @@ int log_control_input(struct control_input *ctrl) {
     }
 
     log_trace_mode("netio_mode", ctrl->netio_mode);
-    
-    log_control_lock("lock", ctrl->lock);
-    
+
     LOG_WARN("=== End Control Input ===");
     return 0;
 }

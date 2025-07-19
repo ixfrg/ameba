@@ -78,7 +78,6 @@ static void init_control_input(struct control_input *input)
 {
     if (!input)
         return;
-    input->lock = FREE;
     input->global_mode = IGNORE;
     input->uid_mode = IGNORE;
     input->uids_len = 0;
