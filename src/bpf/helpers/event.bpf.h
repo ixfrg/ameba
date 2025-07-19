@@ -43,18 +43,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 struct event_context {
     record_type_t record_type;
-    struct control_input c_in;
 };
-
-/*
-    Consult the control_input (global) and event context to check if the
-    event is auditable.
-
-    Return:
-        0 => The event is not auditable.
-        1 => The event is auditable.
-*/
-int event_is_auditable(struct event_context *e_ctx);
 
 /*
     Initialize the event context with r_type.
@@ -67,13 +56,23 @@ int event_is_auditable(struct event_context *e_ctx);
 int event_init_context(struct event_context *e_ctx, record_type_t r_type);
 
 /*
+    Consult the control_input (global) and event context to check if the
+    event is auditable.
+
+    Return:
+        0 => The event is not auditable.
+        1 => The event is auditable.
+*/
+int event_is_auditable(struct event_context *e_ctx);
+
+/*
     Check whether network IO is set to true/false.
 
     Return:
         0 -> False
         1 -> True
 */
-int event_is_netio_set_to_ignore(struct event_context *e_ctx);
+int event_is_netio_set_to_ignore(struct control_input *runtime_control);
 
 
 /*

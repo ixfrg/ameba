@@ -54,43 +54,6 @@ int AMEBA_HOOK(
 
     int syscall_number = BPF_CORE_READ(audit_context, major);
 
-    switch (syscall_number)
-    {
-        case __NR_accept:
-        case __NR_accept4:
-        case __NR_bind:
-        case __NR_kill:
-        case __NR_setns:
-        case __NR_unshare:
-        case __NR_clone:
-        case __NR_clone3:
-#ifdef HAVE_DECL___NR_FORK
-        case __NR_fork:
-#endif
-#ifdef HAVE_DECL___NR_VFORK
-        case __NR_vfork:
-#endif
-            break;
-        case __NR_connect:
-            if (ret == 0 || ret == ERROR_EINPROGRESS)
-            {
-                break;
-            }
-            else
-            {
-                return 0; //do not log
-            }
-        case __NR_sendmsg:
-        case __NR_sendto:
-        case __NR_recvmsg:
-        case __NR_recvfrom:
-            if (event_is_netio_set_to_ignore())
-                return 0; // do not log
-            break;
-        default:
-            return 0; // do not log
-    }
-
     const pid_t pid = BPF_CORE_READ(current_task, pid);
     
     event_id_t event_id = event_id_increment();

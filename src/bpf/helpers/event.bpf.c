@@ -23,6 +23,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <bpf/bpf_core_read.h>
 #include <bpf/bpf_helpers.h>
 
+#include <asm/unistd.h>
+
 #include "bpf/helpers/log.bpf.h"
 #include "common/control.h"
 
@@ -36,6 +38,16 @@ struct {
 static void *control_input_map = &AMEBA_MAP_NAME_CONTROL_INPUT;
 
 
+struct
+{
+    __uint(type, BPF_MAP_TYPE_TASK_STORAGE);
+    __uint(map_flags, BPF_F_NO_PREALLOC);
+    __type(key, int);
+    __type(value, struct control_input);
+} AMEBA_MAP_NAME(control_input_map_per_task) SEC(".maps");
+static void *control_input_map_per_task = &AMEBA_MAP_NAME(control_input_map_per_task);
+
+
 int event_init_context(struct event_context *e_ctx, record_type_t r_type)
 {
     if (!e_ctx)
@@ -44,10 +56,20 @@ int event_init_context(struct event_context *e_ctx, record_type_t r_type)
     e_ctx->record_type = r_type;
 
     int key = 0;
-    struct control_input *ptr = bpf_map_lookup_elem(control_input_map, &key);
-    if (ptr)
+    struct control_input *control_input_ptr = bpf_map_lookup_elem(control_input_map, &key);
+    if (control_input_ptr)
     {
-        __builtin_memcpy(&(e_ctx->c_in), ptr, sizeof(struct control_input));
+        struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+        void *task_control_input_ptr = bpf_task_storage_get(
+            control_input_map_per_task, current_task, control_input_ptr, BPF_LOCAL_STORAGE_GET_F_CREATE
+        );
+        if (task_control_input_ptr)
+        {
+            __builtin_memcpy(task_control_input_ptr, control_input_ptr, sizeof(struct control_input));
+        } else
+        {
+            LOG_ERROR("Failed to allocation per task for control input");
+        }
 
         // TODO: Find an approp. location for this.
         // log_control_input(&global_control_input);
@@ -135,11 +157,73 @@ int is_record_of_type_network_io(record_type_t t)
     }
 }
 
-int event_is_netio_set_to_ignore(struct event_context *e_ctx)
+int is_record_of_type_audit_log_exit(record_type_t t)
 {
-    if (!e_ctx)
+    switch(t)
+    {
+        case RECORD_TYPE_AUDIT_LOG_EXIT:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+int event_is_netio_set_to_ignore(struct control_input *runtime_control)
+{
+    if (!runtime_control)
         return 0;
-    return e_ctx->c_in.netio_mode == IGNORE;
+    return runtime_control->netio_mode == IGNORE;
+}
+
+static int is_audit_log_exit_syscall_auditable(struct task_struct *current_task, struct control_input *runtime_control)
+{
+    if (!current_task)
+        return 0;
+
+    if (!runtime_control)
+        return 0;
+
+    struct audit_context *audit_context = BPF_CORE_READ(current_task, audit_context);
+
+    if (!audit_context)
+        return 0;
+
+    long ret = BPF_CORE_READ(audit_context, return_code);
+
+    int syscall_number = BPF_CORE_READ(audit_context, major);
+
+    switch (syscall_number)
+    {
+        case __NR_accept:
+        case __NR_accept4:
+        case __NR_bind:
+        case __NR_kill:
+        case __NR_setns:
+        case __NR_unshare:
+        case __NR_clone:
+        case __NR_clone3:
+#ifdef HAVE_DECL___NR_FORK
+        case __NR_fork:
+#endif
+#ifdef HAVE_DECL___NR_VFORK
+        case __NR_vfork:
+#endif
+            return 1;
+        case __NR_connect:
+            if (ret == 0 || ret == ERROR_EINPROGRESS)
+                return 1;
+            else
+                return 0; //do not log
+        case __NR_sendmsg:
+        case __NR_sendto:
+        case __NR_recvmsg:
+        case __NR_recvfrom:
+            if (event_is_netio_set_to_ignore(runtime_control))
+                return 0; // do not log
+            return 1;
+        default:
+            return 0; // do not log
+    }
 }
 
 int event_is_auditable(struct event_context *e_ctx)
@@ -147,7 +231,13 @@ int event_is_auditable(struct event_context *e_ctx)
     if (!e_ctx)
         return 0;
 
-    struct control_input *ci = &e_ctx->c_in;
+    struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+
+    struct control_input *ci = bpf_task_storage_get(
+        control_input_map_per_task, current_task, 0, 0
+    );
+    if (!ci)
+        return 0;
 
     trace_mode_t global_mode = ci->global_mode;
     if (global_mode == IGNORE)
@@ -159,7 +249,11 @@ int event_is_auditable(struct event_context *e_ctx)
             return 0;
     }
 
-    struct task_struct *current_task = (struct task_struct *)bpf_get_current_task_btf();
+    if (is_record_of_type_audit_log_exit(e_ctx->record_type))
+    {
+        if (is_audit_log_exit_syscall_auditable(current_task, ci) == 0)
+            return 0;
+    }
 
     return is_task_auditable(current_task, ci);
 }
