@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <CppUTest/TestHarness.h>
 
 extern "C" {
+    #include "common/version.h"
     #include "user/args/user.h"
     #include "user/args/helper.h"
 }

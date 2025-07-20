@@ -53,3 +53,11 @@ int jsonify_version_write_record_version(struct json_buffer *s);
         See 'jsonify_core_snprintf'.
 */
 int jsonify_version_write_all_versions(struct json_buffer *s);
+
+/*
+    Write all versions to give output file.
+
+    Return:
+        See 'jsonify_core_snprintf'.
+*/
+void jsonify_version_write_all_versions_to_file(FILE *out);

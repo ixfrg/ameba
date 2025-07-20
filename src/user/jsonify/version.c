@@ -45,3 +45,22 @@ int jsonify_version_write_all_versions(struct json_buffer *s)
     total += jsonify_version_write_record_version(s);
     return total;
 }
+
+void jsonify_version_write_all_versions_to_file(FILE *out)
+{
+    if (!out)
+        return;
+
+    int dst_len = 512;
+    char dst[dst_len];
+
+    struct json_buffer s;
+    jsonify_core_init(&s, dst, dst_len);
+    jsonify_core_open_obj(&s);
+
+    jsonify_version_write_all_versions(&s);
+
+    jsonify_core_close_obj(&s);
+
+    fprintf(out, "%s\n", &dst[0]);
+}

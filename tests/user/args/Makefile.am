@@ -24,8 +24,8 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_C
 AM_CXXFLAGS = -Wall
 COMMON_LDADD = \
     $(top_builddir)/src/user/args/lib.a \
-    $(top_builddir)/src/common/lib.a \
     $(top_builddir)/src/user/jsonify/lib.a \
+    $(top_builddir)/src/common/lib.a \
     -lCppUTest \
     -lCppUTestExt
 

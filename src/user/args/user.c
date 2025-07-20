@@ -29,6 +29,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/args/helper.h"
 #include "common/version.h"
 #include "user/jsonify/types.h"
+#include "user/jsonify/version.h"
 
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
@@ -254,7 +255,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         break;
 
     case OPT_VERSION:
-        user_args_helper_print_app_version();
+        jsonify_version_write_all_versions_to_file(stdout);
         user_args_helper_state_set_exit_no_error(&input->parse_state);
         break;
 

@@ -120,8 +120,8 @@ CONFIG_CLEAN_VPATH_FILES =
 am_control_OBJECTS = control.$(OBJEXT)
 control_OBJECTS = $(am_control_OBJECTS)
 am__DEPENDENCIES_1 = $(top_builddir)/src/user/args/lib.a \
-	$(top_builddir)/src/common/lib.a \
-	$(top_builddir)/src/user/jsonify/lib.a
+	$(top_builddir)/src/user/jsonify/lib.a \
+	$(top_builddir)/src/common/lib.a
 control_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_helper_OBJECTS = helper.$(OBJEXT)
 helper_OBJECTS = $(am_helper_OBJECTS)
@@ -510,8 +510,8 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_C
 AM_CXXFLAGS = -Wall
 COMMON_LDADD = \
     $(top_builddir)/src/user/args/lib.a \
-    $(top_builddir)/src/common/lib.a \
     $(top_builddir)/src/user/jsonify/lib.a \
+    $(top_builddir)/src/common/lib.a \
     -lCppUTest \
     -lCppUTestExt
 
