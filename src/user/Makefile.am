@@ -18,6 +18,8 @@
 ## Process this file with automake to produce Makefile.in
 
 
+SUBDIRS = jsonify
+
 AUTOMAKE_OPTIONS = subdir-objects
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
@@ -28,8 +30,7 @@ noinst_LIBRARIES = \
     record/deserializer/lib.a \
     record/writer/lib.a \
     record/serializer/lib.a \
-    helpers/lib.a \
-    jsonify/lib.a
+    helpers/lib.a
 
 args_lib_a_SOURCES = \
     args/helper.h args/user.h args/control.h args/loader.h \
@@ -46,9 +47,6 @@ record_serializer_lib_a_SOURCES = \
 helpers_lib_a_SOURCES = \
     helpers/log.h \
     helpers/log.c
-jsonify_lib_a_SOURCES = \
-    jsonify/user.h jsonify/control.h jsonify/core.h jsonify/types.h jsonify/record.h jsonify/log_msg.h jsonify/version.h \
-    jsonify/user.c jsonify/control.c jsonify/core.c jsonify/types.c jsonify/record.c jsonify/log_msg.c jsonify/version.c
 
 COMMON_SOURCES = \
     types.h \
@@ -60,7 +58,7 @@ COMMON_LDADD = \
     record/writer/lib.a \
     record/serializer/lib.a \
     helpers/lib.a \
-    jsonify/lib.a
+    $(top_builddir)/src/user/jsonify/lib.a
 
 
 bin_PROGRAMS = ameba loader
