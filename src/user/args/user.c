@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <sys/types.h>
 #include <arpa/inet.h>
 
-
+#include "common/constants.h"
 #include "user/args/control.h"
 #include "user/args/user.h"
 #include "user/args/helper.h"
@@ -59,7 +59,7 @@ static struct argp_option options[] = {
 };
 
 static struct argp_child argp_children[] = {
-    {&global_control_input_argp, 0, "Control input arguments", 0},
+    {&global_control_input_argp, 0, "Control input options", 0},
     {0}
 };
 
@@ -67,7 +67,7 @@ static struct argp global_user_input_argp = {
     .options = options,
     .parser = parse_opt,
     .args_doc = "",
-    .doc = "\nAMEBA  Copyright (C) 2025  Hassaan Irshad\nThis program comes with ABSOLUTELY NO WARRANTY; for details type `--help'.\nThis is free software, and you are welcome to redistribute it under certain conditions; type `--help' for details.\n",
+    .doc = ARGP_DOC_COPYRIGHT_STR("Program to manage ameba"),
     .children = argp_children,
     .help_filter = 0,
     .argp_domain = 0
@@ -247,23 +247,6 @@ static void parse_arg_output_uri(struct user_input_arg *dst, char *arg, struct a
     }
 }
 
-void print_app_version()
-{
-    int dst_len = 512;
-    char dst[dst_len];
-
-    struct json_buffer s;
-    jsonify_core_init(&s, dst, dst_len);
-    jsonify_core_open_obj(&s);
-
-    jsonify_types_write_version(&s, "app_version", &app_version);
-    jsonify_types_write_version(&s, "record_version", &record_version);
-
-    jsonify_core_close_obj(&s);
-
-    fprintf(stdout, "%s\n", &dst[0]);
-}
-
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
     struct user_input_arg *input = get_global_user_input_arg();
@@ -275,7 +258,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         break;
 
     case OPT_VERSION:
-        print_app_version();
+        user_args_helper_print_app_version();
         user_args_helper_state_set_exit_no_error(&input->parse_state);
         break;
 
