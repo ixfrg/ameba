@@ -127,13 +127,9 @@ AM_V_AR = $(am__v_AR_@AM_V@)
 am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
-helpers_lib_a_AR = $(AR) $(ARFLAGS)
-helpers_lib_a_LIBADD =
-am__dirstamp = $(am__leading_dot)dirstamp
-am_helpers_lib_a_OBJECTS = helpers/log.$(OBJEXT)
-helpers_lib_a_OBJECTS = $(am_helpers_lib_a_OBJECTS)
 record_deserializer_lib_a_AR = $(AR) $(ARFLAGS)
 record_deserializer_lib_a_LIBADD =
+am__dirstamp = $(am__leading_dot)dirstamp
 am_record_deserializer_lib_a_OBJECTS =  \
 	record/deserializer/binary.$(OBJEXT)
 record_deserializer_lib_a_OBJECTS =  \
@@ -174,7 +170,6 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/ameba.Po ./$(DEPDIR)/loader.Po \
-	helpers/$(DEPDIR)/log.Po \
 	record/deserializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/json.Po \
@@ -193,13 +188,11 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(helpers_lib_a_SOURCES) \
-	$(record_deserializer_lib_a_SOURCES) \
+SOURCES = $(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
 	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
 	$(loader_SOURCES)
-DIST_SOURCES = $(helpers_lib_a_SOURCES) \
-	$(record_deserializer_lib_a_SOURCES) \
+DIST_SOURCES = $(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
 	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
 	$(loader_SOURCES)
@@ -382,15 +375,14 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = args jsonify
+SUBDIRS = args helpers jsonify
 AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
 AM_CFLAGS = -Wall
 noinst_LIBRARIES = \
     record/deserializer/lib.a \
     record/writer/lib.a \
-    record/serializer/lib.a \
-    helpers/lib.a
+    record/serializer/lib.a
 
 record_deserializer_lib_a_SOURCES = \
     record/deserializer/deserializer.h \
@@ -404,10 +396,6 @@ record_serializer_lib_a_SOURCES = \
     record/serializer/serializer.h \
     record/serializer/binary.c record/serializer/json.c record/serializer/serializer.c
 
-helpers_lib_a_SOURCES = \
-    helpers/log.h \
-    helpers/log.c
-
 COMMON_SOURCES = \
     types.h \
     error.h
@@ -418,7 +406,7 @@ COMMON_LDADD = \
     record/deserializer/lib.a \
     record/writer/lib.a \
     record/serializer/lib.a \
-    helpers/lib.a \
+    $(top_builddir)/src/user/helpers/lib.a \
     $(top_builddir)/src/user/jsonify/lib.a
 
 ameba_SOURCES = \
@@ -509,19 +497,6 @@ clean-binPROGRAMS:
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-helpers/$(am__dirstamp):
-	@$(MKDIR_P) helpers
-	@: > helpers/$(am__dirstamp)
-helpers/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) helpers/$(DEPDIR)
-	@: > helpers/$(DEPDIR)/$(am__dirstamp)
-helpers/log.$(OBJEXT): helpers/$(am__dirstamp) \
-	helpers/$(DEPDIR)/$(am__dirstamp)
-
-helpers/lib.a: $(helpers_lib_a_OBJECTS) $(helpers_lib_a_DEPENDENCIES) $(EXTRA_helpers_lib_a_DEPENDENCIES) helpers/$(am__dirstamp)
-	$(AM_V_at)-rm -f helpers/lib.a
-	$(AM_V_AR)$(helpers_lib_a_AR) helpers/lib.a $(helpers_lib_a_OBJECTS) $(helpers_lib_a_LIBADD)
-	$(AM_V_at)$(RANLIB) helpers/lib.a
 record/deserializer/$(am__dirstamp):
 	@$(MKDIR_P) record/deserializer
 	@: > record/deserializer/$(am__dirstamp)
@@ -580,7 +555,6 @@ loader$(EXEEXT): $(loader_OBJECTS) $(loader_DEPENDENCIES) $(EXTRA_loader_DEPENDE
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f helpers/*.$(OBJEXT)
 	-rm -f record/deserializer/*.$(OBJEXT)
 	-rm -f record/serializer/*.$(OBJEXT)
 	-rm -f record/writer/*.$(OBJEXT)
@@ -590,7 +564,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loader.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/log.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/deserializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/json.Po@am__quote@ # am--include-marker
@@ -810,8 +783,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f helpers/$(DEPDIR)/$(am__dirstamp)
-	-rm -f helpers/$(am__dirstamp)
 	-rm -f record/deserializer/$(DEPDIR)/$(am__dirstamp)
 	-rm -f record/deserializer/$(am__dirstamp)
 	-rm -f record/serializer/$(DEPDIR)/$(am__dirstamp)
@@ -830,7 +801,6 @@ clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/ameba.Po
 	-rm -f ./$(DEPDIR)/loader.Po
-	-rm -f helpers/$(DEPDIR)/log.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/json.Po
@@ -884,7 +854,6 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/ameba.Po
 	-rm -f ./$(DEPDIR)/loader.Po
-	-rm -f helpers/$(DEPDIR)/log.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/json.Po

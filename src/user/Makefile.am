@@ -18,7 +18,7 @@
 ## Process this file with automake to produce Makefile.in
 
 
-SUBDIRS = args jsonify
+SUBDIRS = args helpers jsonify
 
 AUTOMAKE_OPTIONS = subdir-objects
 
@@ -28,8 +28,7 @@ AM_CFLAGS = -Wall
 noinst_LIBRARIES = \
     record/deserializer/lib.a \
     record/writer/lib.a \
-    record/serializer/lib.a \
-    helpers/lib.a
+    record/serializer/lib.a
 
 record_deserializer_lib_a_SOURCES = \
     record/deserializer/deserializer.h \
@@ -40,9 +39,6 @@ record_writer_lib_a_SOURCES = \
 record_serializer_lib_a_SOURCES = \
     record/serializer/serializer.h \
     record/serializer/binary.c record/serializer/json.c record/serializer/serializer.c
-helpers_lib_a_SOURCES = \
-    helpers/log.h \
-    helpers/log.c
 
 COMMON_SOURCES = \
     types.h \
@@ -53,7 +49,7 @@ COMMON_LDADD = \
     record/deserializer/lib.a \
     record/writer/lib.a \
     record/serializer/lib.a \
-    helpers/lib.a \
+    $(top_builddir)/src/user/helpers/lib.a \
     $(top_builddir)/src/user/jsonify/lib.a
 
 

@@ -135,6 +135,7 @@ AC_CONFIG_FILES([
     src/bpf/Makefile
     src/user/Makefile
     src/user/args/Makefile
+    src/user/helpers/Makefile
     src/user/jsonify/Makefile
     src/utils/Makefile
     tests/Makefile
