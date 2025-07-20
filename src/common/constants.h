@@ -55,6 +55,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define AMEBA_PROG_NAME_PREFIX_STR TOSTRING(AMEBA_PROG_NAME_PREFIX)
 #define AMEBA_PROG_NAME(name) CONCAT_VAR_NAMES(AMEBA_PROG_NAME_PREFIX, name)
 
+#define DIR_PATH_FOR_PINNING_AMEBA_BPF "/sys/fs/bpf/ameba"
+
+#define ARGP_DOC_COPYRIGHT_BODY \
+  "\nCopyright (C) 2025  Hassaan Irshad\n" \
+  "This program comes with ABSOLUTELY NO WARRANTY; for details type `--help'.\n" \
+  "This is free software, and you are welcome to redistribute it under certain conditions; type `--help' for details.\n"
+
+#define ARGP_DOC_COPYRIGHT_STR(prefix) "\n" prefix "\n" ARGP_DOC_COPYRIGHT_BODY
+
+//
+
 // Sockaddr max size in kernel.
 #define SOCKADDR_MAX_SIZE 128
 // Task command max size in kernel.
