@@ -31,10 +31,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/jsonify/types.h"
 
 
-extern const struct elem_version app_version;
-extern const struct elem_version record_version;
-
-
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 

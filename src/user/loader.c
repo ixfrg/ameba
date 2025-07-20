@@ -21,14 +21,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <unistd.h>
 
 #include "common/types.h"
+#include "common/version.h"
 #include "user/helpers/log.h"
 #include "user/args/loader.h"
 
 #include "ameba.skel.h"
-
-
-extern const struct elem_version app_version;
-extern const struct elem_version record_version;
 
 
 static int pin_progs_and_maps(struct ameba *skel)

@@ -41,6 +41,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/jsonify/user.h"
 #include "user/jsonify/types.h"
 #include "common/constants.h"
+#include "common/version.h"
 #include "user/error.h"
 
 #include "user/record/serializer/serializer.h"
@@ -55,9 +56,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 extern const struct record_serializer record_serializer_json;
 extern const struct record_writer record_writer_file;
 extern const struct record_writer record_writer_net;
-
-extern const struct elem_version app_version;
-extern const struct elem_version record_version;
 
 //
 

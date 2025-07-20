@@ -20,12 +20,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <unistd.h>
 
+#include "common/version.h"
+
 #include "user/jsonify/version.h"
 #include "user/args/helper.h"
-
-
-extern const struct elem_version app_version;
-extern const struct elem_version record_version;
 
 
 void user_args_helper_state_init(struct arg_parse_state *s)
