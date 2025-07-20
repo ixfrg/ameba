@@ -106,7 +106,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ameba$(EXEEXT)
+bin_PROGRAMS = ameba$(EXEEXT) loader$(EXEEXT)
 subdir = src/user
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/args.m4 $(top_srcdir)/m4/bpf.m4 \
@@ -131,7 +131,7 @@ args_lib_a_AR = $(AR) $(ARFLAGS)
 args_lib_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_args_lib_a_OBJECTS = args/helper.$(OBJEXT) args/user.$(OBJEXT) \
-	args/control.$(OBJEXT)
+	args/control.$(OBJEXT) args/loader.$(OBJEXT)
 args_lib_a_OBJECTS = $(am_args_lib_a_OBJECTS)
 helpers_lib_a_AR = $(AR) $(ARFLAGS)
 helpers_lib_a_LIBADD =
@@ -142,7 +142,7 @@ jsonify_lib_a_LIBADD =
 am_jsonify_lib_a_OBJECTS = jsonify/user.$(OBJEXT) \
 	jsonify/control.$(OBJEXT) jsonify/core.$(OBJEXT) \
 	jsonify/types.$(OBJEXT) jsonify/record.$(OBJEXT) \
-	jsonify/log_msg.$(OBJEXT)
+	jsonify/log_msg.$(OBJEXT) jsonify/version.$(OBJEXT)
 jsonify_lib_a_OBJECTS = $(am_jsonify_lib_a_OBJECTS)
 record_deserializer_lib_a_AR = $(AR) $(ARFLAGS)
 record_deserializer_lib_a_LIBADD =
@@ -163,11 +163,13 @@ record_writer_lib_a_LIBADD =
 am_record_writer_lib_a_OBJECTS = record/writer/file.$(OBJEXT) \
 	record/writer/net.$(OBJEXT)
 record_writer_lib_a_OBJECTS = $(am_record_writer_lib_a_OBJECTS)
-am_ameba_OBJECTS = ameba.$(OBJEXT)
+am__objects_1 =
+am_ameba_OBJECTS = $(am__objects_1) ameba.$(OBJEXT)
 ameba_OBJECTS = $(am_ameba_OBJECTS)
-ameba_DEPENDENCIES = args/lib.a $(top_builddir)/src/common/lib.a \
-	record/deserializer/lib.a record/writer/lib.a \
-	record/serializer/lib.a helpers/lib.a jsonify/lib.a
+ameba_DEPENDENCIES = $(COMMON_LDADD)
+am_loader_OBJECTS = $(am__objects_1) loader.$(OBJEXT)
+loader_OBJECTS = $(am_loader_OBJECTS)
+loader_DEPENDENCIES = $(COMMON_LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -183,12 +185,13 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/ameba.Po args/$(DEPDIR)/control.Po \
-	args/$(DEPDIR)/helper.Po args/$(DEPDIR)/user.Po \
+am__depfiles_remade = ./$(DEPDIR)/ameba.Po ./$(DEPDIR)/loader.Po \
+	args/$(DEPDIR)/control.Po args/$(DEPDIR)/helper.Po \
+	args/$(DEPDIR)/loader.Po args/$(DEPDIR)/user.Po \
 	helpers/$(DEPDIR)/log.Po jsonify/$(DEPDIR)/control.Po \
 	jsonify/$(DEPDIR)/core.Po jsonify/$(DEPDIR)/log_msg.Po \
 	jsonify/$(DEPDIR)/record.Po jsonify/$(DEPDIR)/types.Po \
-	jsonify/$(DEPDIR)/user.Po \
+	jsonify/$(DEPDIR)/user.Po jsonify/$(DEPDIR)/version.Po \
 	record/deserializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/json.Po \
@@ -210,11 +213,13 @@ am__v_CCLD_1 =
 SOURCES = $(args_lib_a_SOURCES) $(helpers_lib_a_SOURCES) \
 	$(jsonify_lib_a_SOURCES) $(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
-	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES)
+	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
+	$(loader_SOURCES)
 DIST_SOURCES = $(args_lib_a_SOURCES) $(helpers_lib_a_SOURCES) \
 	$(jsonify_lib_a_SOURCES) $(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
-	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES)
+	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
+	$(loader_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -364,8 +369,8 @@ noinst_LIBRARIES = \
     jsonify/lib.a
 
 args_lib_a_SOURCES = \
-    args/helper.h args/user.h args/control.h \
-    args/helper.c args/user.c args/control.c
+    args/helper.h args/user.h args/control.h args/loader.h \
+    args/helper.c args/user.c args/control.c args/loader.c
 
 record_deserializer_lib_a_SOURCES = \
     record/deserializer/deserializer.h \
@@ -384,15 +389,14 @@ helpers_lib_a_SOURCES = \
     helpers/log.c
 
 jsonify_lib_a_SOURCES = \
-    jsonify/user.h jsonify/control.h jsonify/core.h jsonify/types.h jsonify/record.h jsonify/log_msg.h \
-    jsonify/user.c jsonify/control.c jsonify/core.c jsonify/types.c jsonify/record.c jsonify/log_msg.c
+    jsonify/user.h jsonify/control.h jsonify/core.h jsonify/types.h jsonify/record.h jsonify/log_msg.h jsonify/version.h \
+    jsonify/user.c jsonify/control.c jsonify/core.c jsonify/types.c jsonify/record.c jsonify/log_msg.c jsonify/version.c
 
-ameba_SOURCES = \
+COMMON_SOURCES = \
     types.h \
-    error.h \
-    ameba.c
+    error.h
 
-ameba_LDADD = \
+COMMON_LDADD = \
     args/lib.a \
     $(top_builddir)/src/common/lib.a \
     record/deserializer/lib.a \
@@ -401,6 +405,16 @@ ameba_LDADD = \
     helpers/lib.a \
     jsonify/lib.a
 
+ameba_SOURCES = \
+    $(COMMON_SOURCES) \
+    ameba.c
+
+ameba_LDADD = $(COMMON_LDADD)
+loader_SOURCES = \
+    $(COMMON_SOURCES) \
+    loader.c
+
+loader_LDADD = $(COMMON_LDADD)
 all: all-am
 
 .SUFFIXES:
@@ -491,6 +505,8 @@ args/user.$(OBJEXT): args/$(am__dirstamp) \
 	args/$(DEPDIR)/$(am__dirstamp)
 args/control.$(OBJEXT): args/$(am__dirstamp) \
 	args/$(DEPDIR)/$(am__dirstamp)
+args/loader.$(OBJEXT): args/$(am__dirstamp) \
+	args/$(DEPDIR)/$(am__dirstamp)
 
 args/lib.a: $(args_lib_a_OBJECTS) $(args_lib_a_DEPENDENCIES) $(EXTRA_args_lib_a_DEPENDENCIES) args/$(am__dirstamp)
 	$(AM_V_at)-rm -f args/lib.a
@@ -526,6 +542,8 @@ jsonify/types.$(OBJEXT): jsonify/$(am__dirstamp) \
 jsonify/record.$(OBJEXT): jsonify/$(am__dirstamp) \
 	jsonify/$(DEPDIR)/$(am__dirstamp)
 jsonify/log_msg.$(OBJEXT): jsonify/$(am__dirstamp) \
+	jsonify/$(DEPDIR)/$(am__dirstamp)
+jsonify/version.$(OBJEXT): jsonify/$(am__dirstamp) \
 	jsonify/$(DEPDIR)/$(am__dirstamp)
 
 jsonify/lib.a: $(jsonify_lib_a_OBJECTS) $(jsonify_lib_a_DEPENDENCIES) $(EXTRA_jsonify_lib_a_DEPENDENCIES) jsonify/$(am__dirstamp)
@@ -584,6 +602,10 @@ ameba$(EXEEXT): $(ameba_OBJECTS) $(ameba_DEPENDENCIES) $(EXTRA_ameba_DEPENDENCIE
 	@rm -f ameba$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(ameba_OBJECTS) $(ameba_LDADD) $(LIBS)
 
+loader$(EXEEXT): $(loader_OBJECTS) $(loader_DEPENDENCIES) $(EXTRA_loader_DEPENDENCIES) 
+	@rm -f loader$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(loader_OBJECTS) $(loader_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f args/*.$(OBJEXT)
@@ -597,8 +619,10 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loader.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/control.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/helper.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/loader.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/user.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/log.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/control.Po@am__quote@ # am--include-marker
@@ -607,6 +631,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/record.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/types.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/user.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/version.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/deserializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/json.Po@am__quote@ # am--include-marker
@@ -776,8 +801,10 @@ clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
 
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/ameba.Po
+	-rm -f ./$(DEPDIR)/loader.Po
 	-rm -f args/$(DEPDIR)/control.Po
 	-rm -f args/$(DEPDIR)/helper.Po
+	-rm -f args/$(DEPDIR)/loader.Po
 	-rm -f args/$(DEPDIR)/user.Po
 	-rm -f helpers/$(DEPDIR)/log.Po
 	-rm -f jsonify/$(DEPDIR)/control.Po
@@ -786,6 +813,7 @@ distclean: distclean-am
 	-rm -f jsonify/$(DEPDIR)/record.Po
 	-rm -f jsonify/$(DEPDIR)/types.Po
 	-rm -f jsonify/$(DEPDIR)/user.Po
+	-rm -f jsonify/$(DEPDIR)/version.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/json.Po
@@ -838,8 +866,10 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/ameba.Po
+	-rm -f ./$(DEPDIR)/loader.Po
 	-rm -f args/$(DEPDIR)/control.Po
 	-rm -f args/$(DEPDIR)/helper.Po
+	-rm -f args/$(DEPDIR)/loader.Po
 	-rm -f args/$(DEPDIR)/user.Po
 	-rm -f helpers/$(DEPDIR)/log.Po
 	-rm -f jsonify/$(DEPDIR)/control.Po
@@ -848,6 +878,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f jsonify/$(DEPDIR)/record.Po
 	-rm -f jsonify/$(DEPDIR)/types.Po
 	-rm -f jsonify/$(DEPDIR)/user.Po
+	-rm -f jsonify/$(DEPDIR)/version.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/json.Po

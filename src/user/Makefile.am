@@ -32,8 +32,8 @@ noinst_LIBRARIES = \
     jsonify/lib.a
 
 args_lib_a_SOURCES = \
-    args/helper.h args/user.h args/control.h \
-    args/helper.c args/user.c args/control.c
+    args/helper.h args/user.h args/control.h args/loader.h \
+    args/helper.c args/user.c args/control.c args/loader.c
 record_deserializer_lib_a_SOURCES = \
     record/deserializer/deserializer.h \
     record/deserializer/binary.c
@@ -47,15 +47,13 @@ helpers_lib_a_SOURCES = \
     helpers/log.h \
     helpers/log.c
 jsonify_lib_a_SOURCES = \
-    jsonify/user.h jsonify/control.h jsonify/core.h jsonify/types.h jsonify/record.h jsonify/log_msg.h \
-    jsonify/user.c jsonify/control.c jsonify/core.c jsonify/types.c jsonify/record.c jsonify/log_msg.c
+    jsonify/user.h jsonify/control.h jsonify/core.h jsonify/types.h jsonify/record.h jsonify/log_msg.h jsonify/version.h \
+    jsonify/user.c jsonify/control.c jsonify/core.c jsonify/types.c jsonify/record.c jsonify/log_msg.c jsonify/version.c
 
-bin_PROGRAMS = ameba
-ameba_SOURCES = \
+COMMON_SOURCES = \
     types.h \
-    error.h \
-    ameba.c
-ameba_LDADD = \
+    error.h
+COMMON_LDADD = \
     args/lib.a \
     $(top_builddir)/src/common/lib.a \
     record/deserializer/lib.a \
@@ -63,3 +61,16 @@ ameba_LDADD = \
     record/serializer/lib.a \
     helpers/lib.a \
     jsonify/lib.a
+
+
+bin_PROGRAMS = ameba loader
+
+ameba_SOURCES = \
+    $(COMMON_SOURCES) \
+    ameba.c
+ameba_LDADD = $(COMMON_LDADD)
+
+loader_SOURCES = \
+    $(COMMON_SOURCES) \
+    loader.c
+loader_LDADD = $(COMMON_LDADD)
