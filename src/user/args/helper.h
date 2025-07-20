@@ -32,3 +32,5 @@ void user_args_helper_state_set_exit_no_error(struct arg_parse_state *s);
 void user_args_helper_state_set_no_exit(struct arg_parse_state *s);
 int user_args_helper_state_is_exit_set(struct arg_parse_state *s);
 int user_args_helper_state_get_code(struct arg_parse_state *s);
+
+void user_args_helper_print_app_version();

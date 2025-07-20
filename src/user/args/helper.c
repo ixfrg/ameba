@@ -17,7 +17,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <stdio.h>
+#include <unistd.h>
+
+#include "user/jsonify/version.h"
 #include "user/args/helper.h"
+
+
+extern const struct elem_version app_version;
+extern const struct elem_version record_version;
 
 
 void user_args_helper_state_init(struct arg_parse_state *s)
@@ -61,4 +69,20 @@ int user_args_helper_state_get_code(struct arg_parse_state *s)
     if (!s)
         return 0;
     return s->code;
+}
+
+void user_args_helper_print_app_version()
+{
+    int dst_len = 512;
+    char dst[dst_len];
+
+    struct json_buffer s;
+    jsonify_core_init(&s, dst, dst_len);
+    jsonify_core_open_obj(&s);
+
+    jsonify_version_write_all_versions(&s);
+
+    jsonify_core_close_obj(&s);
+
+    fprintf(stdout, "%s\n", &dst[0]);
 }
