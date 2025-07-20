@@ -18,7 +18,7 @@
 ## Process this file with automake to produce Makefile.in
 
 
-SUBDIRS = jsonify
+SUBDIRS = args jsonify
 
 AUTOMAKE_OPTIONS = subdir-objects
 
@@ -26,15 +26,11 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_C
 AM_CFLAGS = -Wall
 
 noinst_LIBRARIES = \
-    args/lib.a \
     record/deserializer/lib.a \
     record/writer/lib.a \
     record/serializer/lib.a \
     helpers/lib.a
 
-args_lib_a_SOURCES = \
-    args/helper.h args/user.h args/control.h args/loader.h \
-    args/helper.c args/user.c args/control.c args/loader.c
 record_deserializer_lib_a_SOURCES = \
     record/deserializer/deserializer.h \
     record/deserializer/binary.c
@@ -52,7 +48,7 @@ COMMON_SOURCES = \
     types.h \
     error.h
 COMMON_LDADD = \
-    args/lib.a \
+    $(top_builddir)/src/user/args/lib.a \
     $(top_builddir)/src/common/lib.a \
     record/deserializer/lib.a \
     record/writer/lib.a \

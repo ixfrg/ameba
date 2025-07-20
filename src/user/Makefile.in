@@ -127,14 +127,9 @@ AM_V_AR = $(am__v_AR_@AM_V@)
 am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
-args_lib_a_AR = $(AR) $(ARFLAGS)
-args_lib_a_LIBADD =
-am__dirstamp = $(am__leading_dot)dirstamp
-am_args_lib_a_OBJECTS = args/helper.$(OBJEXT) args/user.$(OBJEXT) \
-	args/control.$(OBJEXT) args/loader.$(OBJEXT)
-args_lib_a_OBJECTS = $(am_args_lib_a_OBJECTS)
 helpers_lib_a_AR = $(AR) $(ARFLAGS)
 helpers_lib_a_LIBADD =
+am__dirstamp = $(am__leading_dot)dirstamp
 am_helpers_lib_a_OBJECTS = helpers/log.$(OBJEXT)
 helpers_lib_a_OBJECTS = $(am_helpers_lib_a_OBJECTS)
 record_deserializer_lib_a_AR = $(AR) $(ARFLAGS)
@@ -179,8 +174,6 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/ameba.Po ./$(DEPDIR)/loader.Po \
-	args/$(DEPDIR)/control.Po args/$(DEPDIR)/helper.Po \
-	args/$(DEPDIR)/loader.Po args/$(DEPDIR)/user.Po \
 	helpers/$(DEPDIR)/log.Po \
 	record/deserializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/binary.Po \
@@ -200,12 +193,12 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(args_lib_a_SOURCES) $(helpers_lib_a_SOURCES) \
+SOURCES = $(helpers_lib_a_SOURCES) \
 	$(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
 	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
 	$(loader_SOURCES)
-DIST_SOURCES = $(args_lib_a_SOURCES) $(helpers_lib_a_SOURCES) \
+DIST_SOURCES = $(helpers_lib_a_SOURCES) \
 	$(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
 	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
@@ -389,20 +382,15 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = jsonify
+SUBDIRS = args jsonify
 AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
 AM_CFLAGS = -Wall
 noinst_LIBRARIES = \
-    args/lib.a \
     record/deserializer/lib.a \
     record/writer/lib.a \
     record/serializer/lib.a \
     helpers/lib.a
-
-args_lib_a_SOURCES = \
-    args/helper.h args/user.h args/control.h args/loader.h \
-    args/helper.c args/user.c args/control.c args/loader.c
 
 record_deserializer_lib_a_SOURCES = \
     record/deserializer/deserializer.h \
@@ -425,7 +413,7 @@ COMMON_SOURCES = \
     error.h
 
 COMMON_LDADD = \
-    args/lib.a \
+    $(top_builddir)/src/user/args/lib.a \
     $(top_builddir)/src/common/lib.a \
     record/deserializer/lib.a \
     record/writer/lib.a \
@@ -521,25 +509,6 @@ clean-binPROGRAMS:
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-args/$(am__dirstamp):
-	@$(MKDIR_P) args
-	@: > args/$(am__dirstamp)
-args/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) args/$(DEPDIR)
-	@: > args/$(DEPDIR)/$(am__dirstamp)
-args/helper.$(OBJEXT): args/$(am__dirstamp) \
-	args/$(DEPDIR)/$(am__dirstamp)
-args/user.$(OBJEXT): args/$(am__dirstamp) \
-	args/$(DEPDIR)/$(am__dirstamp)
-args/control.$(OBJEXT): args/$(am__dirstamp) \
-	args/$(DEPDIR)/$(am__dirstamp)
-args/loader.$(OBJEXT): args/$(am__dirstamp) \
-	args/$(DEPDIR)/$(am__dirstamp)
-
-args/lib.a: $(args_lib_a_OBJECTS) $(args_lib_a_DEPENDENCIES) $(EXTRA_args_lib_a_DEPENDENCIES) args/$(am__dirstamp)
-	$(AM_V_at)-rm -f args/lib.a
-	$(AM_V_AR)$(args_lib_a_AR) args/lib.a $(args_lib_a_OBJECTS) $(args_lib_a_LIBADD)
-	$(AM_V_at)$(RANLIB) args/lib.a
 helpers/$(am__dirstamp):
 	@$(MKDIR_P) helpers
 	@: > helpers/$(am__dirstamp)
@@ -611,7 +580,6 @@ loader$(EXEEXT): $(loader_OBJECTS) $(loader_DEPENDENCIES) $(EXTRA_loader_DEPENDE
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f args/*.$(OBJEXT)
 	-rm -f helpers/*.$(OBJEXT)
 	-rm -f record/deserializer/*.$(OBJEXT)
 	-rm -f record/serializer/*.$(OBJEXT)
@@ -622,10 +590,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loader.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/control.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/helper.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/loader.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/user.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/log.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/deserializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
@@ -846,8 +810,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f args/$(DEPDIR)/$(am__dirstamp)
-	-rm -f args/$(am__dirstamp)
 	-rm -f helpers/$(DEPDIR)/$(am__dirstamp)
 	-rm -f helpers/$(am__dirstamp)
 	-rm -f record/deserializer/$(DEPDIR)/$(am__dirstamp)
@@ -868,10 +830,6 @@ clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/ameba.Po
 	-rm -f ./$(DEPDIR)/loader.Po
-	-rm -f args/$(DEPDIR)/control.Po
-	-rm -f args/$(DEPDIR)/helper.Po
-	-rm -f args/$(DEPDIR)/loader.Po
-	-rm -f args/$(DEPDIR)/user.Po
 	-rm -f helpers/$(DEPDIR)/log.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/binary.Po
@@ -926,10 +884,6 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/ameba.Po
 	-rm -f ./$(DEPDIR)/loader.Po
-	-rm -f args/$(DEPDIR)/control.Po
-	-rm -f args/$(DEPDIR)/helper.Po
-	-rm -f args/$(DEPDIR)/loader.Po
-	-rm -f args/$(DEPDIR)/user.Po
 	-rm -f helpers/$(DEPDIR)/log.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/binary.Po
