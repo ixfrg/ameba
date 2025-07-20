@@ -184,13 +184,16 @@ static void sig_handler(int sig)
 
 static void parse_user_input(struct user_input *input, int argc, char *argv[])
 {
-    user_args_user_parse(input, argc, argv);
+    struct user_input_arg input_arg;
+    user_args_user_parse(&input_arg, argc, argv);
 
-    struct arg_parse_state *a_p_s = &(input->parse_state);
+    struct arg_parse_state *a_p_s = &(input_arg.parse_state);
     if (user_args_helper_state_is_exit_set(a_p_s))
     {
         exit(user_args_helper_state_get_code(a_p_s));
     }
+
+    *input = input_arg.user_input;
 }
 
 static int update_control_input_map(struct control_input *input)

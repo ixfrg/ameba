@@ -33,10 +33,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 static enum output_type default_output_type = OUTPUT_FILE;
 static const char *default_output_file_path = "/tmp/current_prov_log.json";
 
+
+struct user_input_arg
+{
+    struct arg_parse_state parse_state;
+    struct user_input user_input;
+};
+
+
 /*
     Copy value of internal global struct user_input to dst.
 */
-void user_args_user_copy(struct user_input *dst);
+void user_args_user_copy(struct user_input_arg *dst);
 
 /*
     Parse user arguments (i.e. int main(int argc, char **argv)), and populate dst.
@@ -44,4 +52,4 @@ void user_args_user_copy(struct user_input *dst);
     Return:
         Always returns. Error (if any) in (struct user_input)->(struct arg_parse_state).
 */
-void user_args_user_parse(struct user_input *dst, int argc, char **argv);
+void user_args_user_parse(struct user_input_arg *dst, int argc, char **argv);

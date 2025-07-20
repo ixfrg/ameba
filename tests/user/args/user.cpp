@@ -25,7 +25,7 @@ extern "C" {
     #include "user/args/helper.h"
 }
 
-static void check_parse_state_exit_error(struct user_input *i)
+static void check_parse_state_exit_error(struct user_input_arg *i)
 {
     if (!i)
         return;
@@ -33,7 +33,7 @@ static void check_parse_state_exit_error(struct user_input *i)
     CHECK(0 != i->parse_state.code);
 }
 
-static void check_parse_state_exit_no_error(struct user_input *i)
+static void check_parse_state_exit_no_error(struct user_input_arg *i)
 {
     if (!i)
         return;
@@ -41,7 +41,7 @@ static void check_parse_state_exit_no_error(struct user_input *i)
     CHECK_EQUAL(0, i->parse_state.code);
 }
 
-static void check_parse_state_no_exit(struct user_input *i)
+static void check_parse_state_no_exit(struct user_input_arg *i)
 {
     if (!i)
         return;
@@ -54,46 +54,45 @@ TEST_GROUP(UserArgUserInputGroup)
 
 TEST(UserArgUserInputGroup, TestParse)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {(char*)"test"};
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_no_exit(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_no_exit(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestDefaults)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {(char*)"test"};
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_no_exit(&u_in);
-    
-    CHECK_EQUAL(FREE, u_in.c_in.lock);
-    CHECK_EQUAL(IGNORE, u_in.c_in.global_mode);
-    CHECK_EQUAL(IGNORE, u_in.c_in.uid_mode);
-    CHECK_EQUAL(0, u_in.c_in.uids_len);
-    CHECK_EQUAL(IGNORE, u_in.c_in.pid_mode);
-    CHECK_EQUAL(0, u_in.c_in.pids_len);
-    CHECK_EQUAL(IGNORE, u_in.c_in.ppid_mode);
-    CHECK_EQUAL(0, u_in.c_in.ppids_len);
-    CHECK_EQUAL(IGNORE, u_in.c_in.netio_mode);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_no_exit(&u_in_arg);
 
-    CHECK_EQUAL(OUTPUT_FILE, u_in.o_type);
+    CHECK_EQUAL(IGNORE, u_in_arg.user_input.c_in.global_mode);
+    CHECK_EQUAL(IGNORE, u_in_arg.user_input.c_in.uid_mode);
+    CHECK_EQUAL(0, u_in_arg.user_input.c_in.uids_len);
+    CHECK_EQUAL(IGNORE, u_in_arg.user_input.c_in.pid_mode);
+    CHECK_EQUAL(0, u_in_arg.user_input.c_in.pids_len);
+    CHECK_EQUAL(IGNORE, u_in_arg.user_input.c_in.ppid_mode);
+    CHECK_EQUAL(0, u_in_arg.user_input.c_in.ppids_len);
+    CHECK_EQUAL(IGNORE, u_in_arg.user_input.c_in.netio_mode);
+
+    CHECK_EQUAL(OUTPUT_FILE, u_in_arg.user_input.o_type);
     STRNCMP_EQUAL(
         "/tmp/current_prov_log.json",
-        u_in.output_file.path,
+        u_in_arg.user_input.output_file.path,
         strlen("/tmp/current_prov_log.json")
     );
-    CHECK_EQUAL(0, u_in.output_net.ip_family);
-    CHECK_EQUAL(-1, u_in.output_net.port);
-    CHECK_EQUAL(0, u_in.output_net.ip[0]);
+    CHECK_EQUAL(0, u_in_arg.user_input.output_net.ip_family);
+    CHECK_EQUAL(-1, u_in_arg.user_input.output_net.port);
+    CHECK_EQUAL(0, u_in_arg.user_input.output_net.ip[0]);
 }
 
 TEST(UserArgUserInputGroup, TestNonDefaults)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -117,103 +116,103 @@ TEST(UserArgUserInputGroup, TestNonDefaults)
         (char*)"capture",
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_no_exit(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_no_exit(&u_in_arg);
 
-    CHECK_EQUAL(OUTPUT_NET, u_in.o_type);
-    CHECK_EQUAL(AF_INET, u_in.output_net.ip_family);
-    STRNCMP_EQUAL("0.0.0.0", u_in.output_net.ip, strlen("0.0.0.0"));
-    CHECK_EQUAL(1212, u_in.output_net.port);
+    CHECK_EQUAL(OUTPUT_NET, u_in_arg.user_input.o_type);
+    CHECK_EQUAL(AF_INET, u_in_arg.user_input.output_net.ip_family);
+    STRNCMP_EQUAL("0.0.0.0", u_in_arg.user_input.output_net.ip, strlen("0.0.0.0"));
+    CHECK_EQUAL(1212, u_in_arg.user_input.output_net.port);
 
-    CHECK_EQUAL(CAPTURE, u_in.c_in.global_mode);
+    CHECK_EQUAL(CAPTURE, u_in_arg.user_input.c_in.global_mode);
 
-    CHECK_EQUAL(CAPTURE, u_in.c_in.uid_mode);
-    CHECK_EQUAL(1, u_in.c_in.uids_len);
-    CHECK_EQUAL(1000, u_in.c_in.uids[0]);
+    CHECK_EQUAL(CAPTURE, u_in_arg.user_input.c_in.uid_mode);
+    CHECK_EQUAL(1, u_in_arg.user_input.c_in.uids_len);
+    CHECK_EQUAL(1000, u_in_arg.user_input.c_in.uids[0]);
 
-    CHECK_EQUAL(CAPTURE, u_in.c_in.pid_mode);
-    CHECK_EQUAL(1, u_in.c_in.pids_len);
-    CHECK_EQUAL(2000, u_in.c_in.pids[0]);
+    CHECK_EQUAL(CAPTURE, u_in_arg.user_input.c_in.pid_mode);
+    CHECK_EQUAL(1, u_in_arg.user_input.c_in.pids_len);
+    CHECK_EQUAL(2000, u_in_arg.user_input.c_in.pids[0]);
 
-    CHECK_EQUAL(CAPTURE, u_in.c_in.ppid_mode);
-    CHECK_EQUAL(1, u_in.c_in.ppids_len);
-    CHECK_EQUAL(3000, u_in.c_in.ppids[0]);
+    CHECK_EQUAL(CAPTURE, u_in_arg.user_input.c_in.ppid_mode);
+    CHECK_EQUAL(1, u_in_arg.user_input.c_in.ppids_len);
+    CHECK_EQUAL(3000, u_in_arg.user_input.c_in.ppids[0]);
 
-    CHECK_EQUAL(CAPTURE, u_in.c_in.netio_mode);
+    CHECK_EQUAL(CAPTURE, u_in_arg.user_input.c_in.netio_mode);
 
 }
 
 TEST(UserArgUserInputGroup, TestVersion)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {(char*)"test", (char*)"--version"};
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_no_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_no_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestHelp)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {(char*)"test", (char*)"--help"};
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_no_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_no_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestUsage)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {(char*)"test", (char*)"--usage"};
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_no_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_no_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputURIMissing)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"--output-uri"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetInvalidArg1)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"--output-uri",
         (char*)"udp://:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetInvalidArg2)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"--output-uri",
         (char*)"udp://0.0.0.0"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputFileAbsolute)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -221,20 +220,20 @@ TEST(UserArgUserInputGroup, TestOutputFileAbsolute)
         (char*)"file:///tmp/test.json"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_no_exit(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_no_exit(&u_in_arg);
 
-    CHECK_EQUAL(OUTPUT_FILE, u_in.o_type);
+    CHECK_EQUAL(OUTPUT_FILE, u_in_arg.user_input.o_type);
     STRNCMP_EQUAL(
         "/tmp/test.json",
-        u_in.output_file.path,
+        u_in_arg.user_input.output_file.path,
         strlen("/tmp/test.json")
     );
 }
 
 TEST(UserArgUserInputGroup, TestOutputFileRelativeInvalid)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -242,13 +241,13 @@ TEST(UserArgUserInputGroup, TestOutputFileRelativeInvalid)
         (char*)"file://tmp/test.json"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetValidIp4)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -256,18 +255,18 @@ TEST(UserArgUserInputGroup, TestOutputNetValidIp4)
         (char*)"udp://0.0.0.0:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_no_exit(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_no_exit(&u_in_arg);
 
-    CHECK_EQUAL(OUTPUT_NET, u_in.o_type);
-    CHECK_EQUAL(AF_INET, u_in.output_net.ip_family);
-    STRNCMP_EQUAL("0.0.0.0", u_in.output_net.ip, strlen("0.0.0.0"));
-    CHECK_EQUAL(1212, u_in.output_net.port);
+    CHECK_EQUAL(OUTPUT_NET, u_in_arg.user_input.o_type);
+    CHECK_EQUAL(AF_INET, u_in_arg.user_input.output_net.ip_family);
+    STRNCMP_EQUAL("0.0.0.0", u_in_arg.user_input.output_net.ip, strlen("0.0.0.0"));
+    CHECK_EQUAL(1212, u_in_arg.user_input.output_net.port);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetValidIp6)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -275,44 +274,44 @@ TEST(UserArgUserInputGroup, TestOutputNetValidIp6)
         (char*)"udp://[::1]:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_no_exit(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_no_exit(&u_in_arg);
 
-    CHECK_EQUAL(OUTPUT_NET, u_in.o_type);
-    CHECK_EQUAL(AF_INET6, u_in.output_net.ip_family);
-    STRNCMP_EQUAL("::1", u_in.output_net.ip, strlen("::1"));
-    CHECK_EQUAL(1212, u_in.output_net.port);
+    CHECK_EQUAL(OUTPUT_NET, u_in_arg.user_input.o_type);
+    CHECK_EQUAL(AF_INET6, u_in_arg.user_input.output_net.ip_family);
+    STRNCMP_EQUAL("::1", u_in_arg.user_input.output_net.ip, strlen("::1"));
+    CHECK_EQUAL(1212, u_in_arg.user_input.output_net.port);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetInvalidIp4)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"--output-uri",
         (char*)"udp://0.0.0.0.0:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetInvalidIp6)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"--output-uri",
         (char*)"udp://[::::::1]:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestNonDefaultsShort)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -336,98 +335,98 @@ TEST(UserArgUserInputGroup, TestNonDefaultsShort)
         (char*)"capture",
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_no_exit(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_no_exit(&u_in_arg);
 
-    CHECK_EQUAL(OUTPUT_NET, u_in.o_type);
-    CHECK_EQUAL(AF_INET, u_in.output_net.ip_family);
-    STRNCMP_EQUAL("0.0.0.0", u_in.output_net.ip, strlen("0.0.0.0"));
-    CHECK_EQUAL(1212, u_in.output_net.port);
+    CHECK_EQUAL(OUTPUT_NET, u_in_arg.user_input.o_type);
+    CHECK_EQUAL(AF_INET, u_in_arg.user_input.output_net.ip_family);
+    STRNCMP_EQUAL("0.0.0.0", u_in_arg.user_input.output_net.ip, strlen("0.0.0.0"));
+    CHECK_EQUAL(1212, u_in_arg.user_input.output_net.port);
 
-    CHECK_EQUAL(CAPTURE, u_in.c_in.global_mode);
-    CHECK_EQUAL(CAPTURE, u_in.c_in.uid_mode);
-    CHECK_EQUAL(1, u_in.c_in.uids_len);
-    CHECK_EQUAL(1000, u_in.c_in.uids[0]);
-    CHECK_EQUAL(CAPTURE, u_in.c_in.pid_mode);
-    CHECK_EQUAL(1, u_in.c_in.pids_len);
-    CHECK_EQUAL(2000, u_in.c_in.pids[0]);
-    CHECK_EQUAL(CAPTURE, u_in.c_in.ppid_mode);
-    CHECK_EQUAL(1, u_in.c_in.ppids_len);
-    CHECK_EQUAL(3000, u_in.c_in.ppids[0]);
-    CHECK_EQUAL(CAPTURE, u_in.c_in.netio_mode);
+    CHECK_EQUAL(CAPTURE, u_in_arg.user_input.c_in.global_mode);
+    CHECK_EQUAL(CAPTURE, u_in_arg.user_input.c_in.uid_mode);
+    CHECK_EQUAL(1, u_in_arg.user_input.c_in.uids_len);
+    CHECK_EQUAL(1000, u_in_arg.user_input.c_in.uids[0]);
+    CHECK_EQUAL(CAPTURE, u_in_arg.user_input.c_in.pid_mode);
+    CHECK_EQUAL(1, u_in_arg.user_input.c_in.pids_len);
+    CHECK_EQUAL(2000, u_in_arg.user_input.c_in.pids[0]);
+    CHECK_EQUAL(CAPTURE, u_in_arg.user_input.c_in.ppid_mode);
+    CHECK_EQUAL(1, u_in_arg.user_input.c_in.ppids_len);
+    CHECK_EQUAL(3000, u_in_arg.user_input.c_in.ppids[0]);
+    CHECK_EQUAL(CAPTURE, u_in_arg.user_input.c_in.netio_mode);
 }
 
 TEST(UserArgUserInputGroup, TestVersionShort)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {(char*)"test", (char*)"-v"};
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_no_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_no_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestHelpShort)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {(char*)"test", (char*)"-?"};
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_no_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_no_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestUsageShort)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {(char*)"test", (char*)"-u"};
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_no_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_no_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputFileInvalidShort)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"-o"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetInvalidArg1Short)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"-o",
         (char*)"udp://:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetInvalidArg2Short)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"-o",
         (char*)"udp://0.0.0.0"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputFileShort)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -435,16 +434,16 @@ TEST(UserArgUserInputGroup, TestOutputFileShort)
         (char*)"file:///tmp/test.json"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_no_exit(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_no_exit(&u_in_arg);
 
-    CHECK_EQUAL(OUTPUT_FILE, u_in.o_type);
-    STRNCMP_EQUAL("/tmp/test.json", u_in.output_file.path, strlen("/tmp/test.json"));
+    CHECK_EQUAL(OUTPUT_FILE, u_in_arg.user_input.o_type);
+    STRNCMP_EQUAL("/tmp/test.json", u_in_arg.user_input.output_file.path, strlen("/tmp/test.json"));
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetValidIp4Short)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -452,18 +451,18 @@ TEST(UserArgUserInputGroup, TestOutputNetValidIp4Short)
         (char*)"udp://0.0.0.0:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_no_exit(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_no_exit(&u_in_arg);
 
-    CHECK_EQUAL(OUTPUT_NET, u_in.o_type);
-    CHECK_EQUAL(AF_INET, u_in.output_net.ip_family);
-    STRNCMP_EQUAL("0.0.0.0", u_in.output_net.ip, strlen("0.0.0.0"));
-    CHECK_EQUAL(1212, u_in.output_net.port);
+    CHECK_EQUAL(OUTPUT_NET, u_in_arg.user_input.o_type);
+    CHECK_EQUAL(AF_INET, u_in_arg.user_input.output_net.ip_family);
+    STRNCMP_EQUAL("0.0.0.0", u_in_arg.user_input.output_net.ip, strlen("0.0.0.0"));
+    CHECK_EQUAL(1212, u_in_arg.user_input.output_net.port);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetValidIp6Short)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -471,65 +470,65 @@ TEST(UserArgUserInputGroup, TestOutputNetValidIp6Short)
         (char*)"udp://[::1]:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_no_exit(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_no_exit(&u_in_arg);
 
-    CHECK_EQUAL(OUTPUT_NET, u_in.o_type);
-    CHECK_EQUAL(AF_INET6, u_in.output_net.ip_family);
-    STRNCMP_EQUAL("::1", u_in.output_net.ip, strlen("::1"));
-    CHECK_EQUAL(1212, u_in.output_net.port);
+    CHECK_EQUAL(OUTPUT_NET, u_in_arg.user_input.o_type);
+    CHECK_EQUAL(AF_INET6, u_in_arg.user_input.output_net.ip_family);
+    STRNCMP_EQUAL("::1", u_in_arg.user_input.output_net.ip, strlen("::1"));
+    CHECK_EQUAL(1212, u_in_arg.user_input.output_net.port);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetNoIpShort)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"-o",
         (char*)"udp://:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetNoPortShort)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"-o",
         (char*)"udp://0.0.0.0"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetInvalidIp4Short)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"-o",
         (char*)"udp://0.0.0.0.0:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 TEST(UserArgUserInputGroup, TestOutputNetInvalidIp6Short)
 {
-    struct user_input u_in;
+    struct user_input_arg u_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"-o",
         (char*)"udp://[::::::1]:1212"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_user_parse(&u_in, argc, argv);
-    check_parse_state_exit_error(&u_in);
+    user_args_user_parse(&u_in_arg, argc, argv);
+    check_parse_state_exit_error(&u_in_arg);
 }
 
 int main(int argc, char** argv)

@@ -21,6 +21,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+
+#include "common/control.h"
+
 #include "user/jsonify/control.h"
 
 #include "user/args/control.h"
@@ -30,7 +33,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 
-static struct control_input global_control_input;
+static struct control_input_arg global_control_input_arg;
 
 
 enum
@@ -69,16 +72,16 @@ struct argp global_control_input_argp = {
     .argp_domain = 0
 };
 
-static struct control_input *get_global_control_input()
+static struct control_input_arg *get_global_control_input_arg()
 {
-    return &global_control_input;
+    return &global_control_input_arg;
 }
 
-static void init_control_input(struct control_input *input)
+static void init_control_input(struct control_input_arg *input)
 {
     if (!input)
         return;
-    control_set_default(input);
+    control_set_default(&(input->control_input));
     user_args_helper_state_init(&(input->parse_state));
 }
 
@@ -88,7 +91,7 @@ static int find_string_index(const char *haystack, const char *needle)
     return result ? (int)(result - haystack) : -1;
 }
 
-static void parse_mode(struct control_input *input, trace_mode_t *dst, char *mode_str, struct argp_state *state)
+static void parse_mode(struct control_input_arg *input, trace_mode_t *dst, char *mode_str, struct argp_state *state)
 {
     if (find_string_index("ignore", mode_str) == 0 && strlen(mode_str) <= strlen("ignore"))
     {
@@ -110,7 +113,7 @@ static void parse_mode(struct control_input *input, trace_mode_t *dst, char *mod
 }
 
 static void parse_int_list(
-    struct control_input *input,
+    struct control_input_arg *input,
     const char *list_str, int *array, int *array_len, int max_items, int negative_disallowed, struct argp_state *state
 )
 {
@@ -164,48 +167,48 @@ static void parse_int_list(
     *array_len = len;
 }
 
-static void validate_control_input(struct control_input *input, struct argp_state *state)
+static void validate_control_input(struct control_input_arg *input, struct argp_state *state)
 {
     // Nothing
 }
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-    struct control_input *input = get_global_control_input();
+    struct control_input_arg *input = get_global_control_input_arg();
     int negative_disallowed = 1;
 
     switch (key)
     {
     case OPT_GLOBAL_MODE:
-        parse_mode(input, &input->global_mode, arg, state);
+        parse_mode(input, &input->control_input.global_mode, arg, state);
         break;
 
     case OPT_UID_MODE:
-        parse_mode(input, &input->uid_mode, arg, state);
+        parse_mode(input, &input->control_input.uid_mode, arg, state);
         break;
 
     case OPT_UID_LIST:
-        parse_int_list(input, arg, (int *)input->uids, &input->uids_len, MAX_LIST_ITEMS, negative_disallowed, state);
+        parse_int_list(input, arg, (int *)input->control_input.uids, &input->control_input.uids_len, MAX_LIST_ITEMS, negative_disallowed, state);
         break;
 
     case OPT_PID_MODE:
-        parse_mode(input, &input->pid_mode, arg, state);
+        parse_mode(input, &input->control_input.pid_mode, arg, state);
         break;
 
     case OPT_PID_LIST:
-        parse_int_list(input, arg, (int *)input->pids, &input->pids_len, MAX_LIST_ITEMS, negative_disallowed, state);
+        parse_int_list(input, arg, (int *)input->control_input.pids, &input->control_input.pids_len, MAX_LIST_ITEMS, negative_disallowed, state);
         break;
 
     case OPT_PPID_MODE:
-        parse_mode(input, &input->ppid_mode, arg, state);
+        parse_mode(input, &input->control_input.ppid_mode, arg, state);
         break;
 
     case OPT_PPID_LIST:
-        parse_int_list(input, arg, (int *)input->ppids, &input->ppids_len, MAX_LIST_ITEMS, negative_disallowed, state);
+        parse_int_list(input, arg, (int *)input->control_input.ppids, &input->control_input.ppids_len, MAX_LIST_ITEMS, negative_disallowed, state);
         break;
 
     case OPT_NETIO_MODE:
-        parse_mode(input, &input->netio_mode, arg, state);
+        parse_mode(input, &input->control_input.netio_mode, arg, state);
         break;
 
     case ARGP_KEY_INIT:
@@ -228,14 +231,21 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-void user_args_control_copy(struct control_input *dst)
+void user_args_control_copy(struct control_input_arg *dst)
 {
     if (!dst)
         return;
-    memcpy(dst, get_global_control_input(), sizeof(struct control_input));
+    memcpy(dst, get_global_control_input_arg(), sizeof(struct control_input_arg));
 }
 
-void user_args_control_parse(struct control_input *dst, int argc, char **argv)
+void user_args_control_copy_only_control_input(struct control_input *dst)
+{
+    if (!dst)
+        return;
+    memcpy(dst, &(get_global_control_input_arg()->control_input), sizeof(struct control_input));
+}
+
+void user_args_control_parse(struct control_input_arg *dst, int argc, char **argv)
 {
     if (!dst)
         return;

@@ -26,7 +26,7 @@ extern "C" {
 }
 
 
-static void check_parse_state_exit_error(struct control_input *i)
+static void check_parse_state_exit_error(struct control_input_arg *i)
 {
     if (!i)
         return;
@@ -34,7 +34,7 @@ static void check_parse_state_exit_error(struct control_input *i)
     CHECK(0 != i->parse_state.code);
 }
 
-__attribute__((unused)) static void check_parse_state_exit_no_error(struct control_input *i)
+__attribute__((unused)) static void check_parse_state_exit_no_error(struct control_input_arg *i)
 {
     if (!i)
         return;
@@ -42,7 +42,7 @@ __attribute__((unused)) static void check_parse_state_exit_no_error(struct contr
     CHECK_EQUAL(0, i->parse_state.code);
 }
 
-static void check_parse_state_no_exit(struct control_input *i)
+static void check_parse_state_no_exit(struct control_input_arg *i)
 {
     if (!i)
         return;
@@ -55,40 +55,39 @@ TEST_GROUP(UserArgControlGroup)
 
 TEST(UserArgControlGroup, TestParse)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
     char* argv[] = {
         (char*)"test"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
 }
 
 TEST(UserArgControlGroup, TestDefaults)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
 
-    CHECK_EQUAL(FREE, c_in.lock);
-    CHECK_EQUAL(IGNORE, c_in.global_mode);
-    CHECK_EQUAL(IGNORE, c_in.uid_mode);
-    CHECK_EQUAL(0, c_in.uids_len);
-    CHECK_EQUAL(IGNORE, c_in.pid_mode);
-    CHECK_EQUAL(0, c_in.pids_len);
-    CHECK_EQUAL(IGNORE, c_in.ppid_mode);
-    CHECK_EQUAL(0, c_in.ppids_len);
-    CHECK_EQUAL(IGNORE, c_in.netio_mode);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.global_mode);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.uids_len);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.pids_len);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.ppids_len);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.netio_mode);
 }
 
 TEST(UserArgControlGroup, TestGlobalModeCapture)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -96,14 +95,14 @@ TEST(UserArgControlGroup, TestGlobalModeCapture)
         (char*)"capture"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.global_mode);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.global_mode);
 }
 
 TEST(UserArgControlGroup, TestGlobalModeInvalid)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -111,13 +110,13 @@ TEST(UserArgControlGroup, TestGlobalModeInvalid)
         (char*)"invalid"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_exit_error(&c_in);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_exit_error(&c_in_arg);
 }
 
 TEST(UserArgControlGroup, TestNetioModeCapture)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -125,14 +124,14 @@ TEST(UserArgControlGroup, TestNetioModeCapture)
         (char*)"capture"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.netio_mode);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.netio_mode);
 }
 
 TEST(UserArgControlGroup, TestUidModeIgnoreNone)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -140,15 +139,15 @@ TEST(UserArgControlGroup, TestUidModeIgnoreNone)
         (char*)"ignore"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.uid_mode);
-    CHECK_EQUAL(0, c_in.uids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.uids_len);
 }
 
 TEST(UserArgControlGroup, TestUidModeCaptureNone)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -156,15 +155,15 @@ TEST(UserArgControlGroup, TestUidModeCaptureNone)
         (char*)"capture"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.uid_mode);
-    CHECK_EQUAL(0, c_in.uids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.uids_len);
 }
 
 TEST(UserArgControlGroup, TestUidModeCaptureSingle)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -174,16 +173,16 @@ TEST(UserArgControlGroup, TestUidModeCaptureSingle)
         (char*)"1000"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.uid_mode);
-    CHECK_EQUAL(1, c_in.uids_len);
-    CHECK_EQUAL(1000, c_in.uids[0]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(1, c_in_arg.control_input.uids_len);
+    CHECK_EQUAL(1000, c_in_arg.control_input.uids[0]);
 }
 
 TEST(UserArgControlGroup, TestUidModeIgnoreMultiple)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -193,17 +192,17 @@ TEST(UserArgControlGroup, TestUidModeIgnoreMultiple)
         (char*)"1000,1001"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.uid_mode);
-    CHECK_EQUAL(2, c_in.uids_len);
-    CHECK_EQUAL(1000, c_in.uids[0]);
-    CHECK_EQUAL(1001, c_in.uids[1]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(2, c_in_arg.control_input.uids_len);
+    CHECK_EQUAL(1000, c_in_arg.control_input.uids[0]);
+    CHECK_EQUAL(1001, c_in_arg.control_input.uids[1]);
 }
 
 TEST(UserArgControlGroup, TestUidModeIgnoreMax)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -213,18 +212,18 @@ TEST(UserArgControlGroup, TestUidModeIgnoreMax)
         (char*)"1000,1001,1002,1003,1004,1005,1006,1007,1008,1009"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.uid_mode);
-    CHECK_EQUAL(10 ,c_in.uids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(10 ,c_in_arg.control_input.uids_len);
     for (int i = 0; i < 10; ++i) {
-        CHECK_EQUAL(1000 + i, c_in.uids[i]);
+        CHECK_EQUAL(1000 + i, c_in_arg.control_input.uids[i]);
     }
 }
 
 TEST(UserArgControlGroup, TestUidModeIgnoreMaxPlus1)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -234,13 +233,13 @@ TEST(UserArgControlGroup, TestUidModeIgnoreMaxPlus1)
         (char*)"1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_exit_error(&c_in);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_exit_error(&c_in_arg);
 }
 
 TEST(UserArgControlGroup, TestPidModeIgnoreNone)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -248,15 +247,15 @@ TEST(UserArgControlGroup, TestPidModeIgnoreNone)
         (char*)"ignore"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.pid_mode);
-    CHECK_EQUAL(0, c_in.pids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.pids_len);
 }
 
 TEST(UserArgControlGroup, TestPidModeCaptureNone)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -264,15 +263,15 @@ TEST(UserArgControlGroup, TestPidModeCaptureNone)
         (char*)"capture"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.pid_mode);
-    CHECK_EQUAL(0, c_in.pids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.pids_len);
 }
 
 TEST(UserArgControlGroup, TestPidModeCaptureSingle)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -282,16 +281,16 @@ TEST(UserArgControlGroup, TestPidModeCaptureSingle)
         (char*)"1234"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.pid_mode);
-    CHECK_EQUAL(1, c_in.pids_len);
-    CHECK_EQUAL(1234, c_in.pids[0]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(1, c_in_arg.control_input.pids_len);
+    CHECK_EQUAL(1234, c_in_arg.control_input.pids[0]);
 }
 
 TEST(UserArgControlGroup, TestPidModeIgnoreMultiple)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -301,17 +300,17 @@ TEST(UserArgControlGroup, TestPidModeIgnoreMultiple)
         (char*)"1234,5678"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.pid_mode);
-    CHECK_EQUAL(2, c_in.pids_len);
-    CHECK_EQUAL(1234, c_in.pids[0]);
-    CHECK_EQUAL(5678, c_in.pids[1]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(2, c_in_arg.control_input.pids_len);
+    CHECK_EQUAL(1234, c_in_arg.control_input.pids[0]);
+    CHECK_EQUAL(5678, c_in_arg.control_input.pids[1]);
 }
 
 TEST(UserArgControlGroup, TestPidModeIgnoreMax)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -321,18 +320,18 @@ TEST(UserArgControlGroup, TestPidModeIgnoreMax)
         (char*)"1000,1001,1002,1003,1004,1005,1006,1007,1008,1009"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.pid_mode);
-    CHECK_EQUAL(10, c_in.pids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(10, c_in_arg.control_input.pids_len);
     for (int i = 0; i < 10; ++i) {
-        CHECK_EQUAL(1000 + i, c_in.pids[i]);
+        CHECK_EQUAL(1000 + i, c_in_arg.control_input.pids[i]);
     }
 }
 
 TEST(UserArgControlGroup, TestPidModeIgnoreMaxPlus1)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
     char* argv[] = {
         (char*)"test",
         (char*)"--pid-mode",
@@ -341,13 +340,13 @@ TEST(UserArgControlGroup, TestPidModeIgnoreMaxPlus1)
         (char*)"1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_exit_error(&c_in);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_exit_error(&c_in_arg);
 }
 
 TEST(UserArgControlGroup, TestPpidModeIgnoreNone)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -355,15 +354,15 @@ TEST(UserArgControlGroup, TestPpidModeIgnoreNone)
         (char*)"ignore"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.ppid_mode);
-    CHECK_EQUAL(0, c_in.ppids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.ppids_len);
 }
 
 TEST(UserArgControlGroup, TestPpidModeCaptureNone)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -371,15 +370,15 @@ TEST(UserArgControlGroup, TestPpidModeCaptureNone)
         (char*)"capture"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.ppid_mode);
-    CHECK_EQUAL(0, c_in.ppids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.ppids_len);
 }
 
 TEST(UserArgControlGroup, TestPpidModeCaptureSingle)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -389,16 +388,16 @@ TEST(UserArgControlGroup, TestPpidModeCaptureSingle)
         (char*)"4321"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.ppid_mode);
-    CHECK_EQUAL(1, c_in.ppids_len);
-    CHECK_EQUAL(4321, c_in.ppids[0]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(1, c_in_arg.control_input.ppids_len);
+    CHECK_EQUAL(4321, c_in_arg.control_input.ppids[0]);
 }
 
 TEST(UserArgControlGroup, TestPpidModeIgnoreMultiple)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -408,17 +407,17 @@ TEST(UserArgControlGroup, TestPpidModeIgnoreMultiple)
         (char*)"4321,8765"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.ppid_mode);
-    CHECK_EQUAL(2, c_in.ppids_len);
-    CHECK_EQUAL(4321, c_in.ppids[0]);
-    CHECK_EQUAL(8765, c_in.ppids[1]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(2, c_in_arg.control_input.ppids_len);
+    CHECK_EQUAL(4321, c_in_arg.control_input.ppids[0]);
+    CHECK_EQUAL(8765, c_in_arg.control_input.ppids[1]);
 }
 
 TEST(UserArgControlGroup, TestPpidModeIgnoreMax)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -428,18 +427,18 @@ TEST(UserArgControlGroup, TestPpidModeIgnoreMax)
         (char*)"2000,2001,2002,2003,2004,2005,2006,2007,2008,2009"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.ppid_mode);
-    CHECK_EQUAL(10, c_in.ppids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(10, c_in_arg.control_input.ppids_len);
     for (int i = 0; i < 10; ++i) {
-        CHECK_EQUAL(2000 + i, c_in.ppids[i]);
+        CHECK_EQUAL(2000 + i, c_in_arg.control_input.ppids[i]);
     }
 }
 
 TEST(UserArgControlGroup, TestPpidModeIgnoreMaxPlus1)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -449,13 +448,13 @@ TEST(UserArgControlGroup, TestPpidModeIgnoreMaxPlus1)
         (char*)"2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_exit_error(&c_in);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_exit_error(&c_in_arg);
 }
 
 TEST(UserArgControlGroup, TestGlobalModeCaptureShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -463,14 +462,14 @@ TEST(UserArgControlGroup, TestGlobalModeCaptureShort)
         (char*)"capture"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.global_mode);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.global_mode);
 }
 
 TEST(UserArgControlGroup, TestGlobalModeInvalidShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -478,13 +477,13 @@ TEST(UserArgControlGroup, TestGlobalModeInvalidShort)
         (char*)"invalid"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_exit_error(&c_in);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_exit_error(&c_in_arg);
 }
 
 TEST(UserArgControlGroup, TestNetioModeCaptureShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -492,14 +491,14 @@ TEST(UserArgControlGroup, TestNetioModeCaptureShort)
         (char*)"capture"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.netio_mode);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.netio_mode);
 }
 
 TEST(UserArgControlGroup, TestUidModeIgnoreNoneShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -507,15 +506,15 @@ TEST(UserArgControlGroup, TestUidModeIgnoreNoneShort)
         (char*)"ignore"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.uid_mode);
-    CHECK_EQUAL(0, c_in.uids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.uids_len);
 }
 
 TEST(UserArgControlGroup, TestUidModeCaptureNoneShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -523,15 +522,15 @@ TEST(UserArgControlGroup, TestUidModeCaptureNoneShort)
         (char*)"capture"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.uid_mode);
-    CHECK_EQUAL(0, c_in.uids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.uids_len);
 }
 
 TEST(UserArgControlGroup, TestUidModeCaptureSingleShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -541,16 +540,16 @@ TEST(UserArgControlGroup, TestUidModeCaptureSingleShort)
         (char*)"1000"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.uid_mode);
-    CHECK_EQUAL(1, c_in.uids_len);
-    CHECK_EQUAL(1000, c_in.uids[0]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(1, c_in_arg.control_input.uids_len);
+    CHECK_EQUAL(1000, c_in_arg.control_input.uids[0]);
 }
 
 TEST(UserArgControlGroup, TestUidModeIgnoreMultipleShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -560,17 +559,17 @@ TEST(UserArgControlGroup, TestUidModeIgnoreMultipleShort)
         (char*)"1000,1001"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.uid_mode);
-    CHECK_EQUAL(2, c_in.uids_len);
-    CHECK_EQUAL(1000, c_in.uids[0]);
-    CHECK_EQUAL(1001, c_in.uids[1]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(2, c_in_arg.control_input.uids_len);
+    CHECK_EQUAL(1000, c_in_arg.control_input.uids[0]);
+    CHECK_EQUAL(1001, c_in_arg.control_input.uids[1]);
 }
 
 TEST(UserArgControlGroup, TestUidModeIgnoreMaxShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -580,18 +579,18 @@ TEST(UserArgControlGroup, TestUidModeIgnoreMaxShort)
         (char*)"1000,1001,1002,1003,1004,1005,1006,1007,1008,1009"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.uid_mode);
-    CHECK_EQUAL(10, c_in.uids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.uid_mode);
+    CHECK_EQUAL(10, c_in_arg.control_input.uids_len);
     for (int i = 0; i < 10; ++i) {
-        CHECK_EQUAL(1000 + i, c_in.uids[i]);
+        CHECK_EQUAL(1000 + i, c_in_arg.control_input.uids[i]);
     }
 }
 
 TEST(UserArgControlGroup, TestUidModeIgnoreMaxPlus1Short)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -601,13 +600,13 @@ TEST(UserArgControlGroup, TestUidModeIgnoreMaxPlus1Short)
         (char*)"1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_exit_error(&c_in);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_exit_error(&c_in_arg);
 }
 
 TEST(UserArgControlGroup, TestPidModeIgnoreNoneShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -615,15 +614,15 @@ TEST(UserArgControlGroup, TestPidModeIgnoreNoneShort)
         (char*)"ignore"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.pid_mode);
-    CHECK_EQUAL(0, c_in.pids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.pids_len);
 }
 
 TEST(UserArgControlGroup, TestPidModeCaptureNoneShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -631,15 +630,15 @@ TEST(UserArgControlGroup, TestPidModeCaptureNoneShort)
         (char*)"capture"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.pid_mode);
-    CHECK_EQUAL(0, c_in.pids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.pids_len);
 }
 
 TEST(UserArgControlGroup, TestPidModeCaptureSingleShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -649,16 +648,16 @@ TEST(UserArgControlGroup, TestPidModeCaptureSingleShort)
         (char*)"1234"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.pid_mode);
-    CHECK_EQUAL(1, c_in.pids_len);
-    CHECK_EQUAL(1234, c_in.pids[0]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(1, c_in_arg.control_input.pids_len);
+    CHECK_EQUAL(1234, c_in_arg.control_input.pids[0]);
 }
 
 TEST(UserArgControlGroup, TestPidModeIgnoreMultipleShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -668,17 +667,17 @@ TEST(UserArgControlGroup, TestPidModeIgnoreMultipleShort)
         (char*)"1234,5678"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.pid_mode);
-    CHECK_EQUAL(2, c_in.pids_len);
-    CHECK_EQUAL(1234, c_in.pids[0]);
-    CHECK_EQUAL(5678, c_in.pids[1]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(2, c_in_arg.control_input.pids_len);
+    CHECK_EQUAL(1234, c_in_arg.control_input.pids[0]);
+    CHECK_EQUAL(5678, c_in_arg.control_input.pids[1]);
 }
 
 TEST(UserArgControlGroup, TestPidModeIgnoreMaxShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -688,18 +687,18 @@ TEST(UserArgControlGroup, TestPidModeIgnoreMaxShort)
         (char*)"1000,1001,1002,1003,1004,1005,1006,1007,1008,1009"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.pid_mode);
-    CHECK_EQUAL(10, c_in.pids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.pid_mode);
+    CHECK_EQUAL(10, c_in_arg.control_input.pids_len);
     for (int i = 0; i < 10; ++i) {
-        CHECK_EQUAL(1000 + i, c_in.pids[i]);
+        CHECK_EQUAL(1000 + i, c_in_arg.control_input.pids[i]);
     }
 }
 
 TEST(UserArgControlGroup, TestPidModeIgnoreMaxPlus1Short)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -709,13 +708,13 @@ TEST(UserArgControlGroup, TestPidModeIgnoreMaxPlus1Short)
         (char*)"1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_exit_error(&c_in);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_exit_error(&c_in_arg);
 }
 
 TEST(UserArgControlGroup, TestPpidModeIgnoreNoneShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -723,15 +722,15 @@ TEST(UserArgControlGroup, TestPpidModeIgnoreNoneShort)
         (char*)"ignore"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.ppid_mode);
-    CHECK_EQUAL(0, c_in.ppids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.ppids_len);
 }
 
 TEST(UserArgControlGroup, TestPpidModeCaptureNoneShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -739,15 +738,15 @@ TEST(UserArgControlGroup, TestPpidModeCaptureNoneShort)
         (char*)"capture"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.ppid_mode);
-    CHECK_EQUAL(0, c_in.ppids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(0, c_in_arg.control_input.ppids_len);
 }
 
 TEST(UserArgControlGroup, TestPpidModeCaptureSingleShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -757,16 +756,16 @@ TEST(UserArgControlGroup, TestPpidModeCaptureSingleShort)
         (char*)"4321"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(CAPTURE, c_in.ppid_mode);
-    CHECK_EQUAL(1, c_in.ppids_len);
-    CHECK_EQUAL(4321, c_in.ppids[0]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(CAPTURE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(1, c_in_arg.control_input.ppids_len);
+    CHECK_EQUAL(4321, c_in_arg.control_input.ppids[0]);
 }
 
 TEST(UserArgControlGroup, TestPpidModeIgnoreMultipleShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -776,17 +775,17 @@ TEST(UserArgControlGroup, TestPpidModeIgnoreMultipleShort)
         (char*)"4321,8765"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.ppid_mode);
-    CHECK_EQUAL(2, c_in.ppids_len);
-    CHECK_EQUAL(4321, c_in.ppids[0]);
-    CHECK_EQUAL(8765, c_in.ppids[1]);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(2, c_in_arg.control_input.ppids_len);
+    CHECK_EQUAL(4321, c_in_arg.control_input.ppids[0]);
+    CHECK_EQUAL(8765, c_in_arg.control_input.ppids[1]);
 }
 
 TEST(UserArgControlGroup, TestPpidModeIgnoreMaxShort)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -796,18 +795,18 @@ TEST(UserArgControlGroup, TestPpidModeIgnoreMaxShort)
         (char*)"2000,2001,2002,2003,2004,2005,2006,2007,2008,2009"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_no_exit(&c_in);
-    CHECK_EQUAL(IGNORE, c_in.ppid_mode);
-    CHECK_EQUAL(10, c_in.ppids_len);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_no_exit(&c_in_arg);
+    CHECK_EQUAL(IGNORE, c_in_arg.control_input.ppid_mode);
+    CHECK_EQUAL(10, c_in_arg.control_input.ppids_len);
     for (int i = 0; i < 10; ++i) {
-        CHECK_EQUAL(2000 + i, c_in.ppids[i]);
+        CHECK_EQUAL(2000 + i, c_in_arg.control_input.ppids[i]);
     }
 }
 
 TEST(UserArgControlGroup, TestPpidModeIgnoreMaxPlus1Short)
 {
-    struct control_input c_in;
+    struct control_input_arg c_in_arg;
 
     char* argv[] = {
         (char*)"test",
@@ -817,8 +816,8 @@ TEST(UserArgControlGroup, TestPpidModeIgnoreMaxPlus1Short)
         (char*)"2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010"
     };
     int argc = sizeof(argv) / sizeof(char*);
-    user_args_control_parse(&c_in, argc, argv);
-    check_parse_state_exit_error(&c_in);
+    user_args_control_parse(&c_in_arg, argc, argv);
+    check_parse_state_exit_error(&c_in_arg);
 }
 
 int main(int argc, char** argv)

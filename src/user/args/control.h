@@ -27,15 +27,26 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "common/control.h"
 
+
+/*
+    A struct to encapsulate 'struct control_input' and keep parsing state.
+*/
+struct control_input_arg
+{
+    struct arg_parse_state parse_state;
+    struct control_input control_input;
+};
+
 /*
     A properly formed argp struct.
 */
 extern struct argp global_control_input_argp;
 
 /*
-    Copy value of internal global struct control_input to dst.
+    Copy the value of internal global (struct control_input_arg) to dst.
 */
-void user_args_control_copy(struct control_input *dst);
+void user_args_control_copy(struct control_input_arg *dst);
+void user_args_control_copy_only_control_input(struct control_input *dst);
 
 /*
     Parse user arguments (i.e. int main(int argc, char **argv)), and populate dst.
@@ -43,4 +54,4 @@ void user_args_control_copy(struct control_input *dst);
     Return:
         Always returns. Error (if any) in (struct control_input)->(struct arg_parse_state).
 */
-void user_args_control_parse(struct control_input *dst, int argc, char **argv);
+void user_args_control_parse(struct control_input_arg *dst, int argc, char **argv);

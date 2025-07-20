@@ -18,6 +18,17 @@
 ## Process this file with automake to produce Makefile.in
 
 
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
+AM_CFLAGS = -Wall
+
+
+noinst_LIBRARIES = \
+    lib.a
+
+lib_a_SOURCES = \
+    control.h version.h constants.h types.h \
+    control.c
+
 vmlinux_h = $(top_builddir)/src/common/vmlinux.h
 
 $(vmlinux_h):

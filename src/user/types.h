@@ -77,5 +77,4 @@ struct user_input
     struct output_file output_file;
     struct output_net output_net;
     enum output_type o_type;
-    struct arg_parse_state parse_state;
 };

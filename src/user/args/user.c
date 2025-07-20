@@ -38,7 +38,7 @@ extern const struct elem_version record_version;
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 
-static struct user_input global_user_input;
+static struct user_input_arg global_user_input_arg;
 
 
 enum
@@ -73,41 +73,41 @@ static struct argp global_user_input_argp = {
     .argp_domain = 0
 };
 
-static struct user_input *get_global_user_input()
+static struct user_input_arg *get_global_user_input_arg()
 {
-    return &global_user_input;
+    return &global_user_input_arg;
 }
 
-static void init_user_input(struct user_input *input)
+static void init_user_input(struct user_input_arg *input)
 {
     if (!input)
         return;
     memset(input, 0, sizeof(*input));
-    input->o_type = default_output_type;
-    memcpy(&(input->output_file.path), default_output_file_path, strlen(default_output_file_path));
-    input->output_net.ip_family = 0;
-    input->output_net.port = -1;
-    input->output_net.ip[0] = 0;
+    input->user_input.o_type = default_output_type;
+    memcpy(&(input->user_input.output_file.path), default_output_file_path, strlen(default_output_file_path));
+    input->user_input.output_net.ip_family = 0;
+    input->user_input.output_net.port = -1;
+    input->user_input.output_net.ip[0] = 0;
     user_args_helper_state_init(&(input->parse_state));
 }
 
-static void validate_user_input(struct user_input *input, struct argp_state *state)
+static void validate_user_input(struct user_input_arg *input, struct argp_state *state)
 {
-    if (input->o_type == OUTPUT_NONE)
+    if (input->user_input.o_type == OUTPUT_NONE)
     {
         fprintf(stderr, "Must specify exactly one output method. Use --help.\n");
         user_args_helper_state_set_exit_error(&input->parse_state, -1);
         return;
     }
-    if (input->o_type == OUTPUT_NET)
+    if (input->user_input.o_type == OUTPUT_NET)
     {
-        if (input->output_net.ip[0] == 0)
+        if (input->user_input.output_net.ip[0] == 0)
         {
             fprintf(stderr, "Must specify IP for network output method. Use --help.\n");
             user_args_helper_state_set_exit_error(&input->parse_state, -1);
             return;
         }
-        if (input->output_net.port < 1 || input->output_net.port > 65535)
+        if (input->user_input.output_net.port < 1 || input->user_input.output_net.port > 65535)
         {
             fprintf(stderr, "Must specify a valid port for network output method. Use --help.\n");
             user_args_helper_state_set_exit_error(&input->parse_state, -1);
@@ -116,7 +116,7 @@ static void validate_user_input(struct user_input *input, struct argp_state *sta
     }
 }
 
-static void parse_arg_output_uri_file(struct user_input *dst, struct argp_state *state, const char* path)
+static void parse_arg_output_uri_file(struct user_input_arg *dst, struct argp_state *state, const char* path)
 {
     if (!path || strlen(path) == 0) {
         fprintf(stderr, "Invalid file URI: missing path\n");
@@ -136,12 +136,12 @@ static void parse_arg_output_uri_file(struct user_input *dst, struct argp_state 
         return;
     }
 
-    strncpy(&(dst->output_file.path[0]), path, PATH_MAX);
+    strncpy(&(dst->user_input.output_file.path[0]), path, PATH_MAX);
 
-    dst->o_type = OUTPUT_FILE;
+    dst->user_input.o_type = OUTPUT_FILE;
 }
 
-static void parse_arg_output_uri_net_udp(struct user_input *dst, struct argp_state *state, const char *uri_stripped_val)
+static void parse_arg_output_uri_net_udp(struct user_input_arg *dst, struct argp_state *state, const char *uri_stripped_val)
 {
     const char *ip_start = uri_stripped_val;
     const char *ip_end = NULL;
@@ -171,16 +171,16 @@ static void parse_arg_output_uri_net_udp(struct user_input *dst, struct argp_sta
             return;
         }
 
-        strncpy(&(dst->output_net.ip[0]), ip_start, ip_len);
+        strncpy(&(dst->user_input.output_net.ip[0]), ip_start, ip_len);
         struct in6_addr ipv6;
-        if (inet_pton(AF_INET6, &(dst->output_net.ip[0]), &ipv6) == 0) {
+        if (inet_pton(AF_INET6, &(dst->user_input.output_net.ip[0]), &ipv6) == 0) {
             fprintf(stderr, "Invalid UDP URI: invalid IPv6\n");
             user_args_helper_state_set_exit_error(&dst->parse_state, -1);
             return;
         }
 
         port_str = ip_end + 2; // skip "]:" to point to port
-        dst->output_net.ip_family = AF_INET6;
+        dst->user_input.output_net.ip_family = AF_INET6;
     } else {
         // ipv4
         ip_end = strchr(ip_start, ':');
@@ -197,16 +197,16 @@ static void parse_arg_output_uri_net_udp(struct user_input *dst, struct argp_sta
             return;
         }
 
-        strncpy(&(dst->output_net.ip[0]), ip_start, ip_len);
+        strncpy(&(dst->user_input.output_net.ip[0]), ip_start, ip_len);
         struct in_addr ipv4;
-        if (inet_pton(AF_INET, &(dst->output_net.ip[0]), &ipv4) == 0) {
+        if (inet_pton(AF_INET, &(dst->user_input.output_net.ip[0]), &ipv4) == 0) {
             fprintf(stderr, "Invalid UDP URI: invalid IPv4\n");
             user_args_helper_state_set_exit_error(&dst->parse_state, -1);
             return;
         }
 
         port_str = ip_end + 1;
-        dst->output_net.ip_family = AF_INET;
+        dst->user_input.output_net.ip_family = AF_INET;
     }
 
     if (strlen(port_str) == 0) {
@@ -223,11 +223,11 @@ static void parse_arg_output_uri_net_udp(struct user_input *dst, struct argp_sta
         return;
     }
 
-    dst->output_net.port = (int)port;
-    dst->o_type = OUTPUT_NET;
+    dst->user_input.output_net.port = (int)port;
+    dst->user_input.o_type = OUTPUT_NET;
 }
 
-static void parse_arg_output_uri(struct user_input *dst, char *arg, struct argp_state *state)
+static void parse_arg_output_uri(struct user_input_arg *dst, char *arg, struct argp_state *state)
 {
     if (!arg || strlen(arg) == 0) {
         fprintf(stderr, "Invalid URI: argument is empty\n");
@@ -266,7 +266,7 @@ void print_app_version()
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-    struct user_input *input = get_global_user_input();
+    struct user_input_arg *input = get_global_user_input_arg();
 
     switch (key)
     {
@@ -310,14 +310,14 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-void user_args_user_copy(struct user_input *dst)
+void user_args_user_copy(struct user_input_arg *dst)
 {
     if (!dst)
         return;
-    memcpy(dst, get_global_user_input(), sizeof(struct user_input));
+    memcpy(dst, get_global_user_input_arg(), sizeof(struct user_input_arg));
 }
 
-void user_args_user_parse(struct user_input *dst, int argc, char **argv)
+void user_args_user_parse(struct user_input_arg *dst, int argc, char **argv)
 {
     if (!dst)
         return;
@@ -328,5 +328,5 @@ void user_args_user_parse(struct user_input *dst, int argc, char **argv)
     argp_parse(&global_user_input_argp, argc, argv, argp_flags, 0, 0);
     
     user_args_user_copy(dst);
-    user_args_control_copy(&(dst->c_in));
+    user_args_control_copy_only_control_input(&(dst->user_input.c_in));
 }

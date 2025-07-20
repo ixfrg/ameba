@@ -52,13 +52,12 @@ jsonify_lib_a_SOURCES = \
 
 bin_PROGRAMS = ameba
 ameba_SOURCES = \
-    $(top_srcdir)/src/common/control.h $(top_srcdir)/src/common/version.h $(top_srcdir)/src/common/constants.h $(top_srcdir)/src/common/types.h \
-    $(top_srcdir)/src/common/control.c \
     types.h \
     error.h \
     ameba.c
 ameba_LDADD = \
     args/lib.a \
+    $(top_builddir)/src/common/lib.a \
     record/deserializer/lib.a \
     record/writer/lib.a \
     record/serializer/lib.a \

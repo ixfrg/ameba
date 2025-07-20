@@ -64,8 +64,6 @@ struct control_input
     int ppids_len;
 
     trace_mode_t netio_mode;
-
-    struct arg_parse_state parse_state;
 };
 
 /*
