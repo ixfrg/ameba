@@ -26,10 +26,13 @@ void control_set_default(struct control_input *dst)
         return;
     dst->global_mode = IGNORE;
     dst->uid_mode = IGNORE;
+    __builtin_memset(dst->uids, 0, sizeof(dst->uids));
     dst->uids_len = 0;
     dst->pid_mode = IGNORE;
+    __builtin_memset(dst->pids, 0, sizeof(dst->pids));
     dst->pids_len = 0;
     dst->ppid_mode = IGNORE;
+    __builtin_memset(dst->ppids, 0, sizeof(dst->ppids));
     dst->ppids_len = 0;
     dst->netio_mode = IGNORE;
 }

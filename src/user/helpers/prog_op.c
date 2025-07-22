@@ -210,3 +210,30 @@ int prog_op_ameba_must_be_pinned(void)
         }
     }
 }
+
+int prog_op_ameba_must_not_be_pinned(void)
+{
+    struct stat st;
+    if (stat(DIR_PATH_FOR_PINNING_AMEBA_BPF, &st) == 0)
+    {
+        if (S_ISDIR(st.st_mode))
+        {
+            log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Ameba pin dir '%s' exists", DIR_PATH_FOR_PINNING_AMEBA_BPF);
+            return -1;
+        } else
+        {
+            log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Ameba pin dir '%s' is not a directory", DIR_PATH_FOR_PINNING_AMEBA_BPF);
+            return -1;
+        }
+    } else
+    {
+        if (errno == ENOENT)
+        {
+            return 0;
+        } else
+        {
+            log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to check for ameba pin dir '%s'. Err: %s", DIR_PATH_FOR_PINNING_AMEBA_BPF, strerror(errno));
+            return -1;
+        }
+    }
+}

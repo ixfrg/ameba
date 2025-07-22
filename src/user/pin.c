@@ -90,7 +90,7 @@ static int set_bpf_app_version_in_map(struct ameba *skel, const struct elem_vers
     int ret = bpf_map__update_elem(
         skel->maps.AMEBA_MAP_NAME_APP_VERSION,
         &version_key, sizeof(int),
-        &version, sizeof(struct elem_version),
+        version, sizeof(struct elem_version),
         BPF_ANY
     );
     if (ret != 0)
@@ -107,7 +107,7 @@ static int set_bpf_record_version_in_map(struct ameba *skel, const struct elem_v
     int ret = bpf_map__update_elem(
         skel->maps.AMEBA_MAP_NAME_RECORD_VERSION,
         &version_key, sizeof(int),
-        &version, sizeof(struct elem_version),
+        version, sizeof(struct elem_version),
         BPF_ANY
     );
     if (ret != 0)
@@ -169,6 +169,13 @@ int main(int argc, char *argv[])
     {
         result = -1;
         goto exit;
+    }
+
+    result = prog_op_ameba_must_not_be_pinned();
+    if (result != 0)
+    {
+        result = -1;
+        goto rm_prog_op_lock_dir;
     }
 
     skel = open_and_load_skel();

@@ -70,7 +70,7 @@ static int unpin_progs_and_maps()
         char file_path[PATH_MAX];
         snprintf(file_path, sizeof(file_path), "%s/%s", DIR_PATH_FOR_PINNING_AMEBA_BPF, dir_entry->d_name);
 
-        if (unlink(file_path) == 0)
+        if (unlink(file_path) != 0)
         {
             log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to delete pinned bpf obj '%s'. Err: %s", &file_path[0], strerror(errno));
         }

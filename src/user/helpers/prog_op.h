@@ -55,3 +55,12 @@ int prog_op_compare_versions_in_loaded_maps_with_current_versions(void);
         -1 => Error or not pinned.
 */
 int prog_op_ameba_must_be_pinned(void);
+
+/*
+    Function to check if ameba is not pinned.
+
+    Returns:
+        0  => Not pinned.
+        -1 => Error or pinned.
+*/
+int prog_op_ameba_must_not_be_pinned(void);
