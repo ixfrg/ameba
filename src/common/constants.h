@@ -47,7 +47,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define AMEBA_MAP_NAME_OUTPUT_RINGBUF_STR TOSTRING(AMEBA_MAP_NAME_OUTPUT_RINGBUF)
 
 #define AMEBA_MAP_NAME_APP_VERSION AMEBA_MAP_NAME(app_version)
+#define AMEBA_MAP_NAME_APP_VERSION_STR TOSTRING(AMEBA_MAP_NAME_APP_VERSION)
 #define AMEBA_MAP_NAME_RECORD_VERSION AMEBA_MAP_NAME(record_version)
+#define AMEBA_MAP_NAME_RECORD_VERSION_STR TOSTRING(AMEBA_MAP_NAME_RECORD_VERSION)
 
 #define AMEBA_MAP_NAME_CONTROL_INPUT AMEBA_MAP_NAME(control_input)
 
@@ -56,6 +58,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define AMEBA_PROG_NAME(name) CONCAT_VAR_NAMES(AMEBA_PROG_NAME_PREFIX, name)
 
 #define DIR_PATH_FOR_PINNING_AMEBA_BPF "/sys/fs/bpf/ameba"
+#define DIR_PATH_FOR_AMEBA_OP_LOCK "/sys/fs/bpf/ameba_op_lock"
 
 #define ARGP_DOC_COPYRIGHT_BODY \
   "\nCopyright (C) 2025  Hassaan Irshad\n" \
