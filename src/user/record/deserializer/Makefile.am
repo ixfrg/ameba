@@ -18,45 +18,11 @@
 ## Process this file with automake to produce Makefile.in
 
 
-SUBDIRS = args record helpers jsonify
-
-AUTOMAKE_OPTIONS = subdir-objects
-
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
 AM_CFLAGS = -Wall
 
+noinst_LIBRARIES = lib.a
 
-COMMON_SOURCES = \
-    include/types.h \
-    include/error.h
-COMMON_LDADD = \
-    $(top_builddir)/src/user/args/lib.a \
-    $(top_builddir)/src/user/record/deserializer/lib.a \
-    $(top_builddir)/src/user/record/writer/lib.a \
-    $(top_builddir)/src/user/record/serializer/lib.a \
-    $(top_builddir)/src/user/helpers/lib.a \
-    $(top_builddir)/src/user/jsonify/lib.a \
-    $(top_builddir)/src/common/lib.a
-
-
-bin_PROGRAMS = ameba pin unpin control
-
-ameba_SOURCES = \
-    $(COMMON_SOURCES) \
-    ameba.c
-ameba_LDADD = $(COMMON_LDADD)
-
-pin_SOURCES = \
-    $(COMMON_SOURCES) \
-    pin.c
-pin_LDADD = $(COMMON_LDADD)
-
-unpin_SOURCES = \
-    $(COMMON_SOURCES) \
-    unpin.c
-unpin_LDADD = $(COMMON_LDADD)
-
-control_SOURCES = \
-    $(COMMON_SOURCES) \
-    control.c
-control_LDADD = $(COMMON_LDADD)
+lib_a_SOURCES = \
+    deserializer.h \
+    binary.c

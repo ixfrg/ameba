@@ -136,6 +136,10 @@ AC_CONFIG_FILES([
     src/user/Makefile
     src/user/args/Makefile
     src/user/helpers/Makefile
+    src/user/record/Makefile
+    src/user/record/deserializer/Makefile
+    src/user/record/serializer/Makefile
+    src/user/record/writer/Makefile
     src/user/jsonify/Makefile
     src/utils/Makefile
     tests/Makefile
