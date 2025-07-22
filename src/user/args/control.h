@@ -35,6 +35,7 @@ struct control_input_arg
 {
     struct arg_parse_state parse_state;
     struct control_input control_input;
+    int clear;
 };
 
 /*

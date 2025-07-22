@@ -49,6 +49,7 @@ enum
     OPT_PPID_MODE = 'k',
     OPT_PPID_LIST = 'K',
     OPT_NETIO_MODE = 'n',
+    OPT_CLEAR = 'r',
     OPT_VERSION = 'v',
     OPT_HELP = '?',
     OPT_USAGE = 'u'
@@ -64,6 +65,7 @@ static struct argp_option options[] = {
     {"ppid-mode", OPT_PPID_MODE, "MODE", 0, "PPID trace mode (ignore|capture)", 0},
     {"ppid-list", OPT_PPID_LIST, "PPIDS", 0, "Comma-separated list of PPIDs", 0},
     {"netio-mode", OPT_NETIO_MODE, "MODE", 0, "Network I/O trace mode (ignore|capture)", 0},
+    {"clear", OPT_CLEAR, 0, 0, "Clear all rules"},
     {"version", OPT_VERSION, 0, 0, "Show version"},
     {"help", OPT_HELP, 0, 0, "Show help"},
     {"usage", OPT_USAGE, 0, 0, "Show usage"},
@@ -91,6 +93,7 @@ static void init_control_input(struct control_input_arg *input)
     if (!input)
         return;
     input->control_input = *global_initial_val;
+    input->clear = 0;
     user_args_helper_state_init(&(input->parse_state));
 }
 
@@ -179,6 +182,10 @@ static void parse_int_list(
 static void validate_control_input(struct control_input_arg *input, struct argp_state *state)
 {
     // Nothing
+    if (input->clear == 1)
+    {
+        control_set_default(&(input->control_input));
+    }
 }
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -188,6 +195,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     switch (key)
     {
+    case OPT_CLEAR:
+        input->clear = 1;
+        break;
+
     case OPT_VERSION:
         jsonify_version_write_all_versions_to_file(stdout);
         user_args_helper_state_set_exit_no_error(&input->parse_state);
