@@ -169,6 +169,14 @@ int jsonify_core_write_str(struct json_buffer *s, const char *key, const char *v
 int jsonify_core_write_as_literal(struct json_buffer *s, const char *key, const char *val);
 
 /*
+    Write [,]"key"=val where val is a json_buffer.
+
+    Return:
+        See 'jsonify_core_snprintf'.
+*/
+int jsonify_core_write_json(struct json_buffer *s, const char *key, struct json_buffer *js_child);
+
+/*
     Write [,]"key"=val where val is an unsigned long.
 
     Return:

@@ -178,6 +178,20 @@ int jsonify_core_write_as_literal(struct json_buffer *s, const char *key, const 
     return total;
 }
 
+int jsonify_core_write_json(struct json_buffer *s, const char *key, struct json_buffer *js_child)
+{
+    int total = 0;
+    total += jsonify_core_write_element_divider(s);
+
+    char *js_child_buf_ptr;
+    int js_child_buf_ptr_size;
+    if (jsonify_core_get_internal_buf_ptr(js_child, &js_child_buf_ptr, &js_child_buf_ptr_size) == 0)
+    {
+        total += jsonify_core_snprintf(s, "\"%s\":%s", key, js_child_buf_ptr);
+    }
+    return total;
+}
+
 int jsonify_core_write_ulong(struct json_buffer *s, const char *key, unsigned long val)
 {
     int total = 0;
