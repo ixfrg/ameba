@@ -76,3 +76,12 @@ int prog_op_ameba_must_not_be_pinned(void);
         -1 => Error
 */
 int prog_op_set_control_input_in_map(struct control_input *input);
+
+/*
+    Function to get current control input in pinned control input map.
+
+    Returns:
+        0  => Success
+        -1 => Error
+*/
+int prog_op_get_control_input_in_map(struct control_input *input);

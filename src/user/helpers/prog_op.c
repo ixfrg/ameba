@@ -74,7 +74,7 @@ int prog_op_remove_lock_dir(void)
     return 0;
 }
 
-static int compare_elem_versions(struct elem_version *expected, struct elem_version *actual)
+static int compare_elem_versions(const struct elem_version *expected, const struct elem_version *actual)
 {
     if (!expected || !actual)
         return -1;
@@ -105,7 +105,7 @@ static int get_elem_version_in_map(char *version_map_path, const struct elem_ver
         return -1;
     }
     int key = 0;
-    int err = bpf_map_lookup_elem(map_fd, &key, dst);
+    int err = bpf_map_lookup_elem(map_fd, &key, (void*)dst);
     if (err < 0) {
         log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "No key '%d' in map '%s'. Err: %s", key, version_map_path, err);
         return -1;
@@ -113,13 +113,13 @@ static int get_elem_version_in_map(char *version_map_path, const struct elem_ver
     return 0;
 }
 
-static int compare_ameba_version_in_map(char *version_map_path, struct elem_version *expected_version)
+static int compare_ameba_version_in_map(char *version_map_path, const struct elem_version *expected_version)
 {
     if (!version_map_path || !expected_version)
     {
         return -1;
     }
-    struct elem_version actual_version;
+    const struct elem_version actual_version;
     if (get_elem_version_in_map(version_map_path, &actual_version) != 0)
     {
         return -1;
@@ -238,36 +238,82 @@ int prog_op_ameba_must_not_be_pinned(void)
     }
 }
 
+static int get_control_input_map_path(char *path_buf, int path_buf_size)
+{
+    int ret = 0;
+    ret = snprintf(
+        path_buf, path_buf_size, "%s/%s",
+        DIR_PATH_FOR_PINNING_AMEBA_BPF,
+        AMEBA_MAP_NAME_CONTROL_INPUT_STR
+    );
+    if (ret >= path_buf_size)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to create path for control input map '%s'", AMEBA_MAP_NAME_CONTROL_INPUT_STR);
+        return -1;
+    }
+    return 0;
+}
+
+static int get_control_input_map_fd()
+{
+    int map_path_buf_size = 256;
+    char map_path_buf[map_path_buf_size];
+
+    int ret = 0;
+
+    ret = get_control_input_map_path(&map_path_buf[0], map_path_buf_size);
+
+    if (ret != 0)
+        return -1;
+
+    int map_fd = bpf_obj_get(&map_path_buf[0]);
+    if (map_fd < 0)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to open bpf map '%s'. Err: %d", &map_path_buf[0], map_fd);
+        return -1;
+    }
+    return map_fd;
+}
+
 int prog_op_set_control_input_in_map(struct control_input *input)
 {
     if (!input)
         return -1;
 
-    int buf_size = 256;
-    char map_path[buf_size];
-
     int ret = 0;
 
-    ret = snprintf(
-        &map_path[0], buf_size, "%s/%s",
-        DIR_PATH_FOR_PINNING_AMEBA_BPF,
-        AMEBA_MAP_NAME_CONTROL_INPUT_STR
-    );
-    if (ret >= buf_size)
+    int map_fd = get_control_input_map_fd();
+    if (map_fd < 0)
     {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to create path for control input map '%s'", AMEBA_MAP_NAME_CONTROL_INPUT_STR);
-        return -1;
-    }
-
-    int map_fd = bpf_obj_get(map_path);
-    if (map_fd < 0) {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to open bpf map '%s'. Err: %d", map_path, map_fd);
         return -1;
     }
     int key = 0;
     ret = bpf_map_update_elem(map_fd, &key, input, BPF_ANY);
-    if (ret < 0) {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to set control input in map '%s'", map_path);
+    if (ret < 0)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to set control input in map");
+        return -1;
+    }
+    return ret;
+}
+
+int prog_op_get_control_input_in_map(struct control_input *input)
+{
+    if (!input)
+        return -1;
+
+    int ret = 0;
+
+    int map_fd = get_control_input_map_fd();
+    if (map_fd < 0)
+    {
+        return -1;
+    }
+    int key = 0;
+    ret = bpf_map_lookup_elem(map_fd, &key, input);
+    if (ret != 0)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to get control input in map");
         return -1;
     }
     return ret;
