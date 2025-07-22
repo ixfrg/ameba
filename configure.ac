@@ -51,7 +51,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AMEBA_ARG_ENABLE_TASK_CTX
 
 # App entrypoint
-AC_CONFIG_SRCDIR([src/user/ameba.c])
+AC_CONFIG_SRCDIR([src/user/pin.c])
 
 # Path of file containing all the configurable constants
 AC_CONFIG_HEADERS([src/common/config.h])
