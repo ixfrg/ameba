@@ -24,5 +24,5 @@ AM_CFLAGS = -Wall
 noinst_LIBRARIES = lib.a
 
 lib_a_SOURCES = \
-    helper.h user.h control.h loader.h \
-    helper.c user.c control.c loader.c
+    helper.h user.h control.h loader.h unpin.h \
+    helper.c user.c control.c loader.c unpin.c
