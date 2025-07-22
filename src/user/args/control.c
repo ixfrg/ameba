@@ -22,9 +22,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string.h>
 #include <sys/types.h>
 
+#include "common/constants.h"
 #include "common/control.h"
 
 #include "user/jsonify/control.h"
+#include "user/jsonify/version.h"
 
 #include "user/args/control.h"
 #include "user/args/helper.h"
@@ -45,7 +47,10 @@ enum
     OPT_PID_LIST = 'P',
     OPT_PPID_MODE = 'k',
     OPT_PPID_LIST = 'K',
-    OPT_NETIO_MODE = 'n'
+    OPT_NETIO_MODE = 'n',
+    OPT_VERSION = 'v',
+    OPT_HELP = '?',
+    OPT_USAGE = 'u'
 };
 
 // Option definitions
@@ -58,6 +63,9 @@ static struct argp_option options[] = {
     {"ppid-mode", OPT_PPID_MODE, "MODE", 0, "PPID trace mode (ignore|capture)", 0},
     {"ppid-list", OPT_PPID_LIST, "PPIDS", 0, "Comma-separated list of PPIDs", 0},
     {"netio-mode", OPT_NETIO_MODE, "MODE", 0, "Network I/O trace mode (ignore|capture)", 0},
+    {"version", OPT_VERSION, 0, 0, "Show version"},
+    {"help", OPT_HELP, 0, 0, "Show help"},
+    {"usage", OPT_USAGE, 0, 0, "Show usage"},
     {0}
 };
 
@@ -66,7 +74,7 @@ struct argp global_control_input_argp = {
     .options = options,
     .parser = parse_opt,
     .args_doc = "",
-    .doc = "Parse Control Input",
+    .doc = ARGP_DOC_COPYRIGHT_STR("Program to control ameba"),
     .children = 0,
     .help_filter = 0,
     .argp_domain = 0
@@ -179,6 +187,21 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     switch (key)
     {
+    case OPT_VERSION:
+        jsonify_version_write_all_versions_to_file(stdout);
+        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        break;
+
+    case OPT_HELP:
+        argp_state_help(state, stdout, ARGP_HELP_STD_HELP);
+        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        break;
+
+    case OPT_USAGE:
+        argp_state_help(state, stdout, ARGP_HELP_USAGE);
+        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        break;
+
     case OPT_GLOBAL_MODE:
         parse_mode(input, &input->control_input.global_mode, arg, state);
         break;

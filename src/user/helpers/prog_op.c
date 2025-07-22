@@ -237,3 +237,38 @@ int prog_op_ameba_must_not_be_pinned(void)
         }
     }
 }
+
+int prog_op_set_control_input_in_map(struct control_input *input)
+{
+    if (!input)
+        return -1;
+
+    int buf_size = 256;
+    char map_path[buf_size];
+
+    int ret = 0;
+
+    ret = snprintf(
+        &map_path[0], buf_size, "%s/%s",
+        DIR_PATH_FOR_PINNING_AMEBA_BPF,
+        AMEBA_MAP_NAME_CONTROL_INPUT_STR
+    );
+    if (ret >= buf_size)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to create path for control input map '%s'", AMEBA_MAP_NAME_CONTROL_INPUT_STR);
+        return -1;
+    }
+
+    int map_fd = bpf_obj_get(map_path);
+    if (map_fd < 0) {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to open bpf map '%s'. Err: %d", map_path, map_fd);
+        return -1;
+    }
+    int key = 0;
+    ret = bpf_map_update_elem(map_fd, &key, input, BPF_ANY);
+    if (ret < 0) {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to set control input in map '%s'", map_path);
+        return -1;
+    }
+    return ret;
+}

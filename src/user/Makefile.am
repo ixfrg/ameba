@@ -53,7 +53,7 @@ COMMON_LDADD = \
     $(top_builddir)/src/common/lib.a
 
 
-bin_PROGRAMS = ameba pin unpin
+bin_PROGRAMS = ameba pin unpin control
 
 ameba_SOURCES = \
     $(COMMON_SOURCES) \
@@ -69,3 +69,8 @@ unpin_SOURCES = \
     $(COMMON_SOURCES) \
     unpin.c
 unpin_LDADD = $(COMMON_LDADD)
+
+control_SOURCES = \
+    $(COMMON_SOURCES) \
+    control.c
+control_LDADD = $(COMMON_LDADD)

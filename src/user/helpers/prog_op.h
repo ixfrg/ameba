@@ -19,6 +19,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "common/control.h"
+
+
 /*
     Function to create the directory which guards all ameba operations.
 
@@ -64,3 +67,12 @@ int prog_op_ameba_must_be_pinned(void);
         -1 => Error or pinned.
 */
 int prog_op_ameba_must_not_be_pinned(void);
+
+/*
+    Function to set given control input in pinned control input map.
+
+    Returns:
+        0  => Success
+        -1 => Error
+*/
+int prog_op_set_control_input_in_map(struct control_input *input);

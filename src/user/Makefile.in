@@ -106,7 +106,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ameba$(EXEEXT) pin$(EXEEXT) unpin$(EXEEXT)
+bin_PROGRAMS = ameba$(EXEEXT) pin$(EXEEXT) unpin$(EXEEXT) \
+	control$(EXEEXT)
 subdir = src/user
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/args.m4 $(top_srcdir)/m4/bpf.m4 \
@@ -151,6 +152,9 @@ am__objects_1 =
 am_ameba_OBJECTS = $(am__objects_1) ameba.$(OBJEXT)
 ameba_OBJECTS = $(am_ameba_OBJECTS)
 ameba_DEPENDENCIES = $(COMMON_LDADD)
+am_control_OBJECTS = $(am__objects_1) control.$(OBJEXT)
+control_OBJECTS = $(am_control_OBJECTS)
+control_DEPENDENCIES = $(COMMON_LDADD)
 am_pin_OBJECTS = $(am__objects_1) pin.$(OBJEXT)
 pin_OBJECTS = $(am_pin_OBJECTS)
 pin_DEPENDENCIES = $(COMMON_LDADD)
@@ -172,8 +176,9 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/ameba.Po ./$(DEPDIR)/pin.Po \
-	./$(DEPDIR)/unpin.Po record/deserializer/$(DEPDIR)/binary.Po \
+am__depfiles_remade = ./$(DEPDIR)/ameba.Po ./$(DEPDIR)/control.Po \
+	./$(DEPDIR)/pin.Po ./$(DEPDIR)/unpin.Po \
+	record/deserializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/json.Po \
 	record/serializer/$(DEPDIR)/serializer.Po \
@@ -193,12 +198,12 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
-	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) $(pin_SOURCES) \
-	$(unpin_SOURCES)
+	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
+	$(control_SOURCES) $(pin_SOURCES) $(unpin_SOURCES)
 DIST_SOURCES = $(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
-	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) $(pin_SOURCES) \
-	$(unpin_SOURCES)
+	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
+	$(control_SOURCES) $(pin_SOURCES) $(unpin_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -427,6 +432,11 @@ unpin_SOURCES = \
     unpin.c
 
 unpin_LDADD = $(COMMON_LDADD)
+control_SOURCES = \
+    $(COMMON_SOURCES) \
+    control.c
+
+control_LDADD = $(COMMON_LDADD)
 all: all-recursive
 
 .SUFFIXES:
@@ -557,6 +567,10 @@ ameba$(EXEEXT): $(ameba_OBJECTS) $(ameba_DEPENDENCIES) $(EXTRA_ameba_DEPENDENCIE
 	@rm -f ameba$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(ameba_OBJECTS) $(ameba_LDADD) $(LIBS)
 
+control$(EXEEXT): $(control_OBJECTS) $(control_DEPENDENCIES) $(EXTRA_control_DEPENDENCIES) 
+	@rm -f control$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(control_OBJECTS) $(control_LDADD) $(LIBS)
+
 pin$(EXEEXT): $(pin_OBJECTS) $(pin_DEPENDENCIES) $(EXTRA_pin_DEPENDENCIES) 
 	@rm -f pin$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pin_OBJECTS) $(pin_LDADD) $(LIBS)
@@ -575,6 +589,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pin.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unpin.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/deserializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
@@ -813,6 +828,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/ameba.Po
+	-rm -f ./$(DEPDIR)/control.Po
 	-rm -f ./$(DEPDIR)/pin.Po
 	-rm -f ./$(DEPDIR)/unpin.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
@@ -867,6 +883,7 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/ameba.Po
+	-rm -f ./$(DEPDIR)/control.Po
 	-rm -f ./$(DEPDIR)/pin.Po
 	-rm -f ./$(DEPDIR)/unpin.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
