@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "user/jsonify/record.h"
-#include "user/error.h"
+#include "user/include/error.h"
 
 
 static int jsonify_record_connect(struct json_buffer *s, struct record_connect *data, int write_interpreted)

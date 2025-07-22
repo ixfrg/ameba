@@ -41,8 +41,8 @@ record_serializer_lib_a_SOURCES = \
     record/serializer/binary.c record/serializer/json.c record/serializer/serializer.c
 
 COMMON_SOURCES = \
-    types.h \
-    error.h
+    include/types.h \
+    include/error.h
 COMMON_LDADD = \
     $(top_builddir)/src/user/args/lib.a \
     record/deserializer/lib.a \

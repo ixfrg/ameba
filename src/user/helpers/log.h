@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 #include <stdio.h>
-#include "user/types.h"
+#include "user/include/types.h"
 
 
 void __log_state(FILE *out_f, app_state_t state, struct json_buffer *js);

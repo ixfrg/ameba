@@ -25,7 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <assert.h>
 #include <time.h>
 
-#include "user/error.h"
+#include "user/include/error.h"
 
 #include "user/jsonify/core.h"
 

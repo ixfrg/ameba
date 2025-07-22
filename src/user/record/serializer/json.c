@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <stddef.h>
-#include "user/error.h"
+#include "user/include/error.h"
 #include "user/record/serializer/serializer.h"
 #include "user/jsonify/record.h"
 
