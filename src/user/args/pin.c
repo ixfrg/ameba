@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <sys/types.h>
 
 #include "common/constants.h"
-#include "user/args/loader.h"
+#include "user/args/pin.h"
 #include "user/args/helper.h"
 #include "user/jsonify/version.h"
 
@@ -31,7 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 
-static struct loader_input_arg global_loader_input_arg;
+static struct pin_input_arg global_pin_input_arg;
 
 
 enum
@@ -50,36 +50,36 @@ static struct argp_option options[] = {
 };
 
 // Argp parser structure
-struct argp global_loader_input_argp = {
+struct argp global_pin_input_argp = {
     .options = options,
     .parser = parse_opt,
     .args_doc = "",
-    .doc = ARGP_DOC_COPYRIGHT_STR("Program to load an pin BPF programs and maps"),
+    .doc = ARGP_DOC_COPYRIGHT_STR("Program to pin ameba"),
     .children = 0,
     .help_filter = 0,
     .argp_domain = 0
 };
 
-static struct loader_input_arg *get_global_loader_input_arg()
+static struct pin_input_arg *get_global_pin_input_arg()
 {
-    return &global_loader_input_arg;
+    return &global_pin_input_arg;
 }
 
-static void init_loader_input(struct loader_input_arg *input)
+static void init_pin_input(struct pin_input_arg *input)
 {
     if (!input)
         return;
     user_args_helper_state_init(&(input->parse_state));
 }
 
-static void validate_loader_input(struct loader_input_arg *input, struct argp_state *state)
+static void validate_pin_input(struct pin_input_arg *input, struct argp_state *state)
 {
     // Nothing
 }
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-    struct loader_input_arg *input = get_global_loader_input_arg();
+    struct pin_input_arg *input = get_global_pin_input_arg();
 
     switch (key)
     {
@@ -99,7 +99,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         break;
 
     case ARGP_KEY_INIT:
-        init_loader_input(input);
+        init_pin_input(input);
         break;
 
     case ARGP_KEY_ERROR:
@@ -109,7 +109,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         break;
 
     case ARGP_KEY_END:
-        validate_loader_input(input, state);
+        validate_pin_input(input, state);
         break;
 
     default:
@@ -119,14 +119,14 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-void user_args_loader_copy(struct loader_input_arg *dst)
+void user_args_pin_copy(struct pin_input_arg *dst)
 {
     if (!dst)
         return;
-    memcpy(dst, get_global_loader_input_arg(), sizeof(struct loader_input_arg));
+    memcpy(dst, get_global_pin_input_arg(), sizeof(struct pin_input_arg));
 }
 
-void user_args_loader_parse(struct loader_input_arg *dst, int argc, char **argv)
+void user_args_pin_parse(struct pin_input_arg *dst, int argc, char **argv)
 {
     if (!dst)
         return;
@@ -134,7 +134,7 @@ void user_args_loader_parse(struct loader_input_arg *dst, int argc, char **argv)
     int argp_flags = 0;
     // ARGP_NO_EXIT & ARGP_NO_HELP because self-managed
     argp_flags = ARGP_NO_EXIT | ARGP_NO_HELP;
-    argp_parse(&global_loader_input_argp, argc, argv, argp_flags, 0, 0);
+    argp_parse(&global_pin_input_argp, argc, argv, argp_flags, 0, 0);
 
-    user_args_loader_copy(dst);
+    user_args_pin_copy(dst);
 }

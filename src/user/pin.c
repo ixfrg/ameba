@@ -23,7 +23,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/types.h"
 #include "common/version.h"
 #include "user/helpers/log.h"
-#include "user/args/loader.h"
+#include "user/helpers/prog_op.h"
+#include "user/args/pin.h"
 
 #include "ameba.skel.h"
 
@@ -49,7 +50,8 @@ static int pin_progs_and_maps(struct ameba *skel)
     goto exit;
 
 rm_pin_dir:
-    if (rmdir(DIR_PATH_FOR_PINNING_AMEBA_BPF) != 0) {
+    if (rmdir(DIR_PATH_FOR_PINNING_AMEBA_BPF) != 0)
+    {
         log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to rm pin dir. Err: %d", errno);
     }
 
@@ -146,8 +148,8 @@ static int attach_progs(struct ameba *skel)
 
 static void parse_user_input(int argc, char *argv[])
 {
-    struct loader_input_arg input_arg;
-    user_args_loader_parse(&input_arg, argc, argv);
+    struct pin_input_arg input_arg;
+    user_args_pin_parse(&input_arg, argc, argv);
 
     struct arg_parse_state *a_p_s = &(input_arg.parse_state);
     if (user_args_helper_state_is_exit_set(a_p_s))
@@ -163,11 +165,17 @@ int main(int argc, char *argv[])
 
     parse_user_input(argc, argv);
 
+    if (prog_op_create_lock_dir() != 0)
+    {
+        result = -1;
+        goto exit;
+    }
+
     skel = open_and_load_skel();
     if (!skel)
     {
         result = -1;
-        goto exit;
+        goto rm_prog_op_lock_dir;
     }
 
     if (set_bpf_version_maps_with_current_versions(skel) != 0)
@@ -194,13 +202,16 @@ int main(int argc, char *argv[])
         goto skel_detach;
     }
 
-    log_state_msg_with_current_pid(APP_STATE_OPERATIONAL_PID, "Loaded");
+    log_state_msg_with_current_pid(APP_STATE_OPERATIONAL_PID, "Pinned");
 
 skel_detach:
     ameba__detach(skel);
 
 skel_destroy:
     ameba__destroy(skel);
+
+rm_prog_op_lock_dir:
+    prog_op_remove_lock_dir();
 
 exit:
     return result;

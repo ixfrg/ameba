@@ -126,7 +126,7 @@ am__v_AR_1 =
 lib_a_AR = $(AR) $(ARFLAGS)
 lib_a_LIBADD =
 am_lib_a_OBJECTS = helper.$(OBJEXT) user.$(OBJEXT) control.$(OBJEXT) \
-	loader.$(OBJEXT) unpin.$(OBJEXT)
+	pin.$(OBJEXT) unpin.$(OBJEXT)
 lib_a_OBJECTS = $(am_lib_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -144,7 +144,7 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/control.Po ./$(DEPDIR)/helper.Po \
-	./$(DEPDIR)/loader.Po ./$(DEPDIR)/unpin.Po ./$(DEPDIR)/user.Po
+	./$(DEPDIR)/pin.Po ./$(DEPDIR)/unpin.Po ./$(DEPDIR)/user.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -301,8 +301,8 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_C
 AM_CFLAGS = -Wall
 noinst_LIBRARIES = lib.a
 lib_a_SOURCES = \
-    helper.h user.h control.h loader.h unpin.h \
-    helper.c user.c control.c loader.c unpin.c
+    helper.h user.h control.h pin.h unpin.h \
+    helper.c user.c control.c pin.c unpin.c
 
 all: all-am
 
@@ -354,7 +354,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/helper.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loader.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pin.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unpin.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/user.Po@am__quote@ # am--include-marker
 
@@ -503,7 +503,7 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/control.Po
 	-rm -f ./$(DEPDIR)/helper.Po
-	-rm -f ./$(DEPDIR)/loader.Po
+	-rm -f ./$(DEPDIR)/pin.Po
 	-rm -f ./$(DEPDIR)/unpin.Po
 	-rm -f ./$(DEPDIR)/user.Po
 	-rm -f Makefile
@@ -553,7 +553,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/control.Po
 	-rm -f ./$(DEPDIR)/helper.Po
-	-rm -f ./$(DEPDIR)/loader.Po
+	-rm -f ./$(DEPDIR)/pin.Po
 	-rm -f ./$(DEPDIR)/unpin.Po
 	-rm -f ./$(DEPDIR)/user.Po
 	-rm -f Makefile

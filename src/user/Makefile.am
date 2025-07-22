@@ -53,17 +53,17 @@ COMMON_LDADD = \
     $(top_builddir)/src/common/lib.a
 
 
-bin_PROGRAMS = ameba loader unpin
+bin_PROGRAMS = ameba pin unpin
 
 ameba_SOURCES = \
     $(COMMON_SOURCES) \
     ameba.c
 ameba_LDADD = $(COMMON_LDADD)
 
-loader_SOURCES = \
+pin_SOURCES = \
     $(COMMON_SOURCES) \
-    loader.c
-loader_LDADD = $(COMMON_LDADD)
+    pin.c
+pin_LDADD = $(COMMON_LDADD)
 
 unpin_SOURCES = \
     $(COMMON_SOURCES) \

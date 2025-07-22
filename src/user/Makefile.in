@@ -106,7 +106,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ameba$(EXEEXT) loader$(EXEEXT) unpin$(EXEEXT)
+bin_PROGRAMS = ameba$(EXEEXT) pin$(EXEEXT) unpin$(EXEEXT)
 subdir = src/user
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/args.m4 $(top_srcdir)/m4/bpf.m4 \
@@ -151,9 +151,9 @@ am__objects_1 =
 am_ameba_OBJECTS = $(am__objects_1) ameba.$(OBJEXT)
 ameba_OBJECTS = $(am_ameba_OBJECTS)
 ameba_DEPENDENCIES = $(COMMON_LDADD)
-am_loader_OBJECTS = $(am__objects_1) loader.$(OBJEXT)
-loader_OBJECTS = $(am_loader_OBJECTS)
-loader_DEPENDENCIES = $(COMMON_LDADD)
+am_pin_OBJECTS = $(am__objects_1) pin.$(OBJEXT)
+pin_OBJECTS = $(am_pin_OBJECTS)
+pin_DEPENDENCIES = $(COMMON_LDADD)
 am_unpin_OBJECTS = $(am__objects_1) unpin.$(OBJEXT)
 unpin_OBJECTS = $(am_unpin_OBJECTS)
 unpin_DEPENDENCIES = $(COMMON_LDADD)
@@ -172,7 +172,7 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/ameba.Po ./$(DEPDIR)/loader.Po \
+am__depfiles_remade = ./$(DEPDIR)/ameba.Po ./$(DEPDIR)/pin.Po \
 	./$(DEPDIR)/unpin.Po record/deserializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/json.Po \
@@ -193,12 +193,12 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
-	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
-	$(loader_SOURCES) $(unpin_SOURCES)
+	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) $(pin_SOURCES) \
+	$(unpin_SOURCES)
 DIST_SOURCES = $(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
-	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
-	$(loader_SOURCES) $(unpin_SOURCES)
+	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) $(pin_SOURCES) \
+	$(unpin_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -417,11 +417,11 @@ ameba_SOURCES = \
     ameba.c
 
 ameba_LDADD = $(COMMON_LDADD)
-loader_SOURCES = \
+pin_SOURCES = \
     $(COMMON_SOURCES) \
-    loader.c
+    pin.c
 
-loader_LDADD = $(COMMON_LDADD)
+pin_LDADD = $(COMMON_LDADD)
 unpin_SOURCES = \
     $(COMMON_SOURCES) \
     unpin.c
@@ -557,9 +557,9 @@ ameba$(EXEEXT): $(ameba_OBJECTS) $(ameba_DEPENDENCIES) $(EXTRA_ameba_DEPENDENCIE
 	@rm -f ameba$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(ameba_OBJECTS) $(ameba_LDADD) $(LIBS)
 
-loader$(EXEEXT): $(loader_OBJECTS) $(loader_DEPENDENCIES) $(EXTRA_loader_DEPENDENCIES) 
-	@rm -f loader$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(loader_OBJECTS) $(loader_LDADD) $(LIBS)
+pin$(EXEEXT): $(pin_OBJECTS) $(pin_DEPENDENCIES) $(EXTRA_pin_DEPENDENCIES) 
+	@rm -f pin$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(pin_OBJECTS) $(pin_LDADD) $(LIBS)
 
 unpin$(EXEEXT): $(unpin_OBJECTS) $(unpin_DEPENDENCIES) $(EXTRA_unpin_DEPENDENCIES) 
 	@rm -f unpin$(EXEEXT)
@@ -575,7 +575,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loader.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pin.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unpin.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/deserializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
@@ -813,7 +813,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/ameba.Po
-	-rm -f ./$(DEPDIR)/loader.Po
+	-rm -f ./$(DEPDIR)/pin.Po
 	-rm -f ./$(DEPDIR)/unpin.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/binary.Po
@@ -867,7 +867,7 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/ameba.Po
-	-rm -f ./$(DEPDIR)/loader.Po
+	-rm -f ./$(DEPDIR)/pin.Po
 	-rm -f ./$(DEPDIR)/unpin.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/binary.Po

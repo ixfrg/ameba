@@ -23,14 +23,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /*
 
-    A module to help parse loader program arguments
+    A module to help parse pin program arguments
 
 */
 
 /*
-    A struct to encapsulate loader input and keep parsing state.
+    A struct to encapsulate pin input and keep parsing state.
 */
-struct loader_input_arg
+struct pin_input_arg
 {
     struct arg_parse_state parse_state;
 };
@@ -38,17 +38,17 @@ struct loader_input_arg
 /*
     A properly formed argp struct.
 */
-extern struct argp global_loader_input_argp;
+extern struct argp global_pin_input_argp;
 
 /*
-    Copy the value of internal global (struct loader_input_arg) to dst.
+    Copy the value of internal global (struct pin_input_arg) to dst.
 */
-void user_args_loader_copy(struct loader_input_arg *dst);
+void user_args_pin_copy(struct pin_input_arg *dst);
 
 /*
     Parse user arguments (i.e. int main(int argc, char **argv)), and populate dst.
 
     Return:
-        Always returns. Error (if any) in (struct loader_input_arg)->(struct arg_parse_state).
+        Always returns. Error (if any) in (struct pin_input_arg)->(struct arg_parse_state).
 */
-void user_args_loader_parse(struct loader_input_arg *dst, int argc, char **argv);
+void user_args_pin_parse(struct pin_input_arg *dst, int argc, char **argv);
