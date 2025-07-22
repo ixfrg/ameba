@@ -54,4 +54,4 @@ void user_args_control_copy_only_control_input(struct control_input *dst);
     Return:
         Always returns. Error (if any) in (struct control_input)->(struct arg_parse_state).
 */
-void user_args_control_parse(struct control_input_arg *dst, int argc, char **argv);
+void user_args_control_parse(struct control_input_arg *dst, struct control_input *initial_val, int argc, char **argv);

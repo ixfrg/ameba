@@ -36,6 +36,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 
 static struct control_input_arg global_control_input_arg;
+static struct control_input *global_initial_val = NULL;
 
 
 enum
@@ -89,7 +90,7 @@ static void init_control_input(struct control_input_arg *input)
 {
     if (!input)
         return;
-    control_set_default(&(input->control_input));
+    input->control_input = *global_initial_val;
     user_args_helper_state_init(&(input->parse_state));
 }
 
@@ -268,10 +269,12 @@ void user_args_control_copy_only_control_input(struct control_input *dst)
     memcpy(dst, &(get_global_control_input_arg()->control_input), sizeof(struct control_input));
 }
 
-void user_args_control_parse(struct control_input_arg *dst, int argc, char **argv)
+void user_args_control_parse(struct control_input_arg *dst, struct control_input *initial_val, int argc, char **argv)
 {
-    if (!dst)
+    if (!dst || !initial_val)
         return;
+
+    global_initial_val = initial_val;
 
     int argp_flags = 0;
     // ARGP_NO_EXIT & ARGP_NO_HELP because self-managed
