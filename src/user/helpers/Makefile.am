@@ -24,5 +24,5 @@ AM_CFLAGS = -Wall
 noinst_LIBRARIES = lib.a
 
 lib_a_SOURCES = \
-    log.h \
-    log.c
+    log.h prog_op.h \
+    log.c prog_op.c
