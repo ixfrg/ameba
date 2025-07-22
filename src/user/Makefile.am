@@ -45,15 +45,15 @@ COMMON_SOURCES = \
     error.h
 COMMON_LDADD = \
     $(top_builddir)/src/user/args/lib.a \
-    $(top_builddir)/src/common/lib.a \
     record/deserializer/lib.a \
     record/writer/lib.a \
     record/serializer/lib.a \
     $(top_builddir)/src/user/helpers/lib.a \
-    $(top_builddir)/src/user/jsonify/lib.a
+    $(top_builddir)/src/user/jsonify/lib.a \
+    $(top_builddir)/src/common/lib.a
 
 
-bin_PROGRAMS = ameba loader
+bin_PROGRAMS = ameba loader unpin
 
 ameba_SOURCES = \
     $(COMMON_SOURCES) \
@@ -64,3 +64,8 @@ loader_SOURCES = \
     $(COMMON_SOURCES) \
     loader.c
 loader_LDADD = $(COMMON_LDADD)
+
+unpin_SOURCES = \
+    $(COMMON_SOURCES) \
+    unpin.c
+unpin_LDADD = $(COMMON_LDADD)

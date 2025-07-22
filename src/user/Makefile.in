@@ -106,7 +106,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ameba$(EXEEXT) loader$(EXEEXT)
+bin_PROGRAMS = ameba$(EXEEXT) loader$(EXEEXT) unpin$(EXEEXT)
 subdir = src/user
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/args.m4 $(top_srcdir)/m4/bpf.m4 \
@@ -154,6 +154,9 @@ ameba_DEPENDENCIES = $(COMMON_LDADD)
 am_loader_OBJECTS = $(am__objects_1) loader.$(OBJEXT)
 loader_OBJECTS = $(am_loader_OBJECTS)
 loader_DEPENDENCIES = $(COMMON_LDADD)
+am_unpin_OBJECTS = $(am__objects_1) unpin.$(OBJEXT)
+unpin_OBJECTS = $(am_unpin_OBJECTS)
+unpin_DEPENDENCIES = $(COMMON_LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -170,7 +173,7 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/ameba.Po ./$(DEPDIR)/loader.Po \
-	record/deserializer/$(DEPDIR)/binary.Po \
+	./$(DEPDIR)/unpin.Po record/deserializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/binary.Po \
 	record/serializer/$(DEPDIR)/json.Po \
 	record/serializer/$(DEPDIR)/serializer.Po \
@@ -191,11 +194,11 @@ am__v_CCLD_1 =
 SOURCES = $(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
 	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
-	$(loader_SOURCES)
+	$(loader_SOURCES) $(unpin_SOURCES)
 DIST_SOURCES = $(record_deserializer_lib_a_SOURCES) \
 	$(record_serializer_lib_a_SOURCES) \
 	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES) \
-	$(loader_SOURCES)
+	$(loader_SOURCES) $(unpin_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -402,12 +405,12 @@ COMMON_SOURCES = \
 
 COMMON_LDADD = \
     $(top_builddir)/src/user/args/lib.a \
-    $(top_builddir)/src/common/lib.a \
     record/deserializer/lib.a \
     record/writer/lib.a \
     record/serializer/lib.a \
     $(top_builddir)/src/user/helpers/lib.a \
-    $(top_builddir)/src/user/jsonify/lib.a
+    $(top_builddir)/src/user/jsonify/lib.a \
+    $(top_builddir)/src/common/lib.a
 
 ameba_SOURCES = \
     $(COMMON_SOURCES) \
@@ -419,6 +422,11 @@ loader_SOURCES = \
     loader.c
 
 loader_LDADD = $(COMMON_LDADD)
+unpin_SOURCES = \
+    $(COMMON_SOURCES) \
+    unpin.c
+
+unpin_LDADD = $(COMMON_LDADD)
 all: all-recursive
 
 .SUFFIXES:
@@ -553,6 +561,10 @@ loader$(EXEEXT): $(loader_OBJECTS) $(loader_DEPENDENCIES) $(EXTRA_loader_DEPENDE
 	@rm -f loader$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(loader_OBJECTS) $(loader_LDADD) $(LIBS)
 
+unpin$(EXEEXT): $(unpin_OBJECTS) $(unpin_DEPENDENCIES) $(EXTRA_unpin_DEPENDENCIES) 
+	@rm -f unpin$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(unpin_OBJECTS) $(unpin_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f record/deserializer/*.$(OBJEXT)
@@ -564,6 +576,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loader.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unpin.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/deserializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/json.Po@am__quote@ # am--include-marker
@@ -801,6 +814,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/ameba.Po
 	-rm -f ./$(DEPDIR)/loader.Po
+	-rm -f ./$(DEPDIR)/unpin.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/json.Po
@@ -854,6 +868,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/ameba.Po
 	-rm -f ./$(DEPDIR)/loader.Po
+	-rm -f ./$(DEPDIR)/unpin.Po
 	-rm -f record/deserializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/binary.Po
 	-rm -f record/serializer/$(DEPDIR)/json.Po
