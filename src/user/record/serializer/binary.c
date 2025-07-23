@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <stddef.h>
 #include <string.h>
 #include "user/include/error.h"
-#include "user/record/serializer/serializer.h"
+#include "user/record/serializer/binary.h"
 
 
 static long record_serializer_binary_serialize(void *dst, size_t dst_len, struct elem_common *record, size_t record_len)

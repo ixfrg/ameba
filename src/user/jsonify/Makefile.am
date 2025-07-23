@@ -24,5 +24,5 @@ AM_CFLAGS = -Wall
 noinst_LIBRARIES = lib.a
 
 lib_a_SOURCES = \
-    user.h control.h core.h types.h record.h log_msg.h version.h \
-    user.c control.c core.c types.c record.c log_msg.c version.c
+    ameba.h control.h core.h types.h record.h log_msg.h version.h \
+    ameba.c control.c core.c types.c record.c log_msg.c version.c

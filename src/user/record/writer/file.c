@@ -24,27 +24,31 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <limits.h>
 #include <fcntl.h>
 
-#include "user/record/writer/writer.h"
-#include "user/include/types.h"
+#include "user/args/ameba.h"
+#include "user/record/writer/file.h"
 
 
 static struct {
     int fd;
     int initialized;
-    struct output_file init_args;
+    char path[PATH_MAX];
 } state = {0};
 
 
 static int set_init_args_file(void *ptr, size_t ptr_len) {
-    if (ptr_len != sizeof(struct output_file))
+    if (ptr_len != PATH_MAX)
         return -1;
 
-    struct output_file *in = (struct output_file *)ptr;
-
-    if (strlen(in->path) == 0 || strlen(in->path) >= PATH_MAX)
+    if (!ptr)
         return -1;
 
-    memcpy(&state.init_args, in, sizeof(struct output_file));
+    char *src = (char *)ptr;
+    int src_len = strnlen(src, PATH_MAX);
+
+    if (src_len == 0 || src_len >= PATH_MAX)
+        return -1;
+
+    memcpy(&state.path, src, src_len);
     return 0;
 }
 
@@ -52,7 +56,7 @@ static int init_file() {
     if (state.initialized)
         return 0;
 
-    state.fd = open(state.init_args.path, O_RDWR | O_CREAT | O_TRUNC, 0600);
+    state.fd = open(state.path, O_RDWR | O_CREAT | O_TRUNC, 0600);
     if (state.fd == -1)
         return -1;
 

@@ -17,45 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#define _POSIX_C_SOURCE 200809L
-#include <time.h>
-
-#include <linux/limits.h>
-#include <netinet/in.h>
-
-#include "common/control.h"
-
-#include "user/jsonify/core.h"
-
-#include "user/args/helper.h"
-
-
-typedef enum
-{
-    APP_STATE_STARTING = 1,
-    APP_STATE_OPERATIONAL = 2,
-    APP_STATE_OPERATIONAL_PID = 3,
-    APP_STATE_OPERATIONAL_WITH_ERROR = 4,
-    APP_STATE_STOPPED_WITH_ERROR = 5,
-    APP_STATE_STOPPED_NORMALLY = 6
-} app_state_t;
-
-
-struct log_msg
-{
-    struct timespec ts;
-    app_state_t state;
-    struct json_buffer *json;
-};
-
-
-struct output_file
-{
-    char path[PATH_MAX];
-};
-
+#include "user/record/writer/writer.h"
 
 struct output_net
 {
@@ -64,17 +26,4 @@ struct output_net
     int port;
 };
 
-
-enum output_type {
-    OUTPUT_NONE,
-    OUTPUT_FILE,
-    OUTPUT_NET
-};
-
-struct user_input
-{
-    struct control_input c_in;
-    struct output_file output_file;
-    struct output_net output_net;
-    enum output_type o_type;
-};
+extern const struct record_writer record_writer_net;

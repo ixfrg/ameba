@@ -31,113 +31,24 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <time.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <bpf/libbpf.h>
 
-#include "common/types.h"
-
-#include "user/args/control.h"
-#include "user/args/user.h"
-#include "user/args/helper.h"
-#include "user/jsonify/control.h"
-#include "user/jsonify/user.h"
-#include "user/jsonify/types.h"
-#include "common/constants.h"
-#include "common/version.h"
-#include "user/include/error.h"
-
-#include "user/record/serializer/serializer.h"
-#include "user/record/writer/writer.h"
-
+#include "user/args/ameba.h"
 #include "user/helpers/log.h"
-
-#include "ameba.skel.h"
-
-//
-
-extern const struct record_serializer record_serializer_json;
-extern const struct record_writer record_writer_file;
-extern const struct record_writer record_writer_net;
+#include "user/record/writer/dir.h"
+#include "user/record/serializer/json.h"
+#include "user/helpers/prog_op.h"
+#include "user/jsonify/core.h"
 
 //
 
-static const struct record_serializer *default_record_serializer;
-static const struct record_writer *default_record_writer;
+static const struct record_serializer *log_serializer = &record_serializer_json;
+static const struct record_writer *log_writer = &record_writer_dir;
+
+static volatile int ameba_shutdown = 0;
+static volatile ssize_t total_records_consumed = 0;
 
 //
-
-static struct ameba *skel = NULL;
-
-//
-
-static int select_default_output_writer(
-    struct user_input *input,
-    void **o_writer_args_ptr,
-    size_t *o_writer_args_ptr_size
-)
-{
-    switch (input->o_type)
-    {
-        case OUTPUT_FILE:
-            *o_writer_args_ptr = &(input->output_file);
-            *o_writer_args_ptr_size = sizeof(input->output_file);
-            default_record_writer = &record_writer_file;
-            return 0;
-        case OUTPUT_NET:
-            *o_writer_args_ptr = &(input->output_net);
-            *o_writer_args_ptr_size = sizeof(input->output_net);
-            default_record_writer = &record_writer_net;
-            return 0;
-        default:
-            return 1;
-    }
-}
-
-
-static int select_default_record_serializer()
-{
-    default_record_serializer = &record_serializer_json;
-    return 0;
-}
-
-static int init_output_writer(struct user_input *input){
-    void *record_writer_init_args = NULL;
-    size_t record_writer_init_args_size = 0;
-    
-    int err = select_default_output_writer(input, &record_writer_init_args, &record_writer_init_args_size);
-    if (err)
-    {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error selecting a valid output writer");
-        return -1;
-    }
-
-    err = select_default_record_serializer();
-    if (err)
-    {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error selecting a valid record serializer");
-        return -1;
-    }
-
-    err = default_record_writer->set_init_args(
-        record_writer_init_args, record_writer_init_args_size
-    );
-    if (err != 0)
-    {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error setting init args for the output writer");
-        return -1;
-    }
-
-    err = default_record_writer->init();
-    if (err != 0)
-    {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error initing output writer");
-        return -1;
-    }
-    return 0;
-}
-
-static void close_output_writer()
-{
-    default_record_writer->close();
-}
 
 static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
 {
@@ -146,14 +57,14 @@ static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
     if (!dst)
         goto exit;
 
-    long data_copied_to_dst = default_record_serializer->serialize(dst, dst_len, data, data_len);
+    long data_copied_to_dst = log_serializer->serialize(dst, dst_len, data, data_len);
     if (data_copied_to_dst <= 0)
     {
         log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data conversion");
         goto free_dst;
     }
 
-    int write_result = default_record_writer->write(dst, data_copied_to_dst);
+    int write_result = log_writer->write(dst, data_copied_to_dst);
     if (write_result < 0)
     {
         log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data write");
@@ -166,24 +77,80 @@ exit:
     return 0;
 }
 
+static struct ring_buffer * setup_output_ringbuf_reader()
+{
+    int ringbuf_fd = get_output_ringbuf_fd();
+    if (ringbuf_fd < 0)
+    {
+        return NULL;
+    }
+
+    struct ring_buffer *ringbuf = ring_buffer__new(ringbuf_fd, handle_ringbuf_data, NULL, NULL);
+
+    if (!ringbuf)
+    {
+        log_state_msg(
+            APP_STATE_STOPPED_WITH_ERROR,
+            "Failed to create output ringbuf instance"
+        );
+        return NULL;
+    }
+
+    return ringbuf;
+}
+
+static void close_log_writer()
+{
+    log_writer->close();
+}
+
+static int setup_log_writer(struct ameba_input *ameba_input)
+{
+    if (!ameba_input)
+        return -1;
+
+    if (log_writer->set_init_args((void *)(ameba_input), sizeof(struct ameba_input)) != 0)
+    {
+        log_state_msg(
+            APP_STATE_STOPPED_WITH_ERROR,
+            "Failed to set init args for ameba log writer"
+        );
+        return -1;
+    }
+
+    if (log_writer->init() != 0)
+    {
+        log_state_msg(
+            APP_STATE_STOPPED_WITH_ERROR,
+            "Failed to create ameba log writer"
+        );
+        return -1;
+    }
+    return 0;
+}
+
 static void sig_handler(int sig)
 {
-    if (sig == SIGTERM)
+    if (sig == SIGTERM || sig == SIGINT)
     {
-        close_output_writer();
-        if (skel != NULL)
-        {
-            ameba__destroy(skel);
-        }
-        log_state_msg(APP_STATE_STOPPED_NORMALLY, "Stopped... received termination signal");
-        exit(0);
+        ameba_shutdown = 1;
+        log_state_msg(APP_STATE_STOPPED_NORMALLY, "Stopping... received termination signal");
     }
 }
 
-static void parse_user_input(struct user_input *input, int argc, char *argv[])
+static void parse_user_input(
+    struct ameba_input *dst,
+    int argc, char *argv[]
+)
 {
-    struct user_input_arg input_arg;
-    user_args_user_parse(&input_arg, argc, argv);
+    struct ameba_input initial_value = {
+        .log_dir_path = "/var/log/ameba",
+        .log_file_size_bytes = (100 * 1024 * 1024),
+        .log_file_count = 100
+    };
+
+    struct ameba_input_arg input_arg;
+    user_args_ameba_parse(&input_arg, &initial_value, argc, argv);
 
     struct arg_parse_state *a_p_s = &(input_arg.parse_state);
     if (user_args_helper_state_is_exit_set(a_p_s))
@@ -191,196 +158,77 @@ static void parse_user_input(struct user_input *input, int argc, char *argv[])
         exit(user_args_helper_state_get_code(a_p_s));
     }
 
-    *input = input_arg.user_input;
-}
-
-static int update_control_input_map(struct control_input *input)
-{
-    int update_flags;
-
-    update_flags = BPF_ANY;
-    // update_flags |= BPF_F_LOCK;
-
-    int key = 0;
-    int ret = bpf_map__update_elem(
-        skel->maps.AMEBA_MAP_NAME_CONTROL_INPUT,
-        &key, sizeof(key),
-        input, sizeof(struct control_input),
-        update_flags
-    );
-
-    return ret;
-}
-
-static int get_control_input_from_map(struct control_input *result)
-{
-    int lookup_flags;
-    lookup_flags = BPF_ANY;
-    // lookup_flags |= BPF_F_LOCK;
-
-    int key = 0;
-    int ret = bpf_map__lookup_elem(
-        skel->maps.AMEBA_MAP_NAME_CONTROL_INPUT,
-        &key, sizeof(key),
-        result, sizeof(struct control_input),
-        lookup_flags
-    );
-    return ret;
-}
-
-static void print_current_control_input()
-{
-    struct control_input result;
-    int dst_len = 512;
-    char dst[dst_len];
-
-    if (get_control_input_from_map(&result) != 0)
-    {
-        log_state_msg(APP_STATE_STARTING, "Failed to get control input entry from BPF map");
-        return;
-    }
-
-    struct json_buffer s;
-    jsonify_core_init(&s, dst, dst_len);
-    jsonify_core_open_obj(&s);
-
-    jsonify_control_write_control_input(&s, &result);
-
-    jsonify_core_close_obj(&s);
-
-    log_state_msg_and_child_js(
-        APP_STATE_STARTING, 
-        "Control input in BPF map",
-        "control_input", &s
-    );
-}
-
-static void print_user_input(struct user_input *user_input)
-{
-    int dst_len = 1024;
-    char dst[dst_len];
-
-    struct json_buffer s;
-    jsonify_core_init(&s, dst, dst_len);
-    jsonify_core_open_obj(&s);
-
-    jsonify_user_write_user_input(&s, user_input);
-
-    jsonify_core_close_obj(&s);
-
-    log_state_msg_and_child_js(
-        APP_STATE_STARTING, 
-        "User arguments",
-        "user_input", &s
-    );
-}
-
-static int update_bpf_version_maps_with_current_versions()
-{
-    int ret;
-
-    int update_flags;
-
-    update_flags = BPF_ANY;
-
-    int app_version_key = 0;
-    ret = bpf_map__update_elem(
-        skel->maps.AMEBA_MAP_NAME_APP_VERSION,
-        &app_version_key, sizeof(app_version_key),
-        &app_version, sizeof(struct elem_version),
-        update_flags
-    );
-
-    if (ret != 0)
-        return ret;
-
-    int record_version_key = 0;
-    ret = bpf_map__update_elem(
-        skel->maps.AMEBA_MAP_NAME_RECORD_VERSION,
-        &record_version_key, sizeof(record_version_key),
-        &record_version, sizeof(struct elem_version),
-        update_flags
-    );
-
-    return ret;
+    *dst = input_arg.ameba_input;
 }
 
 int main(int argc, char *argv[])
 {
-    int result;
-    struct ring_buffer *ringbuf = NULL;
-    int err, ringbuf_map_fd;
-    struct user_input input;
-    
-    parse_user_input(&input, argc, argv);
+    int result = 0;
 
-    print_user_input(&input);
+    struct ameba_input ameba_input;
 
-    signal(SIGTERM, sig_handler);
-    log_state_msg(APP_STATE_STARTING, "Registered signal handler");
+    parse_user_input(&ameba_input, argc, argv);
 
-    skel = ameba__open_and_load();
-    if (!skel)
+    if (prog_op_create_lock_dir() != 0)
     {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to load bpf skeleton");
-        result = 1;
-        return result;
+        result = -1;
+        goto exit;
     }
 
-    result = update_control_input_map(&input.c_in);
+    result = prog_op_ameba_must_be_pinned();
     if (result != 0)
     {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error updating control input");
-        result = 1;
-        goto skel_destroy;
+        result = -1;
+        goto rm_prog_op_lock_dir;
     }
 
-    print_current_control_input();
-    update_bpf_version_maps_with_current_versions();
-
-    err = ameba__attach(skel);
-    if (err != 0)
+    if (prog_op_compare_versions_in_loaded_maps_with_current_versions() != 0)
     {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error attaching skeleton");
-        result = 1;
-        goto skel_destroy;
+        result = -1;
+        goto rm_prog_op_lock_dir;
     }
 
-    // Locate ring buffer
-    ringbuf_map_fd = bpf_map__fd(skel->maps.AMEBA_MAP_NAME_OUTPUT_RINGBUF);
-    if (ringbuf_map_fd < 0)
+    if (setup_log_writer(&ameba_input) != 0)
     {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to find ring buffer map object");
-        result = 1;
-        goto skel_detach;
+        result = -1;
+        goto rm_prog_op_lock_dir;
     }
 
-    ringbuf = ring_buffer__new(ringbuf_map_fd, handle_ringbuf_data, NULL, NULL);
+    signal(SIGINT, sig_handler);
+    signal(SIGTERM, sig_handler);
 
-    int writer_error = init_output_writer(&input);
-    if (writer_error != 0)
+    struct ring_buffer *ringbuf = setup_output_ringbuf_reader();
+    if (!ringbuf)
     {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error creating output writer");
-        result = 1;
-        goto skel_detach;
+        result = -1;
+        goto cleanup_log_writer;
     }
 
-    log_state_msg_with_current_pid(APP_STATE_OPERATIONAL_PID, "Started successfully");
+    // Rmove lock dir to allow future operations
+    prog_op_remove_lock_dir();
 
-    while (ring_buffer__poll(ringbuf, -1) >= 0)
+    int timeout_ms = 10;
+    while (ameba_shutdown == 0)
     {
-        // collect prov in callback
+        int records_consumed = ring_buffer__poll(ringbuf, timeout_ms);
+        if (records_consumed >= 0)
+            total_records_consumed += records_consumed;
+        // Ignore errors TODO
     }
+    
+    ring_buffer__free(ringbuf);
+    close_log_writer();
 
-// log_file_close:
-    close_output_writer();
+    log_state_msg(APP_STATE_STOPPED_NORMALLY, "Stopped");
 
-skel_detach:
-    ameba__detach(skel);
+    goto exit;
 
-skel_destroy:
-    ameba__destroy(skel);
+cleanup_log_writer:
+    close_log_writer();
 
-// exit:
+rm_prog_op_lock_dir:
+    prog_op_remove_lock_dir();
+
+exit:
     return result;
 }

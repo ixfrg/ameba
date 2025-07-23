@@ -28,7 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "user/jsonify/core.h"
-#include "user/args/user.h"
+#include "user/args/ameba.h"
 
 
 /*
@@ -37,4 +37,4 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     Return:
         See 'jsonify_core_snprintf'.
 */
-int jsonify_user_write_user_input(struct json_buffer *s, struct user_input *val);
+int jsonify_user_write_ameba_input(struct json_buffer *s, struct ameba_input *val);

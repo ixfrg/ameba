@@ -318,3 +318,40 @@ int prog_op_get_control_input_in_map(struct control_input *input)
     }
     return ret;
 }
+
+static int get_output_ringbuf_path(char *path_buf, int path_buf_size)
+{
+    int ret = 0;
+    ret = snprintf(
+        path_buf, path_buf_size, "%s/%s",
+        DIR_PATH_FOR_PINNING_AMEBA_BPF,
+        AMEBA_MAP_NAME_OUTPUT_RINGBUF_STR
+    );
+    if (ret >= path_buf_size)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to create path for output ringbuf '%s'", AMEBA_MAP_NAME_OUTPUT_RINGBUF_STR);
+        return -1;
+    }
+    return 0;
+}
+
+int get_output_ringbuf_fd()
+{
+    int path_buf_size = 256;
+    char path_buf[path_buf_size];
+
+    int ret = 0;
+
+    ret = get_output_ringbuf_path(&path_buf[0], path_buf_size);
+
+    if (ret != 0)
+        return -1;
+
+    int fd = bpf_obj_get(&path_buf[0]);
+    if (fd < 0)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to open bpf ringbuf '%s'. Err: %d", &path_buf[0], fd);
+        return -1;
+    }
+    return fd;
+}

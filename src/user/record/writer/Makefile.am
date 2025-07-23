@@ -24,5 +24,5 @@ AM_CFLAGS = -Wall
 noinst_LIBRARIES = lib.a
 
 lib_a_SOURCES = \
-    writer.h \
-    file.c net.c
+    file.h dir.h net.h writer.h \
+    file.c dir.c net.c

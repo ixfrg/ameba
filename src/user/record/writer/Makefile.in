@@ -125,7 +125,7 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 lib_a_AR = $(AR) $(ARFLAGS)
 lib_a_LIBADD =
-am_lib_a_OBJECTS = file.$(OBJEXT) net.$(OBJEXT)
+am_lib_a_OBJECTS = file.$(OBJEXT) dir.$(OBJEXT) net.$(OBJEXT)
 lib_a_OBJECTS = $(am_lib_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -142,7 +142,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/file.Po ./$(DEPDIR)/net.Po
+am__depfiles_remade = ./$(DEPDIR)/dir.Po ./$(DEPDIR)/file.Po \
+	./$(DEPDIR)/net.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -299,8 +300,8 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_C
 AM_CFLAGS = -Wall
 noinst_LIBRARIES = lib.a
 lib_a_SOURCES = \
-    writer.h \
-    file.c net.c
+    file.h dir.h net.h writer.h \
+    file.c dir.c net.c
 
 all: all-am
 
@@ -350,6 +351,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dir.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/file.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/net.Po@am__quote@ # am--include-marker
 
@@ -496,7 +498,8 @@ clean: clean-am
 clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/file.Po
+		-rm -f ./$(DEPDIR)/dir.Po
+	-rm -f ./$(DEPDIR)/file.Po
 	-rm -f ./$(DEPDIR)/net.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -543,7 +546,8 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/file.Po
+		-rm -f ./$(DEPDIR)/dir.Po
+	-rm -f ./$(DEPDIR)/file.Po
 	-rm -f ./$(DEPDIR)/net.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

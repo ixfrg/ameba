@@ -21,35 +21,41 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /*
 
-    A module to help parse user_input from user arguments.
+    A module to help parse ameba input from user arguments.
 
 */
 
-#include "user/include/types.h"
+#include <limits.h>
 
-/*
-    Default output values
-*/
-static enum output_type default_output_type = OUTPUT_FILE;
-static const char *default_output_file_path = "/tmp/current_prov_log.json";
+#include "user/args/helper.h"
 
 
-struct user_input_arg
+struct ameba_input
 {
-    struct arg_parse_state parse_state;
-    struct user_input user_input;
+    char log_dir_path[PATH_MAX];
+    unsigned long long log_file_size_bytes;
+    unsigned int log_file_count;
 };
 
-
-/*
-    Copy value of internal global struct user_input to dst.
-*/
-void user_args_user_copy(struct user_input_arg *dst);
+struct ameba_input_arg
+{
+    struct arg_parse_state parse_state;
+    struct ameba_input ameba_input;
+};
 
 /*
     Parse user arguments (i.e. int main(int argc, char **argv)), and populate dst.
 
+    'initial_value' is the value to which (struct ameba_input_arg)->(struct ameba_input)
+    is initialized before arg parsing.
+
+    If 'initial_value' is NULL then no initialization is done.
+
     Return:
-        Always returns. Error (if any) in (struct user_input)->(struct arg_parse_state).
+        Always returns. Error (if any) in (struct ameba_input_arg)->(struct arg_parse_state).
 */
-void user_args_user_parse(struct user_input_arg *dst, int argc, char **argv);
+void user_args_ameba_parse(
+    struct ameba_input_arg *dst,
+    struct ameba_input *initial_value,
+    int argc, char **argv
+);

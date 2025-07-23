@@ -125,7 +125,7 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 lib_a_AR = $(AR) $(ARFLAGS)
 lib_a_LIBADD =
-am_lib_a_OBJECTS = user.$(OBJEXT) control.$(OBJEXT) core.$(OBJEXT) \
+am_lib_a_OBJECTS = ameba.$(OBJEXT) control.$(OBJEXT) core.$(OBJEXT) \
 	types.$(OBJEXT) record.$(OBJEXT) log_msg.$(OBJEXT) \
 	version.$(OBJEXT)
 lib_a_OBJECTS = $(am_lib_a_OBJECTS)
@@ -144,9 +144,9 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/control.Po ./$(DEPDIR)/core.Po \
-	./$(DEPDIR)/log_msg.Po ./$(DEPDIR)/record.Po \
-	./$(DEPDIR)/types.Po ./$(DEPDIR)/user.Po \
+am__depfiles_remade = ./$(DEPDIR)/ameba.Po ./$(DEPDIR)/control.Po \
+	./$(DEPDIR)/core.Po ./$(DEPDIR)/log_msg.Po \
+	./$(DEPDIR)/record.Po ./$(DEPDIR)/types.Po \
 	./$(DEPDIR)/version.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -304,8 +304,8 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_C
 AM_CFLAGS = -Wall
 noinst_LIBRARIES = lib.a
 lib_a_SOURCES = \
-    user.h control.h core.h types.h record.h log_msg.h version.h \
-    user.c control.c core.c types.c record.c log_msg.c version.c
+    ameba.h control.h core.h types.h record.h log_msg.h version.h \
+    ameba.c control.c core.c types.c record.c log_msg.c version.c
 
 all: all-am
 
@@ -355,12 +355,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/core.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log_msg.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/record.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/types.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/user.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/version.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -506,12 +506,12 @@ clean: clean-am
 clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/control.Po
+		-rm -f ./$(DEPDIR)/ameba.Po
+	-rm -f ./$(DEPDIR)/control.Po
 	-rm -f ./$(DEPDIR)/core.Po
 	-rm -f ./$(DEPDIR)/log_msg.Po
 	-rm -f ./$(DEPDIR)/record.Po
 	-rm -f ./$(DEPDIR)/types.Po
-	-rm -f ./$(DEPDIR)/user.Po
 	-rm -f ./$(DEPDIR)/version.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -558,12 +558,12 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/control.Po
+		-rm -f ./$(DEPDIR)/ameba.Po
+	-rm -f ./$(DEPDIR)/control.Po
 	-rm -f ./$(DEPDIR)/core.Po
 	-rm -f ./$(DEPDIR)/log_msg.Po
 	-rm -f ./$(DEPDIR)/record.Po
 	-rm -f ./$(DEPDIR)/types.Po
-	-rm -f ./$(DEPDIR)/user.Po
 	-rm -f ./$(DEPDIR)/version.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

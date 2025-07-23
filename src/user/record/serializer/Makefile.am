@@ -24,5 +24,5 @@ AM_CFLAGS = -Wall
 noinst_LIBRARIES = lib.a
 
 lib_a_SOURCES = \
-    serializer.h \
-    serializer.c binary.c json.c
+    binary.h json.h serializer.h \
+    binary.c json.c serializer.c 

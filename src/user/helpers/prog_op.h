@@ -85,3 +85,12 @@ int prog_op_set_control_input_in_map(struct control_input *input);
         -1 => Error
 */
 int prog_op_get_control_input_in_map(struct control_input *input);
+
+/*
+    Function to get output ringbuf fd.
+
+    Returns:
+        >=0  => file descriptor
+        -ive => Error
+*/
+int get_output_ringbuf_fd(void);

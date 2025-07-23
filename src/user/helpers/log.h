@@ -21,8 +21,26 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 #include <stdio.h>
-#include "user/include/types.h"
+#include <time.h>
 
+
+typedef enum
+{
+    APP_STATE_STARTING = 1,
+    APP_STATE_OPERATIONAL = 2,
+    APP_STATE_OPERATIONAL_PID = 3,
+    APP_STATE_OPERATIONAL_WITH_ERROR = 4,
+    APP_STATE_STOPPED_WITH_ERROR = 5,
+    APP_STATE_STOPPED_NORMALLY = 6
+} app_state_t;
+
+
+struct log_msg
+{
+    struct timespec ts;
+    app_state_t state;
+    struct json_buffer *json;
+};
 
 void __log_state(FILE *out_f, app_state_t state, struct json_buffer *js);
 
