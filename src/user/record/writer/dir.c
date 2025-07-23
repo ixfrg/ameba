@@ -127,7 +127,10 @@ static int init_rotate() {
         {
             if (mkdir(state.dir, 0700) == -1)
             {
-                return -1;
+                if (errno != EEXIST)
+                {
+                    return -1;
+                }
             }
         } else
         {
