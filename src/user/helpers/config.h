@@ -17,32 +17,28 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
 /*
+    Function to read a config file of the format:
 
-    A module to help write user_input to json_buffer.
+    ```
+    word1 word2 word3
+    # i am a comment
+    word4 word5
+    word6 
+    ```
 
-    See 'core.h'.
+    to malloc argv_out as
 
-*/
+    ["<file's base name>", "word1", "word2", "word3", "word4", "word5", "word6"]
 
-#include "user/jsonify/core.h"
-#include "user/args/ameba.h"
+    and argc_out as 7.
 
+    Note: Ignore the first value '<file's base name>'... it is used for compatibility with argp configuration.
 
-/*
-    Write user_input to json_buffer.
+    Note: argv_out is malloc'ed and should be freed by the user.
 
     Return:
-        See 'jsonify_core_snprintf'.
+        0   => Success
+        -1  => Error
 */
-int jsonify_ameba_write_ameba_input(struct json_buffer *s, struct ameba_input *val);
-
-/*
-    Write ameba_input to file.
-
-    Return:
-        See 'jsonify_core_snprintf'.
-*/
-void jsonify_ameba_write_ameba_input_to_file(FILE *out, struct ameba_input *val);
+int parse_config_to_argv(const char *filename, int *argc_out, char ***argv_out);

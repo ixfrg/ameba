@@ -19,6 +19,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "common/config.h"
+
 /*
 
     A module for defining common (i.e. bpf and user) constants.
@@ -67,6 +69,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   "This is free software, and you are welcome to redistribute it under certain conditions; type `--help' for details.\n"
 
 #define ARGP_DOC_COPYRIGHT_STR(prefix) "\n" prefix "\n" ARGP_DOC_COPYRIGHT_BODY
+
+#ifndef AMEBA_CONFIG_DIR_PATH
+#define AMEBA_CONFIG_DIR_PATH "/etc/ameba"
+#endif
+#define AMEBA_CONFIG_FILE_PATH AMEBA_CONFIG_DIR_PATH "/" "ameba.conf"
 
 //
 

@@ -33,12 +33,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <sys/types.h>
 #include <bpf/libbpf.h>
 
+#include "common/constants.h"
+#include "user/helpers/config.h"
 #include "user/args/ameba.h"
 #include "user/helpers/log.h"
 #include "user/record/writer/dir.h"
 #include "user/record/serializer/json.h"
 #include "user/helpers/prog_op.h"
-#include "user/jsonify/core.h"
+#include "user/jsonify/ameba.h"
 
 //
 
@@ -138,16 +140,44 @@ static void sig_handler(int sig)
     }
 }
 
+static void parse_config_input(
+    struct ameba_input *dst
+)
+{
+    int argc = 0;
+    char **argv = NULL;
+
+    const char *config_path = AMEBA_CONFIG_FILE_PATH;
+
+    if (parse_config_to_argv(config_path, &argc, &argv) != 0) {
+        return;
+    }
+
+    struct ameba_input_arg config_arg;
+    user_args_ameba_parse(&config_arg, NULL, argc, argv);
+
+    for (int i = 0; i < argc; ++i) {
+        free(argv[i]);
+    }
+    free(argv);
+
+    struct arg_parse_state *a_p_s = &(config_arg.parse_state);
+    if (user_args_helper_state_is_exit_set(a_p_s))
+    {
+        exit(user_args_helper_state_get_code(a_p_s));
+    }
+    *dst = config_arg.ameba_input;
+
+    // jsonify_ameba_write_ameba_input_to_file(stdout, dst);
+}
+
 static void parse_user_input(
     struct ameba_input *dst,
     int argc, char *argv[]
 )
 {
-    struct ameba_input initial_value = {
-        .log_dir_path = "/var/log/ameba",
-        .log_file_size_bytes = (100 * 1024 * 1024),
-        .log_file_count = 100
-    };
+    struct ameba_input initial_value;
+    parse_config_input(&initial_value);
 
     struct ameba_input_arg input_arg;
     user_args_ameba_parse(&input_arg, &initial_value, argc, argv);
