@@ -121,7 +121,7 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 =
-am_ameba_OBJECTS = $(am__objects_1) main.$(OBJEXT)
+am_ameba_OBJECTS = $(am__objects_1) output.$(OBJEXT) main.$(OBJEXT)
 ameba_OBJECTS = $(am_ameba_OBJECTS)
 ameba_DEPENDENCIES = $(COMMON_LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -139,7 +139,7 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/main.Po
+am__depfiles_remade = ./$(DEPDIR)/main.Po ./$(DEPDIR)/output.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -315,7 +315,8 @@ COMMON_LDADD = \
 
 ameba_SOURCES = \
     $(COMMON_SOURCES) \
-    main.c
+    output.h \
+    output.c main.c
 
 ameba_LDADD = $(COMMON_LDADD)
 all: all-am
@@ -405,6 +406,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/output.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -553,6 +555,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/main.Po
+	-rm -f ./$(DEPDIR)/output.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -599,6 +602,7 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/main.Po
+	-rm -f ./$(DEPDIR)/output.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

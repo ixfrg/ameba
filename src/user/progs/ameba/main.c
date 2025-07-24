@@ -37,99 +37,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/helpers/config.h"
 #include "user/args/ameba.h"
 #include "user/helpers/log.h"
-#include "user/record/writer/dir.h"
-#include "user/record/serializer/json.h"
 #include "user/helpers/prog_op.h"
 #include "user/jsonify/ameba.h"
+#include "user/progs/ameba/output.h"
 
-//
-
-static const struct record_serializer *log_serializer = &record_serializer_json;
-static const struct record_writer *log_writer = &record_writer_dir;
 
 static volatile int ameba_shutdown = 0;
 static volatile ssize_t total_records_consumed = 0;
 
-//
-
-static int handle_ringbuf_data(void *ctx, void *data, size_t data_len)
-{
-    size_t dst_len = MAX_BUFFER_LEN;
-    void *dst = malloc(sizeof(char) * dst_len);
-    if (!dst)
-        goto exit;
-
-    long data_copied_to_dst = log_serializer->serialize(dst, dst_len, data, data_len);
-    if (data_copied_to_dst <= 0)
-    {
-        log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data conversion");
-        goto free_dst;
-    }
-
-    int write_result = log_writer->write(dst, data_copied_to_dst);
-    if (write_result < 0)
-    {
-        log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data write");
-        goto free_dst;
-    }
-
-free_dst:
-    free(dst);
-exit:
-    return 0;
-}
-
-static struct ring_buffer * setup_output_ringbuf_reader()
-{
-    int ringbuf_fd = prog_op_get_output_ringbuf_fd();
-    if (ringbuf_fd < 0)
-    {
-        return NULL;
-    }
-
-    struct ring_buffer *ringbuf = ring_buffer__new(ringbuf_fd, handle_ringbuf_data, NULL, NULL);
-
-    if (!ringbuf)
-    {
-        log_state_msg(
-            APP_STATE_STOPPED_WITH_ERROR,
-            "Failed to create output ringbuf instance"
-        );
-        return NULL;
-    }
-
-    return ringbuf;
-}
-
-static void close_log_writer()
-{
-    log_writer->close();
-}
-
-static int setup_log_writer(struct ameba_input *ameba_input)
-{
-    if (!ameba_input)
-        return -1;
-
-    if (log_writer->set_init_args((void *)(ameba_input), sizeof(struct ameba_input)) != 0)
-    {
-        log_state_msg(
-            APP_STATE_STOPPED_WITH_ERROR,
-            "Failed to set init args for ameba log writer"
-        );
-        return -1;
-    }
-
-    if (log_writer->init() != 0)
-    {
-        log_state_msg(
-            APP_STATE_STOPPED_WITH_ERROR,
-            "Failed to create ameba log writer"
-        );
-        return -1;
-    }
-    return 0;
-}
 
 static void sig_handler(int sig)
 {
@@ -218,7 +133,7 @@ int main(int argc, char *argv[])
         goto rm_prog_op_lock_dir;
     }
 
-    if (setup_log_writer(&ameba_input) != 0)
+    if (output_setup_log_writer(&ameba_input) != 0)
     {
         result = -1;
         goto rm_prog_op_lock_dir;
@@ -227,14 +142,14 @@ int main(int argc, char *argv[])
     signal(SIGINT, sig_handler);
     signal(SIGTERM, sig_handler);
 
-    struct ring_buffer *ringbuf = setup_output_ringbuf_reader();
+    struct ring_buffer *ringbuf = output_setup_output_ringbuf_reader();
     if (!ringbuf)
     {
         result = -1;
         goto cleanup_log_writer;
     }
 
-    // Rmove lock dir to allow future operations
+    // Remove lock dir to allow future operations
     prog_op_remove_lock_dir();
 
     int timeout_ms = 10;
@@ -247,14 +162,14 @@ int main(int argc, char *argv[])
     }
     
     ring_buffer__free(ringbuf);
-    close_log_writer();
+    output_close_log_writer();
 
     log_state_msg(APP_STATE_STOPPED_NORMALLY, "Stopped");
 
     goto exit;
 
 cleanup_log_writer:
-    close_log_writer();
+    output_close_log_writer();
 
 rm_prog_op_lock_dir:
     prog_op_remove_lock_dir();

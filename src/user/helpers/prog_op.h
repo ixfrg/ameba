@@ -47,6 +47,8 @@ int prog_op_remove_lock_dir(void);
     Function to check equality of versions between the versions of the program
     and the versions loaded in ebpf maps.
 
+    Must be called with a lock already held i.e. prog_op_create_lock_dir is already called.
+
     Returns:
         0  => Equal
         -1 => Error
@@ -55,6 +57,8 @@ int prog_op_compare_versions_in_loaded_maps_with_current_versions(void);
 
 /*
     Function to check if ameba is pinned.
+
+    Must be called with a lock already held i.e. prog_op_create_lock_dir is already called.
 
     Returns:
         0  => Yes, it is pinned.
@@ -65,6 +69,8 @@ int prog_op_ameba_must_be_pinned(void);
 /*
     Function to check if ameba is not pinned.
 
+    Must be called with a lock already held i.e. prog_op_create_lock_dir is already called.
+
     Returns:
         0  => Not pinned.
         -1 => Error or pinned.
@@ -73,6 +79,8 @@ int prog_op_ameba_must_not_be_pinned(void);
 
 /*
     Function to set given control input in pinned control input map.
+
+    Must be called with a lock already held i.e. prog_op_create_lock_dir is already called.
 
     Returns:
         0  => Success
@@ -83,6 +91,8 @@ int prog_op_set_control_input_in_map(struct control_input *input);
 /*
     Function to get current control input in pinned control input map.
 
+    Must be called with a lock already held i.e. prog_op_create_lock_dir is already called.
+
     Returns:
         0  => Success
         -1 => Error
@@ -91,6 +101,8 @@ int prog_op_get_control_input_in_map(struct control_input *input);
 
 /*
     Function to get output ringbuf fd.
+
+    Must be called with a lock already held i.e. prog_op_create_lock_dir is already called.
 
     Returns:
         >=0  => file descriptor
@@ -101,6 +113,8 @@ int prog_op_get_output_ringbuf_fd(void);
 /*
     Function to pin all bpf programs and maps.
 
+    Must be called with a lock already held i.e. prog_op_create_lock_dir is already called.
+
     Returns:
         0    => Success
         -ive => Error
@@ -109,6 +123,8 @@ int prog_op_pin_bpf_progs_and_maps(struct pin_input *arg);
 
 /*
     Function to unpin all bpf programs and maps.
+
+    Must be called with a lock already held i.e. prog_op_create_lock_dir is already called.
 
     Returns:
         0    => Success

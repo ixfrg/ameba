@@ -40,5 +40,6 @@ bin_PROGRAMS = ameba
 
 ameba_SOURCES = \
     $(COMMON_SOURCES) \
-    main.c
+    output.h \
+    output.c main.c
 ameba_LDADD = $(COMMON_LDADD)
