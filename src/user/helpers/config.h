@@ -41,4 +41,4 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         0   => Success
         -1  => Error
 */
-int parse_config_to_argv(const char *filename, int *argc_out, char ***argv_out);
+int config_parse_as_argv(const char *filename, int *argc_out, char ***argv_out);

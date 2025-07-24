@@ -47,7 +47,7 @@ static char *trim_strip(char *str)
     return str;
 }
 
-int parse_config_to_argv(const char *filename, int *argc_out, char ***argv_out)
+int config_parse_as_argv(const char *filename, int *argc_out, char ***argv_out)
 {
     int result = -1;
     FILE *f = NULL;
@@ -56,7 +56,7 @@ int parse_config_to_argv(const char *filename, int *argc_out, char ***argv_out)
     char *dup_filename = NULL;
 
     if (!filename || !argc_out || !argv_out) {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed parse_config_to_argv. NULL input");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed config_parse_as_argv. NULL input");
         return -1;
     }
 

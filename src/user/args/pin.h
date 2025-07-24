@@ -27,23 +27,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
+struct pin_input
+{
+
+};
+
 /*
     A struct to encapsulate pin input and keep parsing state.
 */
 struct pin_input_arg
 {
     struct arg_parse_state parse_state;
+    struct pin_input pin_input;
 };
-
-/*
-    A properly formed argp struct.
-*/
-extern struct argp global_pin_input_argp;
-
-/*
-    Copy the value of internal global (struct pin_input_arg) to dst.
-*/
-void user_args_pin_copy(struct pin_input_arg *dst);
 
 /*
     Parse user arguments (i.e. int main(int argc, char **argv)), and populate dst.
@@ -51,4 +47,4 @@ void user_args_pin_copy(struct pin_input_arg *dst);
     Return:
         Always returns. Error (if any) in (struct pin_input_arg)->(struct arg_parse_state).
 */
-void user_args_pin_parse(struct pin_input_arg *dst, int argc, char **argv);
+void user_args_pin_parse(struct pin_input_arg *dst, struct pin_input *initial_value, int argc, char **argv);

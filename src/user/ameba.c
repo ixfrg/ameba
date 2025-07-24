@@ -147,9 +147,9 @@ static void parse_config_input(
     int argc = 0;
     char **argv = NULL;
 
-    const char *config_path = AMEBA_CONFIG_FILE_PATH;
+    const char *config_path = PROG_AMEBA_CONFIG_FILE_PATH;
 
-    if (parse_config_to_argv(config_path, &argc, &argv) != 0) {
+    if (config_parse_as_argv(config_path, &argc, &argv) != 0) {
         return;
     }
 

@@ -24,6 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/version.h"
 #include "user/helpers/log.h"
 #include "user/helpers/prog_op.h"
+#include "user/helpers/config.h"
 #include "user/args/pin.h"
 
 #include "ameba.skel.h"
@@ -146,10 +147,44 @@ static int attach_progs(struct ameba *skel)
     return err;
 }
 
+static void parse_config_input(
+    struct pin_input *dst
+)
+{
+    int argc = 0;
+    char **argv = NULL;
+
+    const char *config_path = PROG_PIN_CONFIG_FILE_PATH;
+
+    if (config_parse_as_argv(config_path, &argc, &argv) != 0) {
+        return;
+    }
+
+    struct pin_input_arg config_arg;
+    user_args_pin_parse(&config_arg, NULL, argc, argv);
+
+    for (int i = 0; i < argc; ++i) {
+        free(argv[i]);
+    }
+    free(argv);
+
+    struct arg_parse_state *a_p_s = &(config_arg.parse_state);
+    if (user_args_helper_state_is_exit_set(a_p_s))
+    {
+        exit(user_args_helper_state_get_code(a_p_s));
+    }
+    *dst = config_arg.pin_input;
+
+    // jsonify_ameba_write_ameba_input_to_file(stdout, dst);
+}
+
 static void parse_user_input(int argc, char *argv[])
 {
+    struct pin_input initial_value;
+    parse_config_input(&initial_value);
+    
     struct pin_input_arg input_arg;
-    user_args_pin_parse(&input_arg, argc, argv);
+    user_args_pin_parse(&input_arg, &initial_value, argc, argv);
 
     struct arg_parse_state *a_p_s = &(input_arg.parse_state);
     if (user_args_helper_state_is_exit_set(a_p_s))
