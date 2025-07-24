@@ -30,43 +30,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/constants.h"
 #include "user/helpers/prog_op.h"
 #include "user/helpers/log.h"
-#include "user/helpers/config.h"
+#include "user/config/unpin.h"
 #include "user/args/unpin.h"
 
-
-static void parse_config_input(
-    struct unpin_input *dst
-)
-{
-    int argc = 0;
-    char **argv = NULL;
-
-    const char *config_path = PROG_UNPIN_CONFIG_FILE_PATH;
-
-    if (config_parse_as_argv(config_path, &argc, &argv) != 0) {
-        return;
-    }
-
-    struct unpin_input_arg config_arg;
-    user_args_unpin_parse(&config_arg, NULL, argc, argv);
-
-    for (int i = 0; i < argc; ++i) {
-        free(argv[i]);
-    }
-    free(argv);
-
-    struct arg_parse_state *a_p_s = &(config_arg.parse_state);
-    if (user_args_helper_state_is_exit_set(a_p_s))
-    {
-        exit(user_args_helper_state_get_code(a_p_s));
-    }
-    *dst = config_arg.unpin_input;
-}
 
 static void parse_user_input(struct unpin_input *dst, int argc, char *argv[])
 {
     struct unpin_input initial_value;
-    parse_config_input(&initial_value);
+    config_unpin_parse_default_config(&initial_value);
 
     struct unpin_input_arg input_arg;
     user_args_unpin_parse(&input_arg, &initial_value, argc, argv);

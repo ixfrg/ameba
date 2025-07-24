@@ -25,43 +25,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/version.h"
 #include "user/helpers/log.h"
 #include "user/helpers/prog_op.h"
-#include "user/helpers/config.h"
+#include "user/config/pin.h"
 #include "user/args/pin.h"
 
-
-static void parse_config_input(
-    struct pin_input *dst
-)
-{
-    int argc = 0;
-    char **argv = NULL;
-
-    const char *config_path = PROG_PIN_CONFIG_FILE_PATH;
-
-    if (config_parse_as_argv(config_path, &argc, &argv) != 0) {
-        return;
-    }
-
-    struct pin_input_arg config_arg;
-    user_args_pin_parse(&config_arg, NULL, argc, argv);
-
-    for (int i = 0; i < argc; ++i) {
-        free(argv[i]);
-    }
-    free(argv);
-
-    struct arg_parse_state *a_p_s = &(config_arg.parse_state);
-    if (user_args_helper_state_is_exit_set(a_p_s))
-    {
-        exit(user_args_helper_state_get_code(a_p_s));
-    }
-    *dst = config_arg.pin_input;
-}
 
 static void parse_user_input(struct pin_input *dst, int argc, char *argv[])
 {
     struct pin_input initial_value;
-    parse_config_input(&initial_value);
+    config_pin_parse_default_config(&initial_value);
     
     struct pin_input_arg input_arg;
     user_args_pin_parse(&input_arg, &initial_value, argc, argv);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 /*
-AMEBA - A Minimal eBPF-based Audit: an eBPF-based Linux telemetry collection tool.
+pin - A Minimal eBPF-based Audit: an eBPF-based Linux telemetry collection tool.
 Copyright (C) 2025  Hassaan Irshad
 
 This program is free software: you can redistribute it and/or modify
@@ -17,28 +17,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "user/args/pin.h"
+#include "user/config/config.h"
+
 /*
-    Function to read a config file of the format:
+    Function to populate 'dst' from config file at path 'file_path'
 
-    ```
-    word1 word2 word3
-    # i am a comment
-    word4 word5
-    word6 
-    ```
-
-    to malloc argv_out as
-
-    ["<file's base name>", "word1", "word2", "word3", "word4", "word5", "word6"]
-
-    and argc_out as 7.
-
-    Note: Ignore the first value '<file's base name>'... it is used for compatibility with argp configuration.
-
-    Note: argv_out is malloc'ed and should be freed by the user.
-
-    Return:
-        0   => Success
-        -1  => Error
+    Returns:
+        Does not return on failure!
+        On success, 'dst' is populated
 */
-int config_parse_as_argv(const char *filename, int *argc_out, char ***argv_out);
+void config_pin_parse_config(char *file_path, struct pin_input *dst);
+
+/*
+    Function to populate 'dst' from default config file at path '${install_prefx}/etc/ameba/pin.conf'
+
+    Returns:
+        Does not return on failure!
+        On success, 'dst' is populated
+*/
+void config_pin_parse_default_config(struct pin_input *dst);

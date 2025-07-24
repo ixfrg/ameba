@@ -34,8 +34,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <bpf/libbpf.h>
 
 #include "common/constants.h"
-#include "user/helpers/config.h"
+#include "user/config/ameba.h"
+#include "user/config/control.h"
+#include "user/config/pin.h"
+#include "user/config/unpin.h"
 #include "user/args/ameba.h"
+#include "user/args/pin.h"
+#include "user/args/control.h"
 #include "user/helpers/log.h"
 #include "user/helpers/prog_op.h"
 #include "user/jsonify/ameba.h"
@@ -55,44 +60,13 @@ static void sig_handler(int sig)
     }
 }
 
-static void parse_config_input(
-    struct ameba_input *dst
-)
-{
-    int argc = 0;
-    char **argv = NULL;
-
-    const char *config_path = PROG_AMEBA_CONFIG_FILE_PATH;
-
-    if (config_parse_as_argv(config_path, &argc, &argv) != 0) {
-        return;
-    }
-
-    struct ameba_input_arg config_arg;
-    user_args_ameba_parse(&config_arg, NULL, argc, argv);
-
-    for (int i = 0; i < argc; ++i) {
-        free(argv[i]);
-    }
-    free(argv);
-
-    struct arg_parse_state *a_p_s = &(config_arg.parse_state);
-    if (user_args_helper_state_is_exit_set(a_p_s))
-    {
-        exit(user_args_helper_state_get_code(a_p_s));
-    }
-    *dst = config_arg.ameba_input;
-
-    // jsonify_ameba_write_ameba_input_to_file(stdout, dst);
-}
-
 static void parse_user_input(
     struct ameba_input *dst,
     int argc, char *argv[]
 )
 {
     struct ameba_input initial_value;
-    parse_config_input(&initial_value);
+    config_ameba_parse_default_config(&initial_value);
 
     struct ameba_input_arg input_arg;
     user_args_ameba_parse(&input_arg, &initial_value, argc, argv);
@@ -111,26 +85,21 @@ int main(int argc, char *argv[])
     int result = 0;
 
     struct ameba_input ameba_input;
-
     parse_user_input(&ameba_input, argc, argv);
+
+    struct pin_input pin_input;
+    config_pin_parse_default_config(&pin_input);
+
+    struct unpin_input unpin_input;
+    config_unpin_parse_default_config(&unpin_input);
+
+    struct control_input control_input;
+    config_control_parse_default_config(&control_input);
 
     if (prog_op_create_lock_dir() != 0)
     {
         result = -1;
         goto exit;
-    }
-
-    result = prog_op_ameba_must_be_pinned();
-    if (result != 0)
-    {
-        result = -1;
-        goto rm_prog_op_lock_dir;
-    }
-
-    if (prog_op_compare_versions_in_loaded_maps_with_current_versions() != 0)
-    {
-        result = -1;
-        goto rm_prog_op_lock_dir;
     }
 
     if (output_setup_log_writer(&ameba_input) != 0)
@@ -142,17 +111,33 @@ int main(int argc, char *argv[])
     signal(SIGINT, sig_handler);
     signal(SIGTERM, sig_handler);
 
-    struct ring_buffer *ringbuf = output_setup_output_ringbuf_reader();
-    if (!ringbuf)
+    result = prog_op_pin_bpf_progs_and_maps(&pin_input);
+    if (result != 0)
     {
         result = -1;
         goto cleanup_log_writer;
     }
 
+    result = prog_op_set_control_input_in_map(&control_input);
+    if (result != 0)
+    {
+        result = -1;
+        goto unpin_bpf;
+    }
+
+    struct ring_buffer *ringbuf = output_setup_output_ringbuf_reader();
+    if (!ringbuf)
+    {
+        result = -1;
+        goto unpin_bpf;
+    }
+
     // Remove lock dir to allow future operations
     prog_op_remove_lock_dir();
 
-    int timeout_ms = 10;
+    log_state_msg_with_pid(APP_STATE_OPERATIONAL_PID, "Started", getpid());
+
+    int timeout_ms = 100;
     while (ameba_shutdown == 0)
     {
         int records_consumed = ring_buffer__poll(ringbuf, timeout_ms);
@@ -163,10 +148,14 @@ int main(int argc, char *argv[])
     
     ring_buffer__free(ringbuf);
     output_close_log_writer();
+    prog_op_unpin_bpf_progs_and_maps(&unpin_input);
 
     log_state_msg(APP_STATE_STOPPED_NORMALLY, "Stopped");
 
     goto exit;
+
+unpin_bpf:
+    prog_op_unpin_bpf_progs_and_maps(&unpin_input);
 
 cleanup_log_writer:
     output_close_log_writer();

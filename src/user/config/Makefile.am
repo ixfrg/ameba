@@ -17,6 +17,7 @@
 
 ## Process this file with automake to produce Makefile.in
 
+
 AM_CPPFLAGS = \
     -I$(top_srcdir)/src \
     -I$(top_builddir)/src \
@@ -24,22 +25,8 @@ AM_CPPFLAGS = \
     -DAMEBA_CONFIG_DIR_PATH='"$(sysconfdir)/$(AMEBA_ETC_CONF_DIR_NAME)"'
 AM_CFLAGS = -Wall
 
-COMMON_SOURCES = \
-    include/types.h \
-    include/error.h
-COMMON_LDADD = \
-    $(top_builddir)/src/user/config/lib.a \
-    $(top_builddir)/src/user/args/lib.a \
-    $(top_builddir)/src/user/record/deserializer/lib.a \
-    $(top_builddir)/src/user/record/writer/lib.a \
-    $(top_builddir)/src/user/record/serializer/lib.a \
-    $(top_builddir)/src/user/helpers/lib.a \
-    $(top_builddir)/src/user/jsonify/lib.a \
-    $(top_builddir)/src/common/lib.a
+noinst_LIBRARIES = lib.a
 
-bin_PROGRAMS = pin
-
-pin_SOURCES = \
-    $(COMMON_SOURCES) \
-    main.c
-pin_LDADD = $(COMMON_LDADD)
+lib_a_SOURCES = \
+    config.h ameba.h control.h pin.h unpin.h \
+    config.c ameba.c control.c pin.c unpin.c

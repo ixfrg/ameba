@@ -28,6 +28,7 @@ COMMON_SOURCES = \
     include/types.h \
     include/error.h
 COMMON_LDADD = \
+    $(top_builddir)/src/user/config/lib.a \
     $(top_builddir)/src/user/args/lib.a \
     $(top_builddir)/src/user/record/deserializer/lib.a \
     $(top_builddir)/src/user/record/writer/lib.a \

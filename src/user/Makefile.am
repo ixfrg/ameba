@@ -18,4 +18,4 @@
 ## Process this file with automake to produce Makefile.in
 
 
-SUBDIRS = args record helpers jsonify progs
+SUBDIRS = args config record helpers jsonify progs
