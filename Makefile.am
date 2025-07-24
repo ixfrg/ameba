@@ -24,7 +24,11 @@ SUBDIRS = src/common src/bpf src/user src/utils tests
 dist_doc_DATA = README.md
 
 amebaconfigdir = $(sysconfdir)/ameba
-dist_amebaconfig_DATA = config/ameba.conf
+dist_amebaconfig_DATA = \
+	config/ameba.conf \
+	config/control.conf \
+	config/pin.conf \
+	config/unpin.conf
 
 dist-hook:
 	echo $(VERSION) > $(distdir)/.tarball-version
