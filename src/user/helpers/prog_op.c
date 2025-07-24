@@ -24,6 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string.h>
 #include <sys/types.h>
 #include <dirent.h>
+ #include <stdlib.h>
 
 #include <bpf/bpf.h>
 
@@ -32,6 +33,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/version.h"
 #include "user/helpers/prog_op.h"
 #include "user/helpers/log.h"
+
+#include "ameba.skel.h"
 
 
 int prog_op_create_lock_dir(void)
@@ -412,11 +415,187 @@ exit:
     return result;
 }
 
-int prog_op_unpin_bpf_progs_and_maps(struct unpin_input *arg)
+static int pin_progs_and_maps(struct ameba *skel)
+{
+    int err = 0;
+
+    if (mkdir(DIR_PATH_FOR_PINNING_AMEBA_BPF, 0700) && errno != EEXIST)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to create dir (%s) for bpf pinning. Err: %d", DIR_PATH_FOR_PINNING_AMEBA_BPF, errno);
+        err = -1;
+        goto exit;
+    }
+
+    if ((err = bpf_object__pin(skel->obj, DIR_PATH_FOR_PINNING_AMEBA_BPF)) != 0)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to pin. Err: %d", err);
+        err = -1;
+        goto rm_pin_dir;
+    }
+
+    goto exit;
+
+rm_pin_dir:
+    if (rmdir(DIR_PATH_FOR_PINNING_AMEBA_BPF) != 0)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to rm pin dir. Err: %d", errno);
+    }
+
+exit:
+    return err;
+}
+
+static int attach_progs(struct ameba *skel)
+{
+    int err = ameba__attach(skel);
+    if (err != 0)
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Error attaching skeleton");
+    return err;
+}
+
+static int set_default_control_input_map(struct ameba *skel)
+{
+    if (!skel)
+        return -1;
+
+    struct control_input control_input;
+    control_set_default(&control_input);
+
+    int update_flags = BPF_ANY;
+
+    int key = 0;
+    int ret = bpf_map__update_elem(
+        skel->maps.AMEBA_MAP_NAME_CONTROL_INPUT,
+        &key, sizeof(key),
+        &control_input, sizeof(struct control_input),
+        update_flags
+    );
+    if (ret != 0)
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to set default control input in map");
+    return ret;
+}
+
+static int set_bpf_app_version_in_map(struct ameba *skel, const struct elem_version *version)
+{
+    if (!skel || !version)
+        return -1;
+
+    int version_key = 0;
+    int ret = bpf_map__update_elem(
+        skel->maps.AMEBA_MAP_NAME_APP_VERSION,
+        &version_key, sizeof(int),
+        version, sizeof(struct elem_version),
+        BPF_ANY
+    );
+    if (ret != 0)
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to set app version in map");
+    return ret;
+}
+
+static int set_bpf_record_version_in_map(struct ameba *skel, const struct elem_version *version)
+{
+    if (!skel || !version)
+        return -1;
+
+    int version_key = 0;
+    int ret = bpf_map__update_elem(
+        skel->maps.AMEBA_MAP_NAME_RECORD_VERSION,
+        &version_key, sizeof(int),
+        version, sizeof(struct elem_version),
+        BPF_ANY
+    );
+    if (ret != 0)
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to set record version in map");
+    return ret;
+}
+
+static int set_bpf_version_maps_with_current_versions(struct ameba *skel)
+{
+    int ret = 0;
+
+    ret = set_bpf_app_version_in_map(skel, &app_version);
+
+    if (ret != 0)
+        return ret;
+
+    ret = set_bpf_record_version_in_map(skel, &record_version);
+
+    return ret;
+}
+
+static struct ameba *open_and_load_skel()
+{
+    struct ameba *skel = NULL;
+    skel = ameba__open_and_load();
+    if (!skel)
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to load bpf skeleton");
+    return skel;
+}
+
+int prog_op_pin_bpf_progs_and_maps(struct pin_input *arg)
 {
     if (!arg)
     {
         log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed prog_op_pin_bpf_progs_and_maps. NULL argument(s)");
+        return -1;
+    }
+
+    struct ameba *skel = NULL;
+    int result = 0;
+
+    result = prog_op_ameba_must_not_be_pinned();
+    if (result != 0)
+    {
+        result = -1;
+        goto exit;
+    }
+
+    skel = open_and_load_skel();
+    if (!skel)
+    {
+        result = -1;
+        goto exit;
+    }
+
+    if (set_bpf_version_maps_with_current_versions(skel) != 0)
+    {
+        result = -1;
+        goto skel_destroy;
+    }
+
+    if (set_default_control_input_map(skel) != 0)
+    {
+        result = -1;
+        goto skel_destroy;
+    }
+
+    if (attach_progs(skel) != 0)
+    {
+        result = -1;
+        goto skel_destroy;
+    }
+
+    if (pin_progs_and_maps(skel) != 0)
+    {
+        result = -1;
+        goto skel_detach;
+    }
+
+skel_detach:
+    ameba__detach(skel);
+
+skel_destroy:
+    ameba__destroy(skel);
+
+exit:
+    return result;
+}
+
+int prog_op_unpin_bpf_progs_and_maps(struct unpin_input *arg)
+{
+    if (!arg)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed prog_op_unpin_bpf_progs_and_maps. NULL argument(s)");
         return -1;
     }
 

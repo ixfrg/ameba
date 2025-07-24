@@ -99,6 +99,15 @@ int prog_op_get_control_input_in_map(struct control_input *input);
 int prog_op_get_output_ringbuf_fd(void);
 
 /*
+    Function to pin all bpf programs and maps.
+
+    Returns:
+        0    => Success
+        -ive => Error
+*/
+int prog_op_pin_bpf_progs_and_maps(struct pin_input *arg);
+
+/*
     Function to unpin all bpf programs and maps.
 
     Returns:
