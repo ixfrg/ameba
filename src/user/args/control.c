@@ -44,10 +44,13 @@ enum
     OPT_GLOBAL_MODE = 'g',
     OPT_UID_MODE = 'c',
     OPT_UID_LIST = 'C',
+    OPT_CLEAR_UID_LIST = 'X',
     OPT_PID_MODE = 'p',
     OPT_PID_LIST = 'P',
+    OPT_CLEAR_PID_LIST = 'Y',
     OPT_PPID_MODE = 'k',
     OPT_PPID_LIST = 'K',
+    OPT_CLEAR_PPID_LIST = 'Z',
     OPT_NETIO_MODE = 'n',
     OPT_CLEAR = 'r',
     OPT_VERSION = 'v',
@@ -60,10 +63,13 @@ static struct argp_option options[] = {
     {"global-mode", OPT_GLOBAL_MODE, "MODE", 0, "Global trace mode (ignore|capture)", 0},
     {"uid-mode", OPT_UID_MODE, "MODE", 0, "UID trace mode (ignore|capture)", 0},
     {"uid-list", OPT_UID_LIST, "UIDS", 0, "Comma-separated list of UIDs", 0},
+    {"clear-uid-list", OPT_CLEAR_UID_LIST, 0, 0, "Clear UID list", 0},
     {"pid-mode", OPT_PID_MODE, "MODE", 0, "PID trace mode (ignore|capture)", 0},
     {"pid-list", OPT_PID_LIST, "PIDS", 0, "Comma-separated list of PIDs", 0},
+    {"clear-pid-list", OPT_CLEAR_PID_LIST, 0, 0, "Clear PID list", 0},
     {"ppid-mode", OPT_PPID_MODE, "MODE", 0, "PPID trace mode (ignore|capture)", 0},
     {"ppid-list", OPT_PPID_LIST, "PPIDS", 0, "Comma-separated list of PPIDs", 0},
+    {"clear-ppid-list", OPT_CLEAR_PPID_LIST, 0, 0, "Clear PPID list", 0},
     {"netio-mode", OPT_NETIO_MODE, "MODE", 0, "Network I/O trace mode (ignore|capture)", 0},
     {"clear", OPT_CLEAR, 0, 0, "Clear all rules"},
     {"version", OPT_VERSION, 0, 0, "Show version"},
@@ -179,6 +185,15 @@ static void parse_int_list(
     *array_len = len;
 }
 
+static void clear_id_list(
+    struct control_input_arg *input,
+    int *array, int *array_len, int max_items, struct argp_state *state
+)
+{
+    *array_len = 0;
+    __builtin_memset(array, 0, sizeof(int) * max_items);
+}
+
 static void validate_control_input(struct control_input_arg *input, struct argp_state *state)
 {
     // Nothing
@@ -226,6 +241,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         parse_int_list(input, arg, (int *)input->control_input.uids, &input->control_input.uids_len, MAX_LIST_ITEMS, negative_disallowed, state);
         break;
 
+    case OPT_CLEAR_UID_LIST:
+        clear_id_list(input, (int *)input->control_input.uids, &input->control_input.uids_len, MAX_LIST_ITEMS, state);
+        break;
+
     case OPT_PID_MODE:
         parse_mode(input, &input->control_input.pid_mode, arg, state);
         break;
@@ -234,12 +253,20 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         parse_int_list(input, arg, (int *)input->control_input.pids, &input->control_input.pids_len, MAX_LIST_ITEMS, negative_disallowed, state);
         break;
 
+    case OPT_CLEAR_PID_LIST:
+        clear_id_list(input, (int *)input->control_input.pids, &input->control_input.pids_len, MAX_LIST_ITEMS, state);
+        break;
+
     case OPT_PPID_MODE:
         parse_mode(input, &input->control_input.ppid_mode, arg, state);
         break;
 
     case OPT_PPID_LIST:
         parse_int_list(input, arg, (int *)input->control_input.ppids, &input->control_input.ppids_len, MAX_LIST_ITEMS, negative_disallowed, state);
+        break;
+
+    case OPT_CLEAR_PPID_LIST:
+        clear_id_list(input, (int *)input->control_input.ppids, &input->control_input.ppids_len, MAX_LIST_ITEMS, state);
         break;
 
     case OPT_NETIO_MODE:
