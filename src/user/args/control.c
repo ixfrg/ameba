@@ -36,7 +36,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 
 static struct control_input_arg global_control_input_arg;
-static struct control_input *global_initial_val = NULL;
+static struct control_input global_control_input_initial_value;
 
 
 enum
@@ -52,7 +52,7 @@ enum
     OPT_PPID_LIST = 'K',
     OPT_CLEAR_PPID_LIST = 'Z',
     OPT_NETIO_MODE = 'n',
-    OPT_CLEAR = 'r',
+    // OPT_CLEAR = 'r',
     OPT_VERSION = 'v',
     OPT_HELP = '?',
     OPT_USAGE = 'u'
@@ -71,7 +71,7 @@ static struct argp_option options[] = {
     {"ppid-list", OPT_PPID_LIST, "PPIDS", 0, "Comma-separated list of PPIDs", 0},
     {"clear-ppid-list", OPT_CLEAR_PPID_LIST, 0, 0, "Clear PPID list", 0},
     {"netio-mode", OPT_NETIO_MODE, "MODE", 0, "Network I/O trace mode (ignore|capture)", 0},
-    {"clear", OPT_CLEAR, 0, 0, "Clear all rules"},
+    // {"clear", OPT_CLEAR, 0, 0, "Clear all rules"},
     {"version", OPT_VERSION, 0, 0, "Show version"},
     {"help", OPT_HELP, 0, 0, "Show help"},
     {"usage", OPT_USAGE, 0, 0, "Show usage"},
@@ -94,12 +94,16 @@ static struct control_input_arg *get_global_control_input_arg()
     return &global_control_input_arg;
 }
 
+static struct control_input *get_global_control_input_initial_value()
+{
+    return &global_control_input_initial_value;
+}
+
 static void init_control_input(struct control_input_arg *input)
 {
     if (!input)
         return;
-    input->control_input = *global_initial_val;
-    input->clear = 0;
+    input->control_input = *get_global_control_input_initial_value();
     user_args_helper_state_init(&(input->parse_state));
 }
 
@@ -197,10 +201,6 @@ static void clear_id_list(
 static void validate_control_input(struct control_input_arg *input, struct argp_state *state)
 {
     // Nothing
-    if (input->clear == 1)
-    {
-        control_set_default(&(input->control_input));
-    }
 }
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -210,9 +210,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     switch (key)
     {
-    case OPT_CLEAR:
-        input->clear = 1;
-        break;
+    // case OPT_CLEAR:
+    //     input->clear = 1;
+    //     break;
 
     case OPT_VERSION:
         jsonify_version_write_all_versions_to_file(stdout);
@@ -293,31 +293,20 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-void user_args_control_copy(struct control_input_arg *dst)
-{
-    if (!dst)
-        return;
-    memcpy(dst, get_global_control_input_arg(), sizeof(struct control_input_arg));
-}
-
-void user_args_control_copy_only_control_input(struct control_input *dst)
-{
-    if (!dst)
-        return;
-    memcpy(dst, &(get_global_control_input_arg()->control_input), sizeof(struct control_input));
-}
-
 void user_args_control_parse(struct control_input_arg *dst, struct control_input *initial_val, int argc, char **argv)
 {
-    if (!dst || !initial_val)
+    if (!dst)
         return;
 
-    global_initial_val = initial_val;
+    if (!initial_val)
+        memset(&global_control_input_initial_value, 0, sizeof(struct control_input));
+    else
+        memcpy(&global_control_input_initial_value, initial_val, sizeof(struct control_input));
 
     int argp_flags = 0;
     // ARGP_NO_EXIT & ARGP_NO_HELP because self-managed
     argp_flags = ARGP_NO_EXIT | ARGP_NO_HELP;
     argp_parse(&global_control_input_argp, argc, argv, argp_flags, 0, 0);
 
-    user_args_control_copy(dst);
+    memcpy(dst, get_global_control_input_arg(), sizeof(struct control_input_arg));
 }

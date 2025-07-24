@@ -35,19 +35,7 @@ struct control_input_arg
 {
     struct arg_parse_state parse_state;
     struct control_input control_input;
-    int clear;
 };
-
-/*
-    A properly formed argp struct.
-*/
-extern struct argp global_control_input_argp;
-
-/*
-    Copy the value of internal global (struct control_input_arg) to dst.
-*/
-void user_args_control_copy(struct control_input_arg *dst);
-void user_args_control_copy_only_control_input(struct control_input *dst);
 
 /*
     Parse user arguments (i.e. int main(int argc, char **argv)), and populate dst.
