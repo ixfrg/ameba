@@ -617,3 +617,25 @@ int prog_op_unpin_bpf_progs_and_maps(struct unpin_input *arg)
 exit:
     return result;
 }
+
+struct ring_buffer * prog_op_setup_output_ringbuf_reader(int (*handle_ringbuf_data)(void *ctx, void *data, size_t data_len))
+{
+    int ringbuf_fd = prog_op_get_output_ringbuf_fd();
+    if (ringbuf_fd < 0)
+    {
+        return NULL;
+    }
+
+    struct ring_buffer *ringbuf = ring_buffer__new(ringbuf_fd, handle_ringbuf_data, NULL, NULL);
+
+    if (!ringbuf)
+    {
+        log_state_msg(
+            APP_STATE_STOPPED_WITH_ERROR,
+            "Failed to create output ringbuf instance"
+        );
+        return NULL;
+    }
+
+    return ringbuf;
+}

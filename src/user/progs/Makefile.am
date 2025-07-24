@@ -17,4 +17,4 @@
 
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = unpin pin control ameba
+SUBDIRS = unpin read pin control ameba

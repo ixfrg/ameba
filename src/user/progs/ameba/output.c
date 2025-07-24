@@ -33,7 +33,7 @@ static const struct record_writer *log_writer = &record_writer_dir;
 
 //
 
-static int output_handle_ringbuf_data(void *ctx, void *data, size_t data_len)
+int output_handle_ringbuf_data(void *ctx, void *data, size_t data_len)
 {
     size_t dst_len = MAX_BUFFER_LEN;
     void *dst = malloc(sizeof(char) * dst_len);
@@ -58,28 +58,6 @@ free_dst:
     free(dst);
 exit:
     return 0;
-}
-
-struct ring_buffer * output_setup_output_ringbuf_reader()
-{
-    int ringbuf_fd = prog_op_get_output_ringbuf_fd();
-    if (ringbuf_fd < 0)
-    {
-        return NULL;
-    }
-
-    struct ring_buffer *ringbuf = ring_buffer__new(ringbuf_fd, output_handle_ringbuf_data, NULL, NULL);
-
-    if (!ringbuf)
-    {
-        log_state_msg(
-            APP_STATE_STOPPED_WITH_ERROR,
-            "Failed to create output ringbuf instance"
-        );
-        return NULL;
-    }
-
-    return ringbuf;
 }
 
 void output_close_log_writer()

@@ -144,6 +144,7 @@ AC_CONFIG_FILES([
     src/user/progs/ameba/Makefile
     src/user/progs/control/Makefile
     src/user/progs/pin/Makefile
+    src/user/progs/read/Makefile
     src/user/progs/unpin/Makefile
     src/user/record/Makefile
     src/user/record/deserializer/Makefile

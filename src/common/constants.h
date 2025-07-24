@@ -75,6 +75,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endif
 #define PROG_AMEBA_CONFIG_FILE_PATH AMEBA_CONFIG_DIR_PATH "/" "ameba.conf"
 #define PROG_PIN_CONFIG_FILE_PATH AMEBA_CONFIG_DIR_PATH "/" "pin.conf"
+#define PROG_READ_CONFIG_FILE_PATH AMEBA_CONFIG_DIR_PATH "/" "read.conf"
 #define PROG_UNPIN_CONFIG_FILE_PATH AMEBA_CONFIG_DIR_PATH "/" "unpin.conf"
 #define PROG_CONTROL_CONFIG_FILE_PATH AMEBA_CONFIG_DIR_PATH "/" "control.conf"
 

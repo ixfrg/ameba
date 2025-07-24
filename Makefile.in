@@ -376,6 +376,7 @@ dist_amebaconfig_DATA = \
 	config/ameba.conf \
 	config/control.conf \
 	config/pin.conf \
+	config/read.conf \
 	config/unpin.conf
 
 all: all-recursive

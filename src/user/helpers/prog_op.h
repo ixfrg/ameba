@@ -131,3 +131,13 @@ int prog_op_pin_bpf_progs_and_maps(struct pin_input *arg);
         -ive => Error
 */
 int prog_op_unpin_bpf_progs_and_maps(struct unpin_input *arg);
+
+/*
+    Function to get the ring buffer instance and setup callback
+    for data on ring buffer.
+
+    Returns:
+        NULL => Error
+        ptr  => Success
+*/
+struct ring_buffer * prog_op_setup_output_ringbuf_reader(int (*handle_ringbuf_data)(void *ctx, void *data, size_t data_len));

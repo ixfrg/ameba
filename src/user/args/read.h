@@ -17,29 +17,34 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#pragma once
 
-#include <bpf/libbpf.h>
-
-#include "user/args/ameba.h"
-
+#include "user/args/helper.h"
 
 /*
-    Function to setup the log writer and serializer given the input.
 
-    Returns:
-        0   => Success
-        -1  => Error
+    A module to help parse read program arguments
+
 */
-int output_setup_log_writer(struct ameba_input *ameba_input);
+
+struct read_input
+{
+
+};
 
 /*
-    Function to cleanup the log writer.
+    A struct to encapsulate read input and keep parsing state.
 */
-void output_close_log_writer();
+struct read_input_arg
+{
+    struct arg_parse_state parse_state;
+    struct read_input read_input;
+};
 
 /*
-    The callback function called with data from ringbuf when bpf ringbuf is being polled.
+    Parse user arguments (i.e. int main(int argc, char **argv)), and populate dst.
 
-    See bpf docs for prototype doc.
+    Return:
+        Always returns. Error (if any) in (struct read_input_arg)->(struct arg_parse_state).
 */
-int output_handle_ringbuf_data(void *ctx, void *data, size_t data_len);
+void user_args_read_parse(struct read_input_arg *dst, struct read_input *initial_value, int argc, char **argv);

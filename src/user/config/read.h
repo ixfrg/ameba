@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 /*
-AMEBA - A Minimal eBPF-based Audit: an eBPF-based Linux telemetry collection tool.
+read - A Minimal eBPF-based Audit: an eBPF-based Linux telemetry collection tool.
 Copyright (C) 2025  Hassaan Irshad
 
 This program is free software: you can redistribute it and/or modify
@@ -17,29 +17,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
-#include <bpf/libbpf.h>
-
-#include "user/args/ameba.h"
-
+#include "user/args/read.h"
+#include "user/config/config.h"
 
 /*
-    Function to setup the log writer and serializer given the input.
+    Function to populate 'dst' from config file at path 'file_path'
 
     Returns:
-        0   => Success
-        -1  => Error
+        Does not return on failure!
+        On success, 'dst' is populated
 */
-int output_setup_log_writer(struct ameba_input *ameba_input);
+void config_read_parse_config(char *file_path, struct read_input *dst);
 
 /*
-    Function to cleanup the log writer.
-*/
-void output_close_log_writer();
+    Function to populate 'dst' from default config file at path '${install_prefx}/etc/ameba/read.conf'
 
-/*
-    The callback function called with data from ringbuf when bpf ringbuf is being polled.
-
-    See bpf docs for prototype doc.
+    Returns:
+        Does not return on failure!
+        On success, 'dst' is populated
 */
-int output_handle_ringbuf_data(void *ctx, void *data, size_t data_len);
+void config_read_parse_default_config(struct read_input *dst);

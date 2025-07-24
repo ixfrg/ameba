@@ -34,42 +34,62 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <bpf/libbpf.h>
 
 #include "common/constants.h"
-#include "user/config/ameba.h"
-#include "user/config/control.h"
-#include "user/config/pin.h"
-#include "user/config/unpin.h"
-#include "user/args/ameba.h"
-#include "user/args/pin.h"
-#include "user/args/control.h"
+#include "user/config/read.h"
+#include "user/args/read.h"
 #include "user/helpers/log.h"
 #include "user/helpers/prog_op.h"
 #include "user/jsonify/ameba.h"
 #include "user/progs/ameba/output.h"
+#include "user/record/serializer/json.h"
 
 
-static volatile int ameba_shutdown = 0;
+static const struct record_serializer *log_serializer = &record_serializer_json;
+
+static volatile int read_shutdown = 0;
 static volatile ssize_t total_records_consumed = 0;
 
+
+int output_stdout_handle_ringbuf_data(void *ctx, void *data, size_t data_len)
+{
+    size_t dst_len = MAX_BUFFER_LEN;
+    void *dst = malloc(sizeof(char) * dst_len);
+    if (!dst)
+        goto exit;
+
+    long data_copied_to_dst = log_serializer->serialize(dst, dst_len, data, data_len);
+    if (data_copied_to_dst <= 0)
+    {
+        log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data conversion");
+        goto free_dst;
+    }
+
+    log_state_msg(APP_STATE_OPERATIONAL, "%s\n", (char*)dst);
+
+free_dst:
+    free(dst);
+exit:
+    return 0;
+}
 
 static void sig_handler(int sig)
 {
     if (sig == SIGTERM || sig == SIGINT)
     {
-        ameba_shutdown = 1;
+        read_shutdown = 1;
         log_state_msg(APP_STATE_STOPPED_NORMALLY, "Stopping... received termination signal");
     }
 }
 
 static void parse_user_input(
-    struct ameba_input *dst,
+    struct read_input *dst,
     int argc, char *argv[]
 )
 {
-    struct ameba_input initial_value;
-    config_ameba_parse_default_config(&initial_value);
+    struct read_input initial_value;
+    config_read_parse_default_config(&initial_value);
 
-    struct ameba_input_arg input_arg;
-    user_args_ameba_parse(&input_arg, &initial_value, argc, argv);
+    struct read_input_arg input_arg;
+    user_args_read_parse(&input_arg, &initial_value, argc, argv);
 
     struct arg_parse_state *a_p_s = &(input_arg.parse_state);
     if (user_args_helper_state_is_exit_set(a_p_s))
@@ -77,24 +97,15 @@ static void parse_user_input(
         exit(user_args_helper_state_get_code(a_p_s));
     }
 
-    *dst = input_arg.ameba_input;
+    *dst = input_arg.read_input;
 }
 
 int main(int argc, char *argv[])
 {
     int result = 0;
 
-    struct ameba_input ameba_input;
+    struct read_input ameba_input;
     parse_user_input(&ameba_input, argc, argv);
-
-    struct pin_input pin_input;
-    config_pin_parse_default_config(&pin_input);
-
-    struct unpin_input unpin_input;
-    config_unpin_parse_default_config(&unpin_input);
-
-    struct control_input control_input;
-    config_control_parse_default_config(&control_input);
 
     if (prog_op_create_lock_dir() != 0)
     {
@@ -102,43 +113,27 @@ int main(int argc, char *argv[])
         goto exit;
     }
 
-    if (output_setup_log_writer(&ameba_input) != 0)
+    signal(SIGINT, sig_handler);
+    signal(SIGTERM, sig_handler);
+
+    result = prog_op_ameba_must_be_pinned();
+    if (result != 0)
     {
         result = -1;
         goto rm_prog_op_lock_dir;
     }
 
-    signal(SIGINT, sig_handler);
-    signal(SIGTERM, sig_handler);
-
-    result = prog_op_pin_bpf_progs_and_maps(&pin_input);
-    if (result != 0)
-    {
-        result = -1;
-        goto cleanup_log_writer;
-    }
-
-    result = prog_op_set_control_input_in_map(&control_input);
-    if (result != 0)
-    {
-        result = -1;
-        goto unpin_bpf;
-    }
-
-    struct ring_buffer *ringbuf = prog_op_setup_output_ringbuf_reader(output_handle_ringbuf_data);
+    struct ring_buffer *ringbuf = prog_op_setup_output_ringbuf_reader(output_stdout_handle_ringbuf_data);
     if (!ringbuf)
     {
         result = -1;
-        goto unpin_bpf;
+        goto rm_prog_op_lock_dir;
     }
-
-    // Remove lock dir to allow future operations
-    prog_op_remove_lock_dir();
 
     log_state_msg_with_pid(APP_STATE_OPERATIONAL_PID, "Started", getpid());
 
     int timeout_ms = 100;
-    while (ameba_shutdown == 0)
+    while (read_shutdown == 0)
     {
         int records_consumed = ring_buffer__poll(ringbuf, timeout_ms);
         if (records_consumed >= 0)
@@ -147,18 +142,8 @@ int main(int argc, char *argv[])
     }
     
     ring_buffer__free(ringbuf);
-    output_close_log_writer();
-    prog_op_unpin_bpf_progs_and_maps(&unpin_input);
 
     log_state_msg(APP_STATE_STOPPED_NORMALLY, "Stopped");
-
-    goto exit;
-
-unpin_bpf:
-    prog_op_unpin_bpf_progs_and_maps(&unpin_input);
-
-cleanup_log_writer:
-    output_close_log_writer();
 
 rm_prog_op_lock_dir:
     prog_op_remove_lock_dir();

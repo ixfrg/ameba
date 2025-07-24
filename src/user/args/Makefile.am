@@ -28,5 +28,5 @@ AM_CFLAGS = -Wall
 noinst_LIBRARIES = lib.a
 
 lib_a_SOURCES = \
-    helper.h ameba.h control.h pin.h unpin.h \
-    helper.c ameba.c control.c pin.c unpin.c
+    helper.h ameba.h control.h pin.h read.h unpin.h \
+    helper.c ameba.c control.c pin.c read.c unpin.c

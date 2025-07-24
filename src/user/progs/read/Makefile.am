@@ -17,19 +17,29 @@
 
 ## Process this file with automake to produce Makefile.in
 
+AM_CPPFLAGS = \
+    -I$(top_srcdir)/src \
+    -I$(top_builddir)/src \
+    $(CPPFLAGS_ENABLE_TASK_CTX) \
+    -DAMEBA_CONFIG_DIR_PATH='"$(sysconfdir)/$(AMEBA_ETC_CONF_DIR_NAME)"'
+AM_CFLAGS = -Wall
 
-AM_DISTCHECK_CONFIGURE_FLAGS = CC=clang --prefix=${PWD}/ameba-local-dist-check-install
+COMMON_SOURCES = \
+    include/types.h \
+    include/error.h
+COMMON_LDADD = \
+    $(top_builddir)/src/user/config/lib.a \
+    $(top_builddir)/src/user/args/lib.a \
+    $(top_builddir)/src/user/record/deserializer/lib.a \
+    $(top_builddir)/src/user/record/writer/lib.a \
+    $(top_builddir)/src/user/record/serializer/lib.a \
+    $(top_builddir)/src/user/helpers/lib.a \
+    $(top_builddir)/src/user/jsonify/lib.a \
+    $(top_builddir)/src/common/lib.a
 
-SUBDIRS = src/common src/bpf src/user src/utils tests
-dist_doc_DATA = README.md
+bin_PROGRAMS = read
 
-amebaconfigdir = $(sysconfdir)/ameba
-dist_amebaconfig_DATA = \
-	config/ameba.conf \
-	config/control.conf \
-	config/pin.conf \
-	config/read.conf \
-	config/unpin.conf
-
-dist-hook:
-	echo $(VERSION) > $(distdir)/.tarball-version
+read_SOURCES = \
+    $(COMMON_SOURCES) \
+    main.c
+read_LDADD = $(COMMON_LDADD)
