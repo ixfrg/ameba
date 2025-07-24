@@ -72,7 +72,7 @@ int generate_log_path(char *path_out, size_t len)
 
     closedir(dir);
 
-    state.file_index = found_any ? ((max_seen + 1) % state.max_files) : 0;
+    state.file_index = found_any ? ((max_seen) % state.max_files) : 0;
 
     int result = snprintf(
         path_out, len, "%s/ameba_log_%03u.log",
