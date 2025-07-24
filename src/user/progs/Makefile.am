@@ -17,5 +17,4 @@
 
 ## Process this file with automake to produce Makefile.in
 
-
-SUBDIRS = args record helpers jsonify progs
+SUBDIRS = unpin pin control ameba

@@ -105,8 +105,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_utils_PROGRAMS = test_ubsi$(EXEEXT) types_info$(EXEEXT)
-subdir = src/utils
+bin_PROGRAMS = unpin$(EXEEXT)
+subdir = src/user/progs/unpin
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/args.m4 $(top_srcdir)/m4/bpf.m4 \
 	$(top_srcdir)/m4/cpp.m4 $(top_srcdir)/m4/host.m4 \
@@ -118,14 +118,12 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/common/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bin_utilsdir)"
-PROGRAMS = $(bin_utils_PROGRAMS)
-am_test_ubsi_OBJECTS = test_ubsi.$(OBJEXT)
-test_ubsi_OBJECTS = $(am_test_ubsi_OBJECTS)
-test_ubsi_LDADD = $(LDADD)
-am_types_info_OBJECTS = types_info.$(OBJEXT)
-types_info_OBJECTS = $(am_types_info_OBJECTS)
-types_info_LDADD = $(LDADD)
+am__installdirs = "$(DESTDIR)$(bindir)"
+PROGRAMS = $(bin_PROGRAMS)
+am__objects_1 =
+am_unpin_OBJECTS = $(am__objects_1) main.$(OBJEXT)
+unpin_OBJECTS = $(am_unpin_OBJECTS)
+unpin_DEPENDENCIES = $(COMMON_LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -141,8 +139,7 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/test_ubsi.Po \
-	./$(DEPDIR)/types_info.Po
+am__depfiles_remade = ./$(DEPDIR)/main.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -156,8 +153,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(test_ubsi_SOURCES) $(types_info_SOURCES)
-DIST_SOURCES = $(test_ubsi_SOURCES) $(types_info_SOURCES)
+SOURCES = $(unpin_SOURCES)
+DIST_SOURCES = $(unpin_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -296,14 +293,31 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
-AM_CFLAGS = -Wall
-bin_utilsdir = $(bindir)/utils
-test_ubsi_SOURCES = test_ubsi.c
-types_info_SOURCES = \
-    ../common/types.h \
-    types_info.c
+AM_CPPFLAGS = \
+    -I$(top_srcdir)/src \
+    -I$(top_builddir)/src \
+    $(CPPFLAGS_ENABLE_TASK_CTX) \
+    -DAMEBA_CONFIG_DIR_PATH='"$(sysconfdir)/$(AMEBA_ETC_CONF_DIR_NAME)"'
 
+AM_CFLAGS = -Wall
+COMMON_SOURCES = \
+    include/types.h \
+    include/error.h
+
+COMMON_LDADD = \
+    $(top_builddir)/src/user/args/lib.a \
+    $(top_builddir)/src/user/record/deserializer/lib.a \
+    $(top_builddir)/src/user/record/writer/lib.a \
+    $(top_builddir)/src/user/record/serializer/lib.a \
+    $(top_builddir)/src/user/helpers/lib.a \
+    $(top_builddir)/src/user/jsonify/lib.a \
+    $(top_builddir)/src/common/lib.a
+
+unpin_SOURCES = \
+    $(COMMON_SOURCES) \
+    main.c
+
+unpin_LDADD = $(COMMON_LDADD)
 all: all-am
 
 .SUFFIXES:
@@ -317,9 +331,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/utils/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/user/progs/unpin/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/utils/Makefile
+	  $(AUTOMAKE) --foreign src/user/progs/unpin/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -337,12 +351,12 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-bin_utilsPROGRAMS: $(bin_utils_PROGRAMS)
+install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
-	@list='$(bin_utils_PROGRAMS)'; test -n "$(bin_utilsdir)" || list=; \
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(bin_utilsdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(bin_utilsdir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(bindir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(bindir)" || exit 1; \
 	fi; \
 	for p in $$list; do echo "$$p $$p"; done | \
 	sed 's/$(EXEEXT)$$//' | \
@@ -361,32 +375,28 @@ install-bin_utilsPROGRAMS: $(bin_utils_PROGRAMS)
 	while read type dir files; do \
 	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
 	    test -z "$$files" || { \
-	      echo " $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bin_utilsdir)$$dir'"; \
-	      $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bin_utilsdir)$$dir" || exit $$?; \
+	      echo " $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
+	      $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
 	    } \
 	; done
 
-uninstall-bin_utilsPROGRAMS:
+uninstall-binPROGRAMS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(bin_utils_PROGRAMS)'; test -n "$(bin_utilsdir)" || list=; \
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
 	files=`for p in $$list; do echo "$$p"; done | \
 	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
 	      -e 's/$$/$(EXEEXT)/' \
 	`; \
 	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(bin_utilsdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(bin_utilsdir)" && rm -f $$files
+	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(bindir)" && rm -f $$files
 
-clean-bin_utilsPROGRAMS:
-	-test -z "$(bin_utils_PROGRAMS)" || rm -f $(bin_utils_PROGRAMS)
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
-test_ubsi$(EXEEXT): $(test_ubsi_OBJECTS) $(test_ubsi_DEPENDENCIES) $(EXTRA_test_ubsi_DEPENDENCIES) 
-	@rm -f test_ubsi$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(test_ubsi_OBJECTS) $(test_ubsi_LDADD) $(LIBS)
-
-types_info$(EXEEXT): $(types_info_OBJECTS) $(types_info_DEPENDENCIES) $(EXTRA_types_info_DEPENDENCIES) 
-	@rm -f types_info$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(types_info_OBJECTS) $(types_info_LDADD) $(LIBS)
+unpin$(EXEEXT): $(unpin_OBJECTS) $(unpin_DEPENDENCIES) $(EXTRA_unpin_DEPENDENCIES) 
+	@rm -f unpin$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(unpin_OBJECTS) $(unpin_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -394,8 +404,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ubsi.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/types_info.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -505,7 +514,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(PROGRAMS)
 installdirs:
-	for dir in "$(DESTDIR)$(bin_utilsdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -540,11 +549,10 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-bin_utilsPROGRAMS clean-generic mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/test_ubsi.Po
-	-rm -f ./$(DEPDIR)/types_info.Po
+		-rm -f ./$(DEPDIR)/main.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -561,13 +569,13 @@ info: info-am
 
 info-am:
 
-install-data-am: install-bin_utilsPROGRAMS
+install-data-am:
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am:
+install-exec-am: install-binPROGRAMS
 
 install-html: install-html-am
 
@@ -590,8 +598,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/test_ubsi.Po
-	-rm -f ./$(DEPDIR)/types_info.Po
+		-rm -f ./$(DEPDIR)/main.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -607,23 +614,23 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-bin_utilsPROGRAMS
+uninstall-am: uninstall-binPROGRAMS
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--depfiles check check-am clean \
-	clean-bin_utilsPROGRAMS clean-generic cscopelist-am ctags \
-	ctags-am distclean distclean-compile distclean-generic \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-bin_utilsPROGRAMS install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-bin_utilsPROGRAMS
+	clean-binPROGRAMS clean-generic cscopelist-am ctags ctags-am \
+	distclean distclean-compile distclean-generic distclean-tags \
+	distdir dvi dvi-am html html-am info info-am install \
+	install-am install-binPROGRAMS install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
+	ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 

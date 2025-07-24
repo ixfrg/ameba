@@ -53,7 +53,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AMEBA_ARG_ENABLE_TASK_CTX
 
 # App entrypoint
-AC_CONFIG_SRCDIR([src/user/ameba.c])
+AC_CONFIG_SRCDIR([src/user/progs/ameba/main.c])
 
 # Path of file containing all the configurable constants
 AC_CONFIG_HEADERS([src/common/config.h])
@@ -138,11 +138,16 @@ AC_CONFIG_FILES([
     src/user/Makefile
     src/user/args/Makefile
     src/user/helpers/Makefile
+    src/user/jsonify/Makefile
+    src/user/progs/Makefile
+    src/user/progs/ameba/Makefile
+    src/user/progs/control/Makefile
+    src/user/progs/pin/Makefile
+    src/user/progs/unpin/Makefile
     src/user/record/Makefile
     src/user/record/deserializer/Makefile
     src/user/record/serializer/Makefile
     src/user/record/writer/Makefile
-    src/user/jsonify/Makefile
     src/utils/Makefile
     tests/Makefile
     tests/user/args/Makefile

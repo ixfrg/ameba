@@ -21,7 +21,8 @@
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
 AM_CFLAGS = -Wall
 
-bin_PROGRAMS = test_ubsi types_info
+bin_utilsdir = $(bindir)/utils
+bin_utils_PROGRAMS = test_ubsi types_info
 test_ubsi_SOURCES = test_ubsi.c
 types_info_SOURCES = \
     ../common/types.h \
