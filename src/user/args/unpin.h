@@ -27,23 +27,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
+struct unpin_input
+{
+
+};
+
 /*
     A struct to encapsulate unpin input and keep parsing state.
 */
 struct unpin_input_arg
 {
     struct arg_parse_state parse_state;
+    struct unpin_input unpin_input;
 };
-
-/*
-    A properly formed argp struct.
-*/
-extern struct argp global_unpin_input_argp;
-
-/*
-    Copy the value of internal global (struct unpin_input_arg) to dst.
-*/
-void user_args_unpin_copy(struct unpin_input_arg *dst);
 
 /*
     Parse user arguments (i.e. int main(int argc, char **argv)), and populate dst.
@@ -51,4 +47,4 @@ void user_args_unpin_copy(struct unpin_input_arg *dst);
     Return:
         Always returns. Error (if any) in (struct unpin_input_arg)->(struct arg_parse_state).
 */
-void user_args_unpin_parse(struct unpin_input_arg *dst, int argc, char **argv);
+void user_args_unpin_parse(struct unpin_input_arg *dst, struct unpin_input *initial_value, int argc, char **argv);

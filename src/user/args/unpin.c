@@ -32,6 +32,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 
 static struct unpin_input_arg global_unpin_input_arg;
+static struct unpin_input global_unpin_input_initial_value;
 
 
 enum
@@ -65,10 +66,16 @@ static struct unpin_input_arg *get_global_unpin_input_arg()
     return &global_unpin_input_arg;
 }
 
+static struct unpin_input *get_global_unpin_input_initial_value()
+{
+    return &global_unpin_input_initial_value;
+}
+
 static void init_unpin_input(struct unpin_input_arg *input)
 {
     if (!input)
         return;
+    memcpy(&input->unpin_input, get_global_unpin_input_initial_value(), sizeof(struct unpin_input));
     user_args_helper_state_init(&(input->parse_state));
 }
 
@@ -119,17 +126,22 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-void user_args_unpin_copy(struct unpin_input_arg *dst)
+static void user_args_unpin_copy(struct unpin_input_arg *dst)
 {
     if (!dst)
         return;
     memcpy(dst, get_global_unpin_input_arg(), sizeof(struct unpin_input_arg));
 }
 
-void user_args_unpin_parse(struct unpin_input_arg *dst, int argc, char **argv)
+void user_args_unpin_parse(struct unpin_input_arg *dst, struct unpin_input *initial_value, int argc, char **argv)
 {
     if (!dst)
         return;
+
+    if (!initial_value)
+        memset(&global_unpin_input_initial_value, 0, sizeof(struct unpin_input));
+    else
+        memcpy(&global_unpin_input_initial_value, initial_value, sizeof(struct unpin_input));
 
     int argp_flags = 0;
     // ARGP_NO_EXIT & ARGP_NO_HELP because self-managed
