@@ -560,32 +560,26 @@ int prog_op_pin_bpf_progs_and_maps(struct pin_input *arg)
     if (set_bpf_version_maps_with_current_versions(skel) != 0)
     {
         result = -1;
-        goto skel_destroy;
+        goto exit;
     }
 
     if (set_default_control_input_map(skel) != 0)
     {
         result = -1;
-        goto skel_destroy;
+        goto exit;
     }
 
     if (attach_progs(skel) != 0)
     {
         result = -1;
-        goto skel_destroy;
+        goto exit;
     }
 
     if (pin_progs_and_maps(skel) != 0)
     {
         result = -1;
-        goto skel_detach;
+        goto exit;
     }
-
-skel_detach:
-    ameba__detach(skel);
-
-skel_destroy:
-    ameba__destroy(skel);
 
 exit:
     return result;
