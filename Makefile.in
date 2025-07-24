@@ -257,6 +257,7 @@ am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
 distcleancheck_listfiles = find . -type f -print
 ACLOCAL = @ACLOCAL@
 AMEBA_BPF_ARCH_CPPFLAG = @AMEBA_BPF_ARCH_CPPFLAG@
+AMEBA_ETC_CONF_DIR_NAME = @AMEBA_ETC_CONF_DIR_NAME@
 AMEBA_SYS_KERNEL_BTF_VMLINUX = @AMEBA_SYS_KERNEL_BTF_VMLINUX@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
