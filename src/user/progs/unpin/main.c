@@ -34,61 +34,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/args/unpin.h"
 
 
-static int unpin_progs_and_maps()
-{
-    int result = 0;
-
-    DIR *dir = NULL;
-    dir = opendir(DIR_PATH_FOR_PINNING_AMEBA_BPF);
-    if (!dir)
-    {
-        if (errno == ENOENT)
-            log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Ameba is not pinned. Err: %s", strerror(errno));
-        else
-            log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to open ameba pin dir '%s'. Err: %s", DIR_PATH_FOR_PINNING_AMEBA_BPF, strerror(errno));
-        result = -1;
-        goto exit;
-    }
-
-    while (1)
-    {
-        errno = 0;
-        struct dirent *dir_entry = readdir(dir);
-        if (dir_entry == NULL)
-        {
-            if (errno != 0)
-            {
-                log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to read ameba pin dir '%s'. Err: %s", DIR_PATH_FOR_PINNING_AMEBA_BPF, strerror(errno));
-                result = -1;
-                goto close_and_rm_dir;
-            }
-            break;
-        }
-
-        if (strcmp(dir_entry->d_name, ".") == 0 || strcmp(dir_entry->d_name, "..") == 0)
-            continue;
-
-        char file_path[PATH_MAX];
-        snprintf(file_path, sizeof(file_path), "%s/%s", DIR_PATH_FOR_PINNING_AMEBA_BPF, dir_entry->d_name);
-
-        if (unlink(file_path) != 0)
-        {
-            log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to delete pinned bpf obj '%s'. Err: %s", &file_path[0], strerror(errno));
-        }
-    }
-
-close_and_rm_dir:
-    closedir(dir);
-    if (rmdir(DIR_PATH_FOR_PINNING_AMEBA_BPF) != 0)
-    {
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to delete ameba pin dir '%s'. Err: %s", DIR_PATH_FOR_PINNING_AMEBA_BPF, strerror(errno));
-        result = -1;
-    }
-
-exit:
-    return result;
-}
-
 static void parse_config_input(
     struct unpin_input *dst
 )
@@ -118,7 +63,7 @@ static void parse_config_input(
     *dst = config_arg.unpin_input;
 }
 
-static void parse_user_input(int argc, char *argv[])
+static void parse_user_input(struct unpin_input *dst, int argc, char *argv[])
 {
     struct unpin_input initial_value;
     parse_config_input(&initial_value);
@@ -131,13 +76,15 @@ static void parse_user_input(int argc, char *argv[])
     {
         exit(user_args_helper_state_get_code(a_p_s));
     }
+    *dst = input_arg.unpin_input;
 }
 
 int main(int argc, char *argv[])
 {
     int result = 0;
 
-    parse_user_input(argc, argv);
+    struct unpin_input unpin_input;
+    parse_user_input(&unpin_input, argc, argv);
 
     if (prog_op_create_lock_dir() != 0)
     {
@@ -145,20 +92,8 @@ int main(int argc, char *argv[])
         goto exit;
     }
 
-    result = prog_op_ameba_must_be_pinned();
+    result = prog_op_unpin_bpf_progs_and_maps(&unpin_input);
     if (result != 0)
-    {
-        result = -1;
-        goto rm_prog_op_lock_dir;
-    }
-
-    if (prog_op_compare_versions_in_loaded_maps_with_current_versions() != 0)
-    {
-        result = -1;
-        goto rm_prog_op_lock_dir;
-    }
-
-    if (unpin_progs_and_maps() != 0)
     {
         result = -1;
         goto rm_prog_op_lock_dir;

@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
+#include <dirent.h>
 
 #include <bpf/bpf.h>
 
@@ -335,7 +336,7 @@ static int get_output_ringbuf_path(char *path_buf, int path_buf_size)
     return 0;
 }
 
-int get_output_ringbuf_fd()
+int prog_op_get_output_ringbuf_fd()
 {
     int path_buf_size = 256;
     char path_buf[path_buf_size];
@@ -354,4 +355,92 @@ int get_output_ringbuf_fd()
         return -1;
     }
     return fd;
+}
+
+static int unpin_progs_and_maps()
+{
+    int result = 0;
+
+    DIR *dir = NULL;
+    dir = opendir(DIR_PATH_FOR_PINNING_AMEBA_BPF);
+    if (!dir)
+    {
+        if (errno == ENOENT)
+            log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Ameba is not pinned. Err: %s", strerror(errno));
+        else
+            log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to open ameba pin dir '%s'. Err: %s", DIR_PATH_FOR_PINNING_AMEBA_BPF, strerror(errno));
+        result = -1;
+        goto exit;
+    }
+
+    while (1)
+    {
+        errno = 0;
+        struct dirent *dir_entry = readdir(dir);
+        if (dir_entry == NULL)
+        {
+            if (errno != 0)
+            {
+                log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to read ameba pin dir '%s'. Err: %s", DIR_PATH_FOR_PINNING_AMEBA_BPF, strerror(errno));
+                result = -1;
+                goto close_and_rm_dir;
+            }
+            break;
+        }
+
+        if (strcmp(dir_entry->d_name, ".") == 0 || strcmp(dir_entry->d_name, "..") == 0)
+            continue;
+
+        char file_path[PATH_MAX];
+        snprintf(file_path, sizeof(file_path), "%s/%s", DIR_PATH_FOR_PINNING_AMEBA_BPF, dir_entry->d_name);
+
+        if (unlink(file_path) != 0)
+        {
+            log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to delete pinned bpf obj '%s'. Err: %s", &file_path[0], strerror(errno));
+        }
+    }
+
+close_and_rm_dir:
+    closedir(dir);
+    if (rmdir(DIR_PATH_FOR_PINNING_AMEBA_BPF) != 0)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to delete ameba pin dir '%s'. Err: %s", DIR_PATH_FOR_PINNING_AMEBA_BPF, strerror(errno));
+        result = -1;
+    }
+
+exit:
+    return result;
+}
+
+int prog_op_unpin_bpf_progs_and_maps(struct unpin_input *arg)
+{
+    if (!arg)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed prog_op_pin_bpf_progs_and_maps. NULL argument(s)");
+        return -1;
+    }
+
+    int result = 0;
+
+    result = prog_op_ameba_must_be_pinned();
+    if (result != 0)
+    {
+        result = -1;
+        goto exit;
+    }
+
+    if (prog_op_compare_versions_in_loaded_maps_with_current_versions() != 0)
+    {
+        result = -1;
+        goto exit;
+    }
+
+    if (unpin_progs_and_maps() != 0)
+    {
+        result = -1;
+        goto exit;
+    }
+
+exit:
+    return result;
 }

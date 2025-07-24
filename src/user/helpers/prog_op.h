@@ -20,6 +20,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #pragma once
 
 #include "common/control.h"
+#include "user/args/control.h"
+#include "user/args/pin.h"
+#include "user/args/unpin.h"
 
 
 /*
@@ -93,4 +96,13 @@ int prog_op_get_control_input_in_map(struct control_input *input);
         >=0  => file descriptor
         -ive => Error
 */
-int get_output_ringbuf_fd(void);
+int prog_op_get_output_ringbuf_fd(void);
+
+/*
+    Function to unpin all bpf programs and maps.
+
+    Returns:
+        0    => Success
+        -ive => Error
+*/
+int prog_op_unpin_bpf_progs_and_maps(struct unpin_input *arg);

@@ -81,7 +81,7 @@ exit:
 
 static struct ring_buffer * setup_output_ringbuf_reader()
 {
-    int ringbuf_fd = get_output_ringbuf_fd();
+    int ringbuf_fd = prog_op_get_output_ringbuf_fd();
     if (ringbuf_fd < 0)
     {
         return NULL;
