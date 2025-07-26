@@ -30,5 +30,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/types.h"
 
 
-extern const struct elem_version record_version;
 extern const struct elem_version app_version;
+extern const struct elem_version record_version;
+extern const struct elem_version prog_api_version;

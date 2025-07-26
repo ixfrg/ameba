@@ -38,11 +38,19 @@ int jsonify_version_write_record_version(struct json_buffer *s)
     return total;
 }
 
+int jsonify_version_write_prog_api_version(struct json_buffer *s)
+{
+    int total = 0;
+    total += jsonify_types_write_version(s, "prog_api_version", &prog_api_version);
+    return total;
+}
+
 int jsonify_version_write_all_versions(struct json_buffer *s)
 {
     int total = 0;
     total += jsonify_version_write_app_version(s);
     total += jsonify_version_write_record_version(s);
+    total += jsonify_version_write_prog_api_version(s);
     return total;
 }
 

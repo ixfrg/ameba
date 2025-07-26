@@ -47,6 +47,14 @@ int jsonify_version_write_app_version(struct json_buffer *s);
 int jsonify_version_write_record_version(struct json_buffer *s);
 
 /*
+    Write prog_api version to json_buffer.
+
+    Return:
+        See 'jsonify_core_snprintf'.
+*/
+int jsonify_version_write_prog_api_version(struct json_buffer *s);
+
+/*
     Write all versions to json_buffer.
 
     Return:

@@ -22,14 +22,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/config.h"
 
 
+const struct elem_version app_version = {
+    .major = PACKAGE_VERSION_MAJOR,
+    .minor = PACKAGE_VERSION_MINOR,
+    .patch = PACKAGE_VERSION_PATCH
+};
+
 const struct elem_version record_version = {
     .major = RECORD_VERSION_MAJOR,
     .minor = RECORD_VERSION_MINOR,
     .patch = RECORD_VERSION_PATCH
 };
 
-const struct elem_version app_version = {
-    .major = PACKAGE_VERSION_MAJOR,
-    .minor = PACKAGE_VERSION_MINOR,
-    .patch = PACKAGE_VERSION_PATCH
+const struct elem_version prog_api_version = {
+    .major = PROG_API_VERSION_MAJOR,
+    .minor = PROG_API_VERSION_MINOR,
+    .patch = PROG_API_VERSION_PATCH
 };
