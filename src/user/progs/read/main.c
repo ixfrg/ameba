@@ -91,10 +91,10 @@ static void parse_user_input(
     struct read_input_arg input_arg;
     user_args_read_parse(&input_arg, &initial_value, argc, argv);
 
-    struct arg_parse_state *a_p_s = &(input_arg.parse_state);
-    if (user_args_helper_state_is_exit_set(a_p_s))
+    struct args_parse_state *a_p_s = &(input_arg.parse_state);
+    if (user_args_parse_state_is_exit_set(a_p_s))
     {
-        exit(user_args_helper_state_get_code(a_p_s));
+        exit(user_args_parse_state_get_code(a_p_s));
     }
 
     *dst = input_arg.read_input;

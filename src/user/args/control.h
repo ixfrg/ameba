@@ -26,6 +26,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "common/control.h"
+#include "user/args/state.h"
 
 
 /*
@@ -33,7 +34,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 struct control_input_arg
 {
-    struct arg_parse_state parse_state;
+    struct args_parse_state parse_state;
     struct control_input control_input;
 };
 

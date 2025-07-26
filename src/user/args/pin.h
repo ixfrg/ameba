@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "user/args/helper.h"
+#include "user/args/state.h"
 
 /*
 
@@ -37,7 +37,7 @@ struct pin_input
 */
 struct pin_input_arg
 {
-    struct arg_parse_state parse_state;
+    struct args_parse_state parse_state;
     struct pin_input pin_input;
 };
 

@@ -27,7 +27,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <limits.h>
 
-#include "user/args/helper.h"
+#include "user/args/state.h"
 
 
 struct ameba_input
@@ -39,7 +39,7 @@ struct ameba_input
 
 struct ameba_input_arg
 {
-    struct arg_parse_state parse_state;
+    struct args_parse_state parse_state;
     struct ameba_input ameba_input;
 };
 

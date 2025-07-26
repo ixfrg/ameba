@@ -29,7 +29,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/jsonify/version.h"
 
 #include "user/args/control.h"
-#include "user/args/helper.h"
+#include "user/args/state.h"
 
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
@@ -104,7 +104,7 @@ static void init_control_input(struct control_input_arg *input)
     if (!input)
         return;
     input->control_input = *get_global_control_input_initial_value();
-    user_args_helper_state_init(&(input->parse_state));
+    user_args_parse_state_init(&(input->parse_state));
 }
 
 static int find_string_index(const char *haystack, const char *needle)
@@ -129,7 +129,7 @@ static void parse_mode(struct control_input_arg *input, trace_mode_t *dst, char 
     {
         // argp_error(state, "Invalid mode '%s'. Use 'ignore' or 'capture'", mode_str);
         fprintf(stderr, "Invalid mode '%s'. Use 'ignore' or 'capture'. Use --help.\n", mode_str);
-        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        user_args_parse_state_set_exit_error(&input->parse_state, -1);
         return;
     }
 }
@@ -154,7 +154,7 @@ static void parse_int_list(
             // argp_error(state, "Invalid number in list: '%s'", token);
             fprintf(stderr, "Invalid number in list: '%s'. Use --help.\n", token);
             free(str_copy);
-            user_args_helper_state_set_exit_error(&input->parse_state, -1);
+            user_args_parse_state_set_exit_error(&input->parse_state, -1);
             return;
         }
 
@@ -166,7 +166,7 @@ static void parse_int_list(
                 // argp_error(state, "Negative number not allowed in list: '%ld'", val);
                 fprintf(stderr, "Negative number not allowed in list: '%ld'. Use --help.\n", val);
                 free(str_copy);
-                user_args_helper_state_set_exit_error(&input->parse_state, -1);
+                user_args_parse_state_set_exit_error(&input->parse_state, -1);
                 return;
             }
         }
@@ -182,7 +182,7 @@ static void parse_int_list(
     {
         // argp_error(state, "Too many items in list (max %d)", max_items);
         fprintf(stderr, "Too many items in list (max %d). Use --help.\n", max_items);
-        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        user_args_parse_state_set_exit_error(&input->parse_state, -1);
         return;
     }
 
@@ -216,17 +216,17 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     case OPT_VERSION:
         jsonify_version_write_all_versions_to_file(stdout);
-        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        user_args_parse_state_set_exit_no_error(&input->parse_state);
         break;
 
     case OPT_HELP:
         argp_state_help(state, stdout, ARGP_HELP_STD_HELP);
-        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        user_args_parse_state_set_exit_no_error(&input->parse_state);
         break;
 
     case OPT_USAGE:
         argp_state_help(state, stdout, ARGP_HELP_USAGE);
-        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        user_args_parse_state_set_exit_no_error(&input->parse_state);
         break;
 
     case OPT_GLOBAL_MODE:
@@ -283,7 +283,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     case ARGP_KEY_ERROR:
     case ARGP_KEY_ARG:
-        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        user_args_parse_state_set_exit_error(&input->parse_state, -1);
         break;
 
     default:

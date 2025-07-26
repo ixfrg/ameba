@@ -43,10 +43,10 @@ void config_ameba_parse_config(
     }
     free(argv);
 
-    struct arg_parse_state *a_p_s = &(config_arg.parse_state);
-    if (user_args_helper_state_is_exit_set(a_p_s))
+    struct args_parse_state *a_p_s = &(config_arg.parse_state);
+    if (user_args_parse_state_is_exit_set(a_p_s))
     {
-        exit(user_args_helper_state_get_code(a_p_s));
+        exit(user_args_parse_state_get_code(a_p_s));
     }
     *dst = config_arg.ameba_input;
 }

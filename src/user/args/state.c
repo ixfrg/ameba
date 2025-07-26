@@ -20,10 +20,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <unistd.h>
 
-#include "user/args/helper.h"
+#include "user/args/state.h"
 
-
-void user_args_helper_state_init(struct arg_parse_state *s)
+/*
+    Initialize to normal state.
+*/
+void user_args_parse_state_init(struct args_parse_state *s)
 {
     if (!s)
         return;
@@ -31,7 +33,10 @@ void user_args_helper_state_init(struct arg_parse_state *s)
     s->code = 0;
 }
 
-void user_args_helper_state_set_exit_error(struct arg_parse_state *s, int code)
+/*
+    Set the error code, and corresponding state.
+*/
+void user_args_parse_state_set_exit_error(struct args_parse_state *s, int code)
 {
     if (!s)
         return;
@@ -39,7 +44,10 @@ void user_args_helper_state_set_exit_error(struct arg_parse_state *s, int code)
     s->code = code;
 }
 
-void user_args_helper_state_set_exit_no_error(struct arg_parse_state *s)
+/*
+    Set exit to true.
+*/
+void user_args_parse_state_set_exit_no_error(struct args_parse_state *s)
 {
     if (!s)
         return;
@@ -47,19 +55,28 @@ void user_args_helper_state_set_exit_no_error(struct arg_parse_state *s)
     s->code = 0;
 }
 
-void user_args_helper_state_set_no_exit(struct arg_parse_state *s)
+/*
+    Set exit to false.
+*/
+void user_args_parse_state_set_no_exit(struct args_parse_state *s)
 {
-    user_args_helper_state_init(s);
+    user_args_parse_state_init(s);
 }
 
-int user_args_helper_state_is_exit_set(struct arg_parse_state *s)
+/*
+    Function to check if exit is set.
+*/
+int user_args_parse_state_is_exit_set(struct args_parse_state *s)
 {
     if (!s)
         return 0;
     return s->exit;
 }
 
-int user_args_helper_state_get_code(struct arg_parse_state *s)
+/*
+    Get the exit code.
+*/
+int user_args_parse_state_get_code(struct args_parse_state *s)
 {
     if (!s)
         return 0;

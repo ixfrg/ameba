@@ -103,10 +103,10 @@ int main(int argc, char *argv[])
     }
 
     user_args_control_parse(&input_arg, &current_control_input_val, argc, argv);
-    struct arg_parse_state *a_p_s = &(input_arg.parse_state);
-    if (user_args_helper_state_is_exit_set(a_p_s))
+    struct args_parse_state *a_p_s = &(input_arg.parse_state);
+    if (user_args_parse_state_is_exit_set(a_p_s))
     {
-        result = user_args_helper_state_get_code(a_p_s);
+        result = user_args_parse_state_get_code(a_p_s);
         goto rm_prog_op_lock_dir;
     }
 

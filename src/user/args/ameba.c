@@ -25,7 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/constants.h"
 #include "user/args/control.h"
 #include "user/args/ameba.h"
-#include "user/args/helper.h"
+#include "user/args/state.h"
 #include "common/version.h"
 #include "user/jsonify/types.h"
 #include "user/jsonify/version.h"
@@ -88,7 +88,7 @@ static void init_ameba_input(struct ameba_input_arg *input)
     if (!input)
         return;
     memcpy(&input->ameba_input, get_global_ameba_input_initial_value(), sizeof(struct ameba_input));
-    user_args_helper_state_init(&(input->parse_state));
+    user_args_parse_state_init(&(input->parse_state));
 }
 
 static void validate_ameba_input(struct ameba_input_arg *input, struct argp_state *state)
@@ -96,31 +96,31 @@ static void validate_ameba_input(struct ameba_input_arg *input, struct argp_stat
     if (input->ameba_input.log_dir_path[0] == 0)
     {
         fprintf(stderr, "Must specify a valid log dir path. Use --help.\n");
-        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        user_args_parse_state_set_exit_error(&input->parse_state, -1);
         return;
     }
     if (input->ameba_input.log_file_size_bytes < min_log_file_size_bytes)
     {
         fprintf(stderr, "Log file size should be at least %llu MB. Use --help.\n", (min_log_file_size_bytes / (1024 * 1024)));
-        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        user_args_parse_state_set_exit_error(&input->parse_state, -1);
         return;
     }
     if (input->ameba_input.log_file_size_bytes > max_log_file_size_bytes)
     {
         fprintf(stderr, "Log file size should be at most %llu MB. Use --help.\n", (max_log_file_size_bytes / (1024 * 1024)));
-        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        user_args_parse_state_set_exit_error(&input->parse_state, -1);
         return;
     }
     if (input->ameba_input.log_file_count < min_log_file_count)
     {
         fprintf(stderr, "Log file count should be at least %u. Use --help.\n", min_log_file_count);
-        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        user_args_parse_state_set_exit_error(&input->parse_state, -1);
         return;
     }
     if (input->ameba_input.log_file_count > max_log_file_count)
     {
         fprintf(stderr, "Log file count should be at most %u. Use --help.\n", max_log_file_count);
-        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        user_args_parse_state_set_exit_error(&input->parse_state, -1);
         return;
     }
 }
@@ -129,19 +129,19 @@ static void parse_arg_log_dir_path(struct ameba_input_arg *dst, struct argp_stat
 {
     if (!path || strlen(path) == 0) {
         fprintf(stderr, "Invalid log dir path: missing path\n");
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
     if (path[0] != '/') {
         fprintf(stderr, "Invalid log dir path: path is not absolute\n");
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
     if (strlen(path) > PATH_MAX) {
         fprintf(stderr, "Invalid log dir path: path too long\n");
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
@@ -152,7 +152,7 @@ static void parse_arg_log_file_size_bytes(struct ameba_input_arg *dst, struct ar
 {
     if (!arg || strlen(arg) == 0) {
         fprintf(stderr, "Invalid log file size: missing argument\n");
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
@@ -163,21 +163,21 @@ static void parse_arg_log_file_size_bytes(struct ameba_input_arg *dst, struct ar
 
     if (errno != 0 || endptr == arg || *endptr != '\0') {
         fprintf(stderr, "Invalid log file size: not a valid number: %s\n", arg);
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
     if (bytes < min_log_file_size_bytes)
     {
         fprintf(stderr, "Log file size should be at least %llu MB. Use --help.\n", (min_log_file_size_bytes / (1024 * 1024)));
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
     if (bytes > max_log_file_size_bytes)
     {
         fprintf(stderr, "Log file size should be at most %llu MB. Use --help.\n", (max_log_file_size_bytes / (1024 * 1024)));
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
@@ -188,7 +188,7 @@ static void parse_arg_log_file_count(struct ameba_input_arg *dst, struct argp_st
 {
     if (!arg || strlen(arg) == 0) {
         fprintf(stderr, "Invalid log file count: missing argument\n");
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
@@ -199,20 +199,20 @@ static void parse_arg_log_file_count(struct ameba_input_arg *dst, struct argp_st
 
     if (errno != 0 || endptr == arg || *endptr != '\0') {
         fprintf(stderr, "Invalid log file count: not a valid number: %s\n", arg);
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
     if (count < min_log_file_count)
     {
         fprintf(stderr, "Log file count should be at least %u. Use --help.\n", min_log_file_count);
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
     if (count > max_log_file_count)
     {
         fprintf(stderr, "Log file count should be at most %u. Use --help.\n", max_log_file_count);
-        user_args_helper_state_set_exit_error(&dst->parse_state, -1);
+        user_args_parse_state_set_exit_error(&dst->parse_state, -1);
         return;
     }
 
@@ -239,17 +239,17 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     case OPT_VERSION:
         jsonify_version_write_all_versions_to_file(stdout);
-        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        user_args_parse_state_set_exit_no_error(&input->parse_state);
         break;
 
     case OPT_HELP:
         argp_state_help(state, stdout, ARGP_HELP_STD_HELP);
-        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        user_args_parse_state_set_exit_no_error(&input->parse_state);
         break;
 
     case OPT_USAGE:
         argp_state_help(state, stdout, ARGP_HELP_USAGE);
-        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        user_args_parse_state_set_exit_no_error(&input->parse_state);
         break;
 
     case ARGP_KEY_INIT:
@@ -259,7 +259,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     case ARGP_KEY_ERROR:
     case ARGP_KEY_ARG:
         argp_state_help(state, stdout, ARGP_HELP_USAGE);
-        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        user_args_parse_state_set_exit_error(&input->parse_state, -1);
         break;
 
     case ARGP_KEY_END:

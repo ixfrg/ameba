@@ -24,7 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "common/constants.h"
 #include "user/args/read.h"
-#include "user/args/helper.h"
+#include "user/args/state.h"
 #include "user/jsonify/version.h"
 
 
@@ -76,7 +76,7 @@ static void init_read_input(struct read_input_arg *input)
     if (!input)
         return;
     memcpy(&input->read_input, get_global_read_input_initial_value(), sizeof(struct read_input));
-    user_args_helper_state_init(&(input->parse_state));
+    user_args_parse_state_init(&(input->parse_state));
 }
 
 static void validate_read_input(struct read_input_arg *input, struct argp_state *state)
@@ -92,17 +92,17 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     {
     case OPT_VERSION:
         jsonify_version_write_all_versions_to_file(stdout);
-        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        user_args_parse_state_set_exit_no_error(&input->parse_state);
         break;
 
     case OPT_HELP:
         argp_state_help(state, stdout, ARGP_HELP_STD_HELP);
-        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        user_args_parse_state_set_exit_no_error(&input->parse_state);
         break;
 
     case OPT_USAGE:
         argp_state_help(state, stdout, ARGP_HELP_USAGE);
-        user_args_helper_state_set_exit_no_error(&input->parse_state);
+        user_args_parse_state_set_exit_no_error(&input->parse_state);
         break;
 
     case ARGP_KEY_INIT:
@@ -112,7 +112,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     case ARGP_KEY_ERROR:
     case ARGP_KEY_ARG:
         argp_state_help(state, stdout, ARGP_HELP_USAGE);
-        user_args_helper_state_set_exit_error(&input->parse_state, -1);
+        user_args_parse_state_set_exit_error(&input->parse_state, -1);
         break;
 
     case ARGP_KEY_END:
