@@ -175,7 +175,7 @@ static int compare_ameba_record_version_in_map()
         return -1;
     }
     struct elem_version record_version;
-    if (version_get_app_version(&record_version) != 0)
+    if (version_get_record_version(&record_version) != 0)
     {
         log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to get local record version");
         return -1;
