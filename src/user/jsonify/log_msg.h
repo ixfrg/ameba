@@ -30,7 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "user/jsonify/core.h"
 #include "user/jsonify/types.h"
-#include "user/helpers/log.h"
+#include "user/helper/log.h"
 
 
 /*

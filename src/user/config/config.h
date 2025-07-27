@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#pragma once
+
 /*
     Function to read a config file of the format:
 
@@ -41,7 +43,5 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         0   => Success
         -1  => Error
 */
-
-#include <stdlib.h>
 
 int config_parse_as_argv(const char *filename, int *argc_out, char ***argv_out);

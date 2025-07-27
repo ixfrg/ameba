@@ -17,8 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "user/args/pin.h"
+#pragma once
+
+#include "user/arg/pin.h"
 #include "user/config/config.h"
+
 
 /*
     Function to populate 'dst' from config file at path 'file_path'
@@ -27,7 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         Does not return on failure!
         On success, 'dst' is populated
 */
-void config_pin_parse_config(char *file_path, struct pin_input *dst);
+void config_pin_parse_config_file(char *file_path, struct arg_pin *dst);
 
 /*
     Function to populate 'dst' from default config file at path '${install_prefx}/etc/ameba/pin.conf'
@@ -36,4 +39,4 @@ void config_pin_parse_config(char *file_path, struct pin_input *dst);
         Does not return on failure!
         On success, 'dst' is populated
 */
-void config_pin_parse_default_config(struct pin_input *dst);
+void config_pin_parse_default_config(struct arg_pin *dst);

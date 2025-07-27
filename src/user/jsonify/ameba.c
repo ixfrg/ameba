@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/jsonify/ameba.h"
 
 
-int jsonify_ameba_write_ameba_input(struct json_buffer *s, struct ameba_input *val)
+int jsonify_ameba_write_arg_ameba(struct json_buffer *s, struct arg_ameba *val)
 {
     int total = 0;
 
@@ -34,7 +34,7 @@ int jsonify_ameba_write_ameba_input(struct json_buffer *s, struct ameba_input *v
     return total;
 }
 
-void jsonify_ameba_write_ameba_input_to_file(FILE *out, struct ameba_input *val)
+void jsonify_ameba_write_arg_ameba_to_file(FILE *out, struct arg_ameba *val)
 {
     if (!out)
         return;
@@ -46,7 +46,7 @@ void jsonify_ameba_write_ameba_input_to_file(FILE *out, struct ameba_input *val)
     jsonify_core_init(&s, dst, dst_len);
     jsonify_core_open_obj(&s);
 
-    jsonify_ameba_write_ameba_input(&s, val);
+    jsonify_ameba_write_arg_ameba(&s, val);
 
     jsonify_core_close_obj(&s);
 

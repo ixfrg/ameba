@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# AMEBA - A Minimal eBPF-based Audit: an eBPF-based Linux telemetry collection tool.
+# Copyright (C) 2025 Hassaan Irshad
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+## Process this file with automake to produce Makefile.in
+
+
+AM_CPPFLAGS = \
+    -I$(top_srcdir)/src \
+    -I$(top_builddir)/src \
+    $(CPPFLAGS_ENABLE_TASK_CTX) \
+    -DAMEBA_CONFIG_DIR_PATH='"$(sysconfdir)/$(AMEBA_ETC_CONF_DIR_NAME)"'
+AM_CFLAGS = -Wall
+
+noinst_LIBRARIES = lib.a
+
+lib_a_SOURCES = \
+    parse_state.h ameba.h control.h pin.h read.h unpin.h \
+    parse_state.c ameba.c control.c pin.c read.c unpin.c

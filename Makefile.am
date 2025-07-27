@@ -20,9 +20,9 @@
 
 AM_DISTCHECK_CONFIGURE_FLAGS = CC=clang --prefix=${PWD}/ameba-local-dist-check-install
 
-SUBDIRS = src/common src/bpf src/user src/utils tests
-dist_doc_DATA = README.md
+SUBDIRS = src tests
 
+dist_doc_DATA = README.md
 amebaconfigdir = $(sysconfdir)/ameba
 dist_amebaconfig_DATA = \
 	config/ameba.conf \

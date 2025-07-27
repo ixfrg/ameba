@@ -24,7 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <limits.h>
 #include <fcntl.h>
 
-#include "user/args/ameba.h"
+#include "user/arg/ameba.h"
 #include "user/record/writer/file.h"
 
 

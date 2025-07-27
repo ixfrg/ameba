@@ -19,10 +19,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "user/jsonify/control.h"
 
 
-static int jsonify_control_write_trace_mode(struct json_buffer *s, char *key, trace_mode_t t)
+static int jsonify_control_write_trace_mode(struct json_buffer *s, char *key, control_trace_mode_t t)
 {
     char *p = NULL;
     if (t == IGNORE)
@@ -57,7 +58,7 @@ static int jsonify_control_write_int_list(struct json_buffer *s, char *key, int 
     return jsonify_core_write_as_literal(s, key, &list_str[0]);
 }
 
-int jsonify_control_write_control_input(struct json_buffer *s, struct control_input *val)
+int jsonify_control_write_control(struct json_buffer *s, struct control *val)
 {
     int total = 0;
 
@@ -71,4 +72,10 @@ int jsonify_control_write_control_input(struct json_buffer *s, struct control_in
     total += jsonify_control_write_int_list(s, "uids", &(val->uids[0]), val->uids_len);
 
     return total;
+}
+
+int jsonify_control_write_arg_control(struct json_buffer *s, struct arg_control *arg_val)
+{
+    struct control *val = &arg_val->control;
+    return jsonify_control_write_control(s, val);
 }

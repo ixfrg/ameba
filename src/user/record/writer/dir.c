@@ -26,7 +26,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <dirent.h>
 #include <sys/stat.h>
 
-#include "user/args/ameba.h"
+#include "user/arg/ameba.h"
 #include "user/record/writer/writer.h"
 #include "user/record/writer/file.h"
 
@@ -84,10 +84,10 @@ int generate_log_path(char *path_out, size_t len)
 }
 
 static int set_init_args_rotate(void *ptr, size_t ptr_len) {
-    if (ptr_len != sizeof(struct ameba_input))
+    if (ptr_len != sizeof(struct arg_ameba))
         return -1;
 
-    const struct ameba_input *input = ptr;
+    const struct arg_ameba *input = ptr;
     size_t path_len = strnlen(input->log_dir_path, PATH_MAX);
     if (path_len == 0 || path_len >= PATH_MAX)
         return -1;

@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/control.h"
 
 
-void control_set_default(struct control_input *dst)
+void control_set_ignore_all(struct control *dst)
 {
     if (!dst)
         return;
@@ -35,4 +35,9 @@ void control_set_default(struct control_input *dst)
     __builtin_memset(dst->ppids, 0, sizeof(dst->ppids));
     dst->ppids_len = 0;
     dst->netio_mode = IGNORE;
+}
+
+void control_set_default(struct control *dst)
+{
+    control_set_ignore_all(dst);
 }

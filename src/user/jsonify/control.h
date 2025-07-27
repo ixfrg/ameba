@@ -21,20 +21,27 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /*
 
-    A module to help write control_input to json_buffer.
+    A module to help write arg_control to json_buffer.
 
     See 'core.h'.
 
 */
 
+#include "user/arg/control.h"
 #include "user/jsonify/core.h"
-#include "common/control.h"
-
 
 /*
-    Write control_input to json_buffer.
+    Write control to json_buffer.
 
     Return:
         See 'jsonify_core_snprintf'.
 */
-int jsonify_control_write_control_input(struct json_buffer *s, struct control_input *val);
+int jsonify_control_write_control(struct json_buffer *s, struct control *val);
+
+/*
+    Write arg_control to json_buffer.
+
+    Return:
+        See 'jsonify_core_snprintf'.
+*/
+int jsonify_control_write_arg_control(struct json_buffer *s, struct arg_control *val);

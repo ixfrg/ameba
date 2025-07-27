@@ -17,41 +17,54 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
+
 #include "common/constants.h"
 #include "user/config/read.h"
+#include "user/helper/log.h"
 
 
-void config_read_parse_config(
-    char *file_path,
-    struct read_input *dst
-)
+void config_read_parse_config_file(char *file_path, struct arg_read *dst)
 {
+    if (!file_path || !dst)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed config_read_parse_config_file. NULL argument(s)");
+        exit(-1);
+    }
+
     int argc = 0;
     char **argv = NULL;
 
     const char *config_path = file_path;
 
-    if (config_parse_as_argv(config_path, &argc, &argv) != 0) {
-        return;
+    if (config_parse_as_argv(config_path, &argc, &argv) != 0)
+    {
+        exit(-1);
     }
 
-    struct read_input_arg config_arg;
-    user_args_read_parse(&config_arg, NULL, argc, argv);
+    struct arg_read_with_parse_state config_arg;
+    int parse_result = arg_read_parse(&config_arg, NULL, argc, argv);
 
-    for (int i = 0; i < argc; ++i) {
+    for (int i = 0; i < argc; ++i)
+    {
         free(argv[i]);
     }
     free(argv);
 
-    struct args_parse_state *a_p_s = &(config_arg.parse_state);
-    if (user_args_parse_state_is_exit_set(a_p_s))
+    if (parse_result != 0)
     {
-        exit(user_args_parse_state_get_code(a_p_s));
+        exit(-1);
     }
-    *dst = config_arg.read_input;
+
+    struct arg_parse_state *a_p_s = &(config_arg.parse_state);
+    if (arg_parse_state_is_exit_set(a_p_s))
+    {
+        exit(arg_parse_state_get_code(a_p_s));
+    }
+    *dst = config_arg.arg;
 }
 
-void config_read_parse_default_config(struct read_input *dst)
+void config_read_parse_default_config(struct arg_read *dst)
 {
-    config_read_parse_config(PROG_READ_CONFIG_FILE_PATH, dst);
+    config_read_parse_config_file(PROG_READ_CONFIG_FILE_PATH, dst);
 }

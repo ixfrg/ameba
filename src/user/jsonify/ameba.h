@@ -21,28 +21,28 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /*
 
-    A module to help write user_input to json_buffer.
+    A module to help write arg_ameba to json_buffer.
 
     See 'core.h'.
 
 */
 
 #include "user/jsonify/core.h"
-#include "user/args/ameba.h"
+#include "user/arg/ameba.h"
 
 
 /*
-    Write user_input to json_buffer.
+    Write arg_ameba to json_buffer.
 
     Return:
         See 'jsonify_core_snprintf'.
 */
-int jsonify_ameba_write_ameba_input(struct json_buffer *s, struct ameba_input *val);
+int jsonify_ameba_write_arg_ameba(struct json_buffer *s, struct arg_ameba *val);
 
 /*
-    Write ameba_input to file.
+    Write arg_ameba to file.
 
     Return:
         See 'jsonify_core_snprintf'.
 */
-void jsonify_ameba_write_ameba_input_to_file(FILE *out, struct ameba_input *val);
+void jsonify_ameba_write_arg_ameba_to_file(FILE *out, struct arg_ameba *val);

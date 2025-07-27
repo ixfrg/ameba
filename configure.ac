@@ -53,7 +53,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AMEBA_ARG_ENABLE_TASK_CTX
 
 # App entrypoint
-AC_CONFIG_SRCDIR([src/user/progs/ameba/main.c])
+AC_CONFIG_SRCDIR([src/user/prog/ameba/main.c])
 
 # Path of file containing all the configurable constants
 AC_CONFIG_HEADERS([src/common/config.h])
@@ -133,24 +133,26 @@ AC_CHECK_FUNCS([clock_gettime memset socket strdup strstr strtol])
 
 AC_CONFIG_FILES([
     Makefile
+    src/Makefile
     src/common/Makefile
     src/bpf/Makefile
     src/user/Makefile
-    src/user/args/Makefile
+    src/user/api/Makefile
+    src/user/arg/Makefile
     src/user/config/Makefile
-    src/user/helpers/Makefile
+    src/user/helper/Makefile
     src/user/jsonify/Makefile
-    src/user/progs/Makefile
-    src/user/progs/ameba/Makefile
-    src/user/progs/control/Makefile
-    src/user/progs/pin/Makefile
-    src/user/progs/read/Makefile
-    src/user/progs/unpin/Makefile
+    src/user/prog/Makefile
+    src/user/prog/ameba/Makefile
+    src/user/prog/control/Makefile
+    src/user/prog/pin/Makefile
+    src/user/prog/read/Makefile
+    src/user/prog/unpin/Makefile
     src/user/record/Makefile
     src/user/record/deserializer/Makefile
     src/user/record/serializer/Makefile
     src/user/record/writer/Makefile
-    src/utils/Makefile
+    src/util/Makefile
     tests/Makefile
     tests/user/args/Makefile
 ])

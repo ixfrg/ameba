@@ -17,7 +17,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "user/args/control.h"
+#pragma once
+
+
+#include "user/arg/control.h"
 #include "user/config/config.h"
 
 /*
@@ -27,7 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         Does not return on failure!
         On success, 'dst' is populated
 */
-void config_control_parse_config(char *file_path, struct control_input *dst);
+void config_control_parse_config_file(char *file_path, struct arg_control *dst);
 
 /*
     Function to populate 'dst' from default config file at path '${install_prefx}/etc/ameba/control.conf'
@@ -36,4 +39,4 @@ void config_control_parse_config(char *file_path, struct control_input *dst);
         Does not return on failure!
         On success, 'dst' is populated
 */
-void config_control_parse_default_config(struct control_input *dst);
+void config_control_parse_default_config(struct arg_control *dst);

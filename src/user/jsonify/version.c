@@ -27,6 +27,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 int jsonify_version_write_app_version(struct json_buffer *s)
 {
     int total = 0;
+    struct elem_version app_version;
+    version_get_app_version(&app_version);
     total += jsonify_types_write_version(s, "app_version", &app_version);
     return total;
 }
@@ -34,14 +36,18 @@ int jsonify_version_write_app_version(struct json_buffer *s)
 int jsonify_version_write_record_version(struct json_buffer *s)
 {
     int total = 0;
+    struct elem_version record_version;
+    version_get_record_version(&record_version);
     total += jsonify_types_write_version(s, "record_version", &record_version);
     return total;
 }
 
-int jsonify_version_write_prog_api_version(struct json_buffer *s)
+int jsonify_version_write_api_version(struct json_buffer *s)
 {
     int total = 0;
-    total += jsonify_types_write_version(s, "prog_api_version", &prog_api_version);
+    struct elem_version api_version;
+    version_get_api_version(&api_version);
+    total += jsonify_types_write_version(s, "api_version", &api_version);
     return total;
 }
 
@@ -50,7 +56,7 @@ int jsonify_version_write_all_versions(struct json_buffer *s)
     int total = 0;
     total += jsonify_version_write_app_version(s);
     total += jsonify_version_write_record_version(s);
-    total += jsonify_version_write_prog_api_version(s);
+    total += jsonify_version_write_api_version(s);
     return total;
 }
 

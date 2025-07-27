@@ -23,11 +23,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <ctype.h>
 #include <libgen.h>
 #include <errno.h>
+#include <stdlib.h>
 
-#include "user/helpers/log.h"
+#include "user/helper/log.h"
+
 
 #define MAX_LINE_LEN 200
 #define MAX_ARGS     100
+
 
 static char *trim_strip(char *str)
 {

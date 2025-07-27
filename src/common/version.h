@@ -30,6 +30,29 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/types.h"
 
 
-extern const struct elem_version app_version;
-extern const struct elem_version record_version;
-extern const struct elem_version prog_api_version;
+/*
+    Populate dst with the current app version.
+
+    Returns:
+        0  => Success
+        -1 => Invalid dst
+*/
+int version_get_app_version(struct elem_version *dst);
+
+/*
+    Populate dst with the current record version.
+
+    Returns:
+        0  => Success
+        -1 => Invalid dst
+*/
+int version_get_record_version(struct elem_version *dst);
+
+/*
+    Populate dst with the current api version.
+
+    Returns:
+        0  => Success
+        -1 => Invalid dst
+*/
+int version_get_api_version(struct elem_version *dst);

@@ -126,23 +126,23 @@ am__v_AR_1 =
 libbpfobjs_a_AR = $(AR) $(ARFLAGS)
 libbpfobjs_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libbpfobjs_a_OBJECTS = helpers/event.bpf.$(OBJEXT) \
-	helpers/copy.bpf.$(OBJEXT) helpers/map.bpf.$(OBJEXT) \
-	helpers/log.bpf.$(OBJEXT) helpers/output.bpf.$(OBJEXT) \
-	helpers/event_id.bpf.$(OBJEXT) helpers/datatype.bpf.$(OBJEXT) \
-	helpers/version.bpf.$(OBJEXT) \
-	events/process_namespace/hook.bpf.$(OBJEXT) \
-	events/kill/storage/task.bpf.$(OBJEXT) \
-	events/kill/hook.bpf.$(OBJEXT) \
-	events/accept/storage/task.bpf.$(OBJEXT) \
-	events/accept/hook.bpf.$(OBJEXT) \
-	events/audit_log_exit/hook.bpf.$(OBJEXT) \
-	events/bind/storage/task.bpf.$(OBJEXT) \
-	events/bind/hook.bpf.$(OBJEXT) \
-	events/send_recv/storage/task.bpf.$(OBJEXT) \
-	events/send_recv/hook.bpf.$(OBJEXT) \
-	events/connect/storage/task.bpf.$(OBJEXT) \
-	events/connect/hook.bpf.$(OBJEXT) license.bpf.$(OBJEXT)
+am_libbpfobjs_a_OBJECTS = helper/event.bpf.$(OBJEXT) \
+	helper/copy.bpf.$(OBJEXT) helper/map.bpf.$(OBJEXT) \
+	helper/log.bpf.$(OBJEXT) helper/output.bpf.$(OBJEXT) \
+	helper/event_id.bpf.$(OBJEXT) helper/datatype.bpf.$(OBJEXT) \
+	helper/version.bpf.$(OBJEXT) \
+	event/process_namespace/hook.bpf.$(OBJEXT) \
+	event/kill/storage/task.bpf.$(OBJEXT) \
+	event/kill/hook.bpf.$(OBJEXT) \
+	event/accept/storage/task.bpf.$(OBJEXT) \
+	event/accept/hook.bpf.$(OBJEXT) \
+	event/audit_log_exit/hook.bpf.$(OBJEXT) \
+	event/bind/storage/task.bpf.$(OBJEXT) \
+	event/bind/hook.bpf.$(OBJEXT) \
+	event/send_recv/storage/task.bpf.$(OBJEXT) \
+	event/send_recv/hook.bpf.$(OBJEXT) \
+	event/connect/storage/task.bpf.$(OBJEXT) \
+	event/connect/hook.bpf.$(OBJEXT) license.bpf.$(OBJEXT)
 libbpfobjs_a_OBJECTS = $(am_libbpfobjs_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -160,24 +160,22 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/license.bpf.Po \
-	events/accept/$(DEPDIR)/hook.bpf.Po \
-	events/accept/storage/$(DEPDIR)/task.bpf.Po \
-	events/audit_log_exit/$(DEPDIR)/hook.bpf.Po \
-	events/bind/$(DEPDIR)/hook.bpf.Po \
-	events/bind/storage/$(DEPDIR)/task.bpf.Po \
-	events/connect/$(DEPDIR)/hook.bpf.Po \
-	events/connect/storage/$(DEPDIR)/task.bpf.Po \
-	events/kill/$(DEPDIR)/hook.bpf.Po \
-	events/kill/storage/$(DEPDIR)/task.bpf.Po \
-	events/process_namespace/$(DEPDIR)/hook.bpf.Po \
-	events/send_recv/$(DEPDIR)/hook.bpf.Po \
-	events/send_recv/storage/$(DEPDIR)/task.bpf.Po \
-	helpers/$(DEPDIR)/copy.bpf.Po \
-	helpers/$(DEPDIR)/datatype.bpf.Po \
-	helpers/$(DEPDIR)/event.bpf.Po \
-	helpers/$(DEPDIR)/event_id.bpf.Po helpers/$(DEPDIR)/log.bpf.Po \
-	helpers/$(DEPDIR)/map.bpf.Po helpers/$(DEPDIR)/output.bpf.Po \
-	helpers/$(DEPDIR)/version.bpf.Po
+	event/accept/$(DEPDIR)/hook.bpf.Po \
+	event/accept/storage/$(DEPDIR)/task.bpf.Po \
+	event/audit_log_exit/$(DEPDIR)/hook.bpf.Po \
+	event/bind/$(DEPDIR)/hook.bpf.Po \
+	event/bind/storage/$(DEPDIR)/task.bpf.Po \
+	event/connect/$(DEPDIR)/hook.bpf.Po \
+	event/connect/storage/$(DEPDIR)/task.bpf.Po \
+	event/kill/$(DEPDIR)/hook.bpf.Po \
+	event/kill/storage/$(DEPDIR)/task.bpf.Po \
+	event/process_namespace/$(DEPDIR)/hook.bpf.Po \
+	event/send_recv/$(DEPDIR)/hook.bpf.Po \
+	event/send_recv/storage/$(DEPDIR)/task.bpf.Po \
+	helper/$(DEPDIR)/copy.bpf.Po helper/$(DEPDIR)/datatype.bpf.Po \
+	helper/$(DEPDIR)/event.bpf.Po helper/$(DEPDIR)/event_id.bpf.Po \
+	helper/$(DEPDIR)/log.bpf.Po helper/$(DEPDIR)/map.bpf.Po \
+	helper/$(DEPDIR)/output.bpf.Po helper/$(DEPDIR)/version.bpf.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -339,21 +337,21 @@ bpf_skel_name = ameba
 bpf_skel_header = $(top_builddir)/src/$(bpf_skel_name).skel.h
 noinst_LIBRARIES = libbpfobjs.a
 libbpfobjs_a_SOURCES = \
-    helpers/event.bpf.h helpers/copy.bpf.h helpers/map.bpf.h helpers/log.bpf.h helpers/output.bpf.h helpers/event_id.bpf.h helpers/datatype.bpf.h helpers/version.bpf.h \
-    helpers/event.bpf.c helpers/copy.bpf.c helpers/map.bpf.c helpers/log.bpf.c helpers/output.bpf.c helpers/event_id.bpf.c helpers/datatype.bpf.c helpers/version.bpf.c \
-    events/process_namespace/hook.bpf.c \
-    events/hook_name.bpf.h \
-    events/kill/storage.bpf.h \
-    events/kill/storage/task.bpf.c events/kill/hook.bpf.c \
-    events/accept/storage.bpf.h \
-    events/accept/storage/task.bpf.c events/accept/hook.bpf.c \
-    events/audit_log_exit/hook.bpf.c \
-    events/bind/storage.bpf.h \
-    events/bind/storage/task.bpf.c events/bind/hook.bpf.c \
-    events/send_recv/storage.bpf.h \
-    events/send_recv/storage/task.bpf.c events/send_recv/hook.bpf.c \
-    events/connect/storage.bpf.h \
-    events/connect/storage/task.bpf.c events/connect/hook.bpf.c \
+    helper/event.bpf.h helper/copy.bpf.h helper/map.bpf.h helper/log.bpf.h helper/output.bpf.h helper/event_id.bpf.h helper/datatype.bpf.h helper/version.bpf.h \
+    helper/event.bpf.c helper/copy.bpf.c helper/map.bpf.c helper/log.bpf.c helper/output.bpf.c helper/event_id.bpf.c helper/datatype.bpf.c helper/version.bpf.c \
+    event/process_namespace/hook.bpf.c \
+    event/hook_name.bpf.h \
+    event/kill/storage.bpf.h \
+    event/kill/storage/task.bpf.c event/kill/hook.bpf.c \
+    event/accept/storage.bpf.h \
+    event/accept/storage/task.bpf.c event/accept/hook.bpf.c \
+    event/audit_log_exit/hook.bpf.c \
+    event/bind/storage.bpf.h \
+    event/bind/storage/task.bpf.c event/bind/hook.bpf.c \
+    event/send_recv/storage.bpf.h \
+    event/send_recv/storage/task.bpf.c event/send_recv/hook.bpf.c \
+    event/connect/storage.bpf.h \
+    event/connect/storage/task.bpf.c event/connect/hook.bpf.c \
     license.bpf.c
 
 CLEANFILES = $(bpf_combined_obj) $(bpf_skel_header)
@@ -393,131 +391,131 @@ $(am__aclocal_m4_deps):
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-helpers/$(am__dirstamp):
-	@$(MKDIR_P) helpers
-	@: > helpers/$(am__dirstamp)
-helpers/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) helpers/$(DEPDIR)
-	@: > helpers/$(DEPDIR)/$(am__dirstamp)
-helpers/event.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
-	helpers/$(DEPDIR)/$(am__dirstamp)
-helpers/copy.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
-	helpers/$(DEPDIR)/$(am__dirstamp)
-helpers/map.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
-	helpers/$(DEPDIR)/$(am__dirstamp)
-helpers/log.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
-	helpers/$(DEPDIR)/$(am__dirstamp)
-helpers/output.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
-	helpers/$(DEPDIR)/$(am__dirstamp)
-helpers/event_id.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
-	helpers/$(DEPDIR)/$(am__dirstamp)
-helpers/datatype.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
-	helpers/$(DEPDIR)/$(am__dirstamp)
-helpers/version.bpf.$(OBJEXT): helpers/$(am__dirstamp) \
-	helpers/$(DEPDIR)/$(am__dirstamp)
-events/process_namespace/$(am__dirstamp):
-	@$(MKDIR_P) events/process_namespace
-	@: > events/process_namespace/$(am__dirstamp)
-events/process_namespace/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/process_namespace/$(DEPDIR)
-	@: > events/process_namespace/$(DEPDIR)/$(am__dirstamp)
-events/process_namespace/hook.bpf.$(OBJEXT):  \
-	events/process_namespace/$(am__dirstamp) \
-	events/process_namespace/$(DEPDIR)/$(am__dirstamp)
-events/kill/storage/$(am__dirstamp):
-	@$(MKDIR_P) events/kill/storage
-	@: > events/kill/storage/$(am__dirstamp)
-events/kill/storage/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/kill/storage/$(DEPDIR)
-	@: > events/kill/storage/$(DEPDIR)/$(am__dirstamp)
-events/kill/storage/task.bpf.$(OBJEXT):  \
-	events/kill/storage/$(am__dirstamp) \
-	events/kill/storage/$(DEPDIR)/$(am__dirstamp)
-events/kill/$(am__dirstamp):
-	@$(MKDIR_P) events/kill
-	@: > events/kill/$(am__dirstamp)
-events/kill/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/kill/$(DEPDIR)
-	@: > events/kill/$(DEPDIR)/$(am__dirstamp)
-events/kill/hook.bpf.$(OBJEXT): events/kill/$(am__dirstamp) \
-	events/kill/$(DEPDIR)/$(am__dirstamp)
-events/accept/storage/$(am__dirstamp):
-	@$(MKDIR_P) events/accept/storage
-	@: > events/accept/storage/$(am__dirstamp)
-events/accept/storage/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/accept/storage/$(DEPDIR)
-	@: > events/accept/storage/$(DEPDIR)/$(am__dirstamp)
-events/accept/storage/task.bpf.$(OBJEXT):  \
-	events/accept/storage/$(am__dirstamp) \
-	events/accept/storage/$(DEPDIR)/$(am__dirstamp)
-events/accept/$(am__dirstamp):
-	@$(MKDIR_P) events/accept
-	@: > events/accept/$(am__dirstamp)
-events/accept/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/accept/$(DEPDIR)
-	@: > events/accept/$(DEPDIR)/$(am__dirstamp)
-events/accept/hook.bpf.$(OBJEXT): events/accept/$(am__dirstamp) \
-	events/accept/$(DEPDIR)/$(am__dirstamp)
-events/audit_log_exit/$(am__dirstamp):
-	@$(MKDIR_P) events/audit_log_exit
-	@: > events/audit_log_exit/$(am__dirstamp)
-events/audit_log_exit/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/audit_log_exit/$(DEPDIR)
-	@: > events/audit_log_exit/$(DEPDIR)/$(am__dirstamp)
-events/audit_log_exit/hook.bpf.$(OBJEXT):  \
-	events/audit_log_exit/$(am__dirstamp) \
-	events/audit_log_exit/$(DEPDIR)/$(am__dirstamp)
-events/bind/storage/$(am__dirstamp):
-	@$(MKDIR_P) events/bind/storage
-	@: > events/bind/storage/$(am__dirstamp)
-events/bind/storage/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/bind/storage/$(DEPDIR)
-	@: > events/bind/storage/$(DEPDIR)/$(am__dirstamp)
-events/bind/storage/task.bpf.$(OBJEXT):  \
-	events/bind/storage/$(am__dirstamp) \
-	events/bind/storage/$(DEPDIR)/$(am__dirstamp)
-events/bind/$(am__dirstamp):
-	@$(MKDIR_P) events/bind
-	@: > events/bind/$(am__dirstamp)
-events/bind/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/bind/$(DEPDIR)
-	@: > events/bind/$(DEPDIR)/$(am__dirstamp)
-events/bind/hook.bpf.$(OBJEXT): events/bind/$(am__dirstamp) \
-	events/bind/$(DEPDIR)/$(am__dirstamp)
-events/send_recv/storage/$(am__dirstamp):
-	@$(MKDIR_P) events/send_recv/storage
-	@: > events/send_recv/storage/$(am__dirstamp)
-events/send_recv/storage/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/send_recv/storage/$(DEPDIR)
-	@: > events/send_recv/storage/$(DEPDIR)/$(am__dirstamp)
-events/send_recv/storage/task.bpf.$(OBJEXT):  \
-	events/send_recv/storage/$(am__dirstamp) \
-	events/send_recv/storage/$(DEPDIR)/$(am__dirstamp)
-events/send_recv/$(am__dirstamp):
-	@$(MKDIR_P) events/send_recv
-	@: > events/send_recv/$(am__dirstamp)
-events/send_recv/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/send_recv/$(DEPDIR)
-	@: > events/send_recv/$(DEPDIR)/$(am__dirstamp)
-events/send_recv/hook.bpf.$(OBJEXT): events/send_recv/$(am__dirstamp) \
-	events/send_recv/$(DEPDIR)/$(am__dirstamp)
-events/connect/storage/$(am__dirstamp):
-	@$(MKDIR_P) events/connect/storage
-	@: > events/connect/storage/$(am__dirstamp)
-events/connect/storage/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/connect/storage/$(DEPDIR)
-	@: > events/connect/storage/$(DEPDIR)/$(am__dirstamp)
-events/connect/storage/task.bpf.$(OBJEXT):  \
-	events/connect/storage/$(am__dirstamp) \
-	events/connect/storage/$(DEPDIR)/$(am__dirstamp)
-events/connect/$(am__dirstamp):
-	@$(MKDIR_P) events/connect
-	@: > events/connect/$(am__dirstamp)
-events/connect/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) events/connect/$(DEPDIR)
-	@: > events/connect/$(DEPDIR)/$(am__dirstamp)
-events/connect/hook.bpf.$(OBJEXT): events/connect/$(am__dirstamp) \
-	events/connect/$(DEPDIR)/$(am__dirstamp)
+helper/$(am__dirstamp):
+	@$(MKDIR_P) helper
+	@: > helper/$(am__dirstamp)
+helper/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) helper/$(DEPDIR)
+	@: > helper/$(DEPDIR)/$(am__dirstamp)
+helper/event.bpf.$(OBJEXT): helper/$(am__dirstamp) \
+	helper/$(DEPDIR)/$(am__dirstamp)
+helper/copy.bpf.$(OBJEXT): helper/$(am__dirstamp) \
+	helper/$(DEPDIR)/$(am__dirstamp)
+helper/map.bpf.$(OBJEXT): helper/$(am__dirstamp) \
+	helper/$(DEPDIR)/$(am__dirstamp)
+helper/log.bpf.$(OBJEXT): helper/$(am__dirstamp) \
+	helper/$(DEPDIR)/$(am__dirstamp)
+helper/output.bpf.$(OBJEXT): helper/$(am__dirstamp) \
+	helper/$(DEPDIR)/$(am__dirstamp)
+helper/event_id.bpf.$(OBJEXT): helper/$(am__dirstamp) \
+	helper/$(DEPDIR)/$(am__dirstamp)
+helper/datatype.bpf.$(OBJEXT): helper/$(am__dirstamp) \
+	helper/$(DEPDIR)/$(am__dirstamp)
+helper/version.bpf.$(OBJEXT): helper/$(am__dirstamp) \
+	helper/$(DEPDIR)/$(am__dirstamp)
+event/process_namespace/$(am__dirstamp):
+	@$(MKDIR_P) event/process_namespace
+	@: > event/process_namespace/$(am__dirstamp)
+event/process_namespace/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/process_namespace/$(DEPDIR)
+	@: > event/process_namespace/$(DEPDIR)/$(am__dirstamp)
+event/process_namespace/hook.bpf.$(OBJEXT):  \
+	event/process_namespace/$(am__dirstamp) \
+	event/process_namespace/$(DEPDIR)/$(am__dirstamp)
+event/kill/storage/$(am__dirstamp):
+	@$(MKDIR_P) event/kill/storage
+	@: > event/kill/storage/$(am__dirstamp)
+event/kill/storage/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/kill/storage/$(DEPDIR)
+	@: > event/kill/storage/$(DEPDIR)/$(am__dirstamp)
+event/kill/storage/task.bpf.$(OBJEXT):  \
+	event/kill/storage/$(am__dirstamp) \
+	event/kill/storage/$(DEPDIR)/$(am__dirstamp)
+event/kill/$(am__dirstamp):
+	@$(MKDIR_P) event/kill
+	@: > event/kill/$(am__dirstamp)
+event/kill/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/kill/$(DEPDIR)
+	@: > event/kill/$(DEPDIR)/$(am__dirstamp)
+event/kill/hook.bpf.$(OBJEXT): event/kill/$(am__dirstamp) \
+	event/kill/$(DEPDIR)/$(am__dirstamp)
+event/accept/storage/$(am__dirstamp):
+	@$(MKDIR_P) event/accept/storage
+	@: > event/accept/storage/$(am__dirstamp)
+event/accept/storage/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/accept/storage/$(DEPDIR)
+	@: > event/accept/storage/$(DEPDIR)/$(am__dirstamp)
+event/accept/storage/task.bpf.$(OBJEXT):  \
+	event/accept/storage/$(am__dirstamp) \
+	event/accept/storage/$(DEPDIR)/$(am__dirstamp)
+event/accept/$(am__dirstamp):
+	@$(MKDIR_P) event/accept
+	@: > event/accept/$(am__dirstamp)
+event/accept/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/accept/$(DEPDIR)
+	@: > event/accept/$(DEPDIR)/$(am__dirstamp)
+event/accept/hook.bpf.$(OBJEXT): event/accept/$(am__dirstamp) \
+	event/accept/$(DEPDIR)/$(am__dirstamp)
+event/audit_log_exit/$(am__dirstamp):
+	@$(MKDIR_P) event/audit_log_exit
+	@: > event/audit_log_exit/$(am__dirstamp)
+event/audit_log_exit/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/audit_log_exit/$(DEPDIR)
+	@: > event/audit_log_exit/$(DEPDIR)/$(am__dirstamp)
+event/audit_log_exit/hook.bpf.$(OBJEXT):  \
+	event/audit_log_exit/$(am__dirstamp) \
+	event/audit_log_exit/$(DEPDIR)/$(am__dirstamp)
+event/bind/storage/$(am__dirstamp):
+	@$(MKDIR_P) event/bind/storage
+	@: > event/bind/storage/$(am__dirstamp)
+event/bind/storage/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/bind/storage/$(DEPDIR)
+	@: > event/bind/storage/$(DEPDIR)/$(am__dirstamp)
+event/bind/storage/task.bpf.$(OBJEXT):  \
+	event/bind/storage/$(am__dirstamp) \
+	event/bind/storage/$(DEPDIR)/$(am__dirstamp)
+event/bind/$(am__dirstamp):
+	@$(MKDIR_P) event/bind
+	@: > event/bind/$(am__dirstamp)
+event/bind/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/bind/$(DEPDIR)
+	@: > event/bind/$(DEPDIR)/$(am__dirstamp)
+event/bind/hook.bpf.$(OBJEXT): event/bind/$(am__dirstamp) \
+	event/bind/$(DEPDIR)/$(am__dirstamp)
+event/send_recv/storage/$(am__dirstamp):
+	@$(MKDIR_P) event/send_recv/storage
+	@: > event/send_recv/storage/$(am__dirstamp)
+event/send_recv/storage/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/send_recv/storage/$(DEPDIR)
+	@: > event/send_recv/storage/$(DEPDIR)/$(am__dirstamp)
+event/send_recv/storage/task.bpf.$(OBJEXT):  \
+	event/send_recv/storage/$(am__dirstamp) \
+	event/send_recv/storage/$(DEPDIR)/$(am__dirstamp)
+event/send_recv/$(am__dirstamp):
+	@$(MKDIR_P) event/send_recv
+	@: > event/send_recv/$(am__dirstamp)
+event/send_recv/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/send_recv/$(DEPDIR)
+	@: > event/send_recv/$(DEPDIR)/$(am__dirstamp)
+event/send_recv/hook.bpf.$(OBJEXT): event/send_recv/$(am__dirstamp) \
+	event/send_recv/$(DEPDIR)/$(am__dirstamp)
+event/connect/storage/$(am__dirstamp):
+	@$(MKDIR_P) event/connect/storage
+	@: > event/connect/storage/$(am__dirstamp)
+event/connect/storage/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/connect/storage/$(DEPDIR)
+	@: > event/connect/storage/$(DEPDIR)/$(am__dirstamp)
+event/connect/storage/task.bpf.$(OBJEXT):  \
+	event/connect/storage/$(am__dirstamp) \
+	event/connect/storage/$(DEPDIR)/$(am__dirstamp)
+event/connect/$(am__dirstamp):
+	@$(MKDIR_P) event/connect
+	@: > event/connect/$(am__dirstamp)
+event/connect/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) event/connect/$(DEPDIR)
+	@: > event/connect/$(DEPDIR)/$(am__dirstamp)
+event/connect/hook.bpf.$(OBJEXT): event/connect/$(am__dirstamp) \
+	event/connect/$(DEPDIR)/$(am__dirstamp)
 
 libbpfobjs.a: $(libbpfobjs_a_OBJECTS) $(libbpfobjs_a_DEPENDENCIES) $(EXTRA_libbpfobjs_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f libbpfobjs.a
@@ -526,44 +524,44 @@ libbpfobjs.a: $(libbpfobjs_a_OBJECTS) $(libbpfobjs_a_DEPENDENCIES) $(EXTRA_libbp
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f events/accept/*.$(OBJEXT)
-	-rm -f events/accept/storage/*.$(OBJEXT)
-	-rm -f events/audit_log_exit/*.$(OBJEXT)
-	-rm -f events/bind/*.$(OBJEXT)
-	-rm -f events/bind/storage/*.$(OBJEXT)
-	-rm -f events/connect/*.$(OBJEXT)
-	-rm -f events/connect/storage/*.$(OBJEXT)
-	-rm -f events/kill/*.$(OBJEXT)
-	-rm -f events/kill/storage/*.$(OBJEXT)
-	-rm -f events/process_namespace/*.$(OBJEXT)
-	-rm -f events/send_recv/*.$(OBJEXT)
-	-rm -f events/send_recv/storage/*.$(OBJEXT)
-	-rm -f helpers/*.$(OBJEXT)
+	-rm -f event/accept/*.$(OBJEXT)
+	-rm -f event/accept/storage/*.$(OBJEXT)
+	-rm -f event/audit_log_exit/*.$(OBJEXT)
+	-rm -f event/bind/*.$(OBJEXT)
+	-rm -f event/bind/storage/*.$(OBJEXT)
+	-rm -f event/connect/*.$(OBJEXT)
+	-rm -f event/connect/storage/*.$(OBJEXT)
+	-rm -f event/kill/*.$(OBJEXT)
+	-rm -f event/kill/storage/*.$(OBJEXT)
+	-rm -f event/process_namespace/*.$(OBJEXT)
+	-rm -f event/send_recv/*.$(OBJEXT)
+	-rm -f event/send_recv/storage/*.$(OBJEXT)
+	-rm -f helper/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/license.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/accept/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/accept/storage/$(DEPDIR)/task.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/audit_log_exit/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/bind/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/bind/storage/$(DEPDIR)/task.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/connect/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/connect/storage/$(DEPDIR)/task.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/kill/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/kill/storage/$(DEPDIR)/task.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/process_namespace/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/send_recv/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@events/send_recv/storage/$(DEPDIR)/task.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/copy.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/datatype.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/event.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/event_id.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/log.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/map.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/output.bpf.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/version.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/accept/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/accept/storage/$(DEPDIR)/task.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/audit_log_exit/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/bind/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/bind/storage/$(DEPDIR)/task.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/connect/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/connect/storage/$(DEPDIR)/task.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/kill/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/kill/storage/$(DEPDIR)/task.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/process_namespace/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/send_recv/$(DEPDIR)/hook.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@event/send_recv/storage/$(DEPDIR)/task.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@helper/$(DEPDIR)/copy.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@helper/$(DEPDIR)/datatype.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@helper/$(DEPDIR)/event.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@helper/$(DEPDIR)/event_id.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@helper/$(DEPDIR)/log.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@helper/$(DEPDIR)/map.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@helper/$(DEPDIR)/output.bpf.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@helper/$(DEPDIR)/version.bpf.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -702,32 +700,32 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f events/accept/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/accept/$(am__dirstamp)
-	-rm -f events/accept/storage/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/accept/storage/$(am__dirstamp)
-	-rm -f events/audit_log_exit/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/audit_log_exit/$(am__dirstamp)
-	-rm -f events/bind/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/bind/$(am__dirstamp)
-	-rm -f events/bind/storage/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/bind/storage/$(am__dirstamp)
-	-rm -f events/connect/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/connect/$(am__dirstamp)
-	-rm -f events/connect/storage/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/connect/storage/$(am__dirstamp)
-	-rm -f events/kill/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/kill/$(am__dirstamp)
-	-rm -f events/kill/storage/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/kill/storage/$(am__dirstamp)
-	-rm -f events/process_namespace/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/process_namespace/$(am__dirstamp)
-	-rm -f events/send_recv/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/send_recv/$(am__dirstamp)
-	-rm -f events/send_recv/storage/$(DEPDIR)/$(am__dirstamp)
-	-rm -f events/send_recv/storage/$(am__dirstamp)
-	-rm -f helpers/$(DEPDIR)/$(am__dirstamp)
-	-rm -f helpers/$(am__dirstamp)
+	-rm -f event/accept/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/accept/$(am__dirstamp)
+	-rm -f event/accept/storage/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/accept/storage/$(am__dirstamp)
+	-rm -f event/audit_log_exit/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/audit_log_exit/$(am__dirstamp)
+	-rm -f event/bind/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/bind/$(am__dirstamp)
+	-rm -f event/bind/storage/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/bind/storage/$(am__dirstamp)
+	-rm -f event/connect/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/connect/$(am__dirstamp)
+	-rm -f event/connect/storage/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/connect/storage/$(am__dirstamp)
+	-rm -f event/kill/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/kill/$(am__dirstamp)
+	-rm -f event/kill/storage/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/kill/storage/$(am__dirstamp)
+	-rm -f event/process_namespace/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/process_namespace/$(am__dirstamp)
+	-rm -f event/send_recv/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/send_recv/$(am__dirstamp)
+	-rm -f event/send_recv/storage/$(DEPDIR)/$(am__dirstamp)
+	-rm -f event/send_recv/storage/$(am__dirstamp)
+	-rm -f helper/$(DEPDIR)/$(am__dirstamp)
+	-rm -f helper/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -738,26 +736,26 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/license.bpf.Po
-	-rm -f events/accept/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/accept/storage/$(DEPDIR)/task.bpf.Po
-	-rm -f events/audit_log_exit/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/bind/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/bind/storage/$(DEPDIR)/task.bpf.Po
-	-rm -f events/connect/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/connect/storage/$(DEPDIR)/task.bpf.Po
-	-rm -f events/kill/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/kill/storage/$(DEPDIR)/task.bpf.Po
-	-rm -f events/process_namespace/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/send_recv/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/send_recv/storage/$(DEPDIR)/task.bpf.Po
-	-rm -f helpers/$(DEPDIR)/copy.bpf.Po
-	-rm -f helpers/$(DEPDIR)/datatype.bpf.Po
-	-rm -f helpers/$(DEPDIR)/event.bpf.Po
-	-rm -f helpers/$(DEPDIR)/event_id.bpf.Po
-	-rm -f helpers/$(DEPDIR)/log.bpf.Po
-	-rm -f helpers/$(DEPDIR)/map.bpf.Po
-	-rm -f helpers/$(DEPDIR)/output.bpf.Po
-	-rm -f helpers/$(DEPDIR)/version.bpf.Po
+	-rm -f event/accept/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/accept/storage/$(DEPDIR)/task.bpf.Po
+	-rm -f event/audit_log_exit/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/bind/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/bind/storage/$(DEPDIR)/task.bpf.Po
+	-rm -f event/connect/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/connect/storage/$(DEPDIR)/task.bpf.Po
+	-rm -f event/kill/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/kill/storage/$(DEPDIR)/task.bpf.Po
+	-rm -f event/process_namespace/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/send_recv/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/send_recv/storage/$(DEPDIR)/task.bpf.Po
+	-rm -f helper/$(DEPDIR)/copy.bpf.Po
+	-rm -f helper/$(DEPDIR)/datatype.bpf.Po
+	-rm -f helper/$(DEPDIR)/event.bpf.Po
+	-rm -f helper/$(DEPDIR)/event_id.bpf.Po
+	-rm -f helper/$(DEPDIR)/log.bpf.Po
+	-rm -f helper/$(DEPDIR)/map.bpf.Po
+	-rm -f helper/$(DEPDIR)/output.bpf.Po
+	-rm -f helper/$(DEPDIR)/version.bpf.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -804,26 +802,26 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/license.bpf.Po
-	-rm -f events/accept/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/accept/storage/$(DEPDIR)/task.bpf.Po
-	-rm -f events/audit_log_exit/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/bind/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/bind/storage/$(DEPDIR)/task.bpf.Po
-	-rm -f events/connect/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/connect/storage/$(DEPDIR)/task.bpf.Po
-	-rm -f events/kill/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/kill/storage/$(DEPDIR)/task.bpf.Po
-	-rm -f events/process_namespace/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/send_recv/$(DEPDIR)/hook.bpf.Po
-	-rm -f events/send_recv/storage/$(DEPDIR)/task.bpf.Po
-	-rm -f helpers/$(DEPDIR)/copy.bpf.Po
-	-rm -f helpers/$(DEPDIR)/datatype.bpf.Po
-	-rm -f helpers/$(DEPDIR)/event.bpf.Po
-	-rm -f helpers/$(DEPDIR)/event_id.bpf.Po
-	-rm -f helpers/$(DEPDIR)/log.bpf.Po
-	-rm -f helpers/$(DEPDIR)/map.bpf.Po
-	-rm -f helpers/$(DEPDIR)/output.bpf.Po
-	-rm -f helpers/$(DEPDIR)/version.bpf.Po
+	-rm -f event/accept/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/accept/storage/$(DEPDIR)/task.bpf.Po
+	-rm -f event/audit_log_exit/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/bind/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/bind/storage/$(DEPDIR)/task.bpf.Po
+	-rm -f event/connect/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/connect/storage/$(DEPDIR)/task.bpf.Po
+	-rm -f event/kill/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/kill/storage/$(DEPDIR)/task.bpf.Po
+	-rm -f event/process_namespace/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/send_recv/$(DEPDIR)/hook.bpf.Po
+	-rm -f event/send_recv/storage/$(DEPDIR)/task.bpf.Po
+	-rm -f helper/$(DEPDIR)/copy.bpf.Po
+	-rm -f helper/$(DEPDIR)/datatype.bpf.Po
+	-rm -f helper/$(DEPDIR)/event.bpf.Po
+	-rm -f helper/$(DEPDIR)/event_id.bpf.Po
+	-rm -f helper/$(DEPDIR)/log.bpf.Po
+	-rm -f helper/$(DEPDIR)/map.bpf.Po
+	-rm -f helper/$(DEPDIR)/output.bpf.Po
+	-rm -f helper/$(DEPDIR)/version.bpf.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
