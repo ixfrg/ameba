@@ -58,6 +58,7 @@ enum
     OPT_CLEAR_PPID_LIST = 'Z',
     OPT_NETIO_MODE = 'n',
     // OPT_CLEAR = 'r',
+    OPT_UNSAFE = 'U',
     OPT_VERSION = 'v',
     OPT_HELP = '?',
     OPT_USAGE = 'u'
@@ -77,6 +78,7 @@ static struct argp_option options[] = {
     {"clear-ppid-list", OPT_CLEAR_PPID_LIST, 0, 0, "Clear PPID list", 0},
     {"netio-mode", OPT_NETIO_MODE, "MODE", 0, "Network I/O trace mode (ignore|capture)", 0},
     // {"clear", OPT_CLEAR, 0, 0, "Clear all rules"},
+    {"unsafe", OPT_UNSAFE, 0, 0, "Run without lock"},
     {"version", OPT_VERSION, 0, 0, "Show version"},
     {"help", OPT_HELP, 0, 0, "Show help"},
     {"usage", OPT_USAGE, 0, 0, "Show usage"},
@@ -238,8 +240,12 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     switch (key)
     {
     // case OPT_CLEAR:
-    //     input->clear = 1;
+    //     src->clear = 1;
     //     break;
+
+    case OPT_UNSAFE:
+        src->arg.unsafe = 1;
+        break;
 
     case OPT_VERSION:
         jsonify_version_write_all_versions_to_file(stdout);

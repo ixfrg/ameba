@@ -32,6 +32,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 struct arg_control
 {
     struct control control;
+    int unsafe;
 };
 
 struct arg_control_with_parse_state

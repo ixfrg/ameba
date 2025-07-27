@@ -75,13 +75,23 @@ int main(int argc, char *argv[])
 {
     int result = 0;
 
-    struct arg_control arg_current_control;
-    struct arg_control_with_parse_state arg_control_next_with_state;
-
-    if (prog_op_create_lock_dir() != 0)
+    struct arg_control_with_parse_state user_arg_control_with_state;
+    arg_control_parse(&user_arg_control_with_state, NULL, argc, argv);
+    struct arg_parse_state *a_p_s = &(user_arg_control_with_state.parse_state);
+    if (arg_parse_state_is_exit_set(a_p_s))
     {
-        result = -1;
-        goto exit;
+        exit(arg_parse_state_get_code(a_p_s));
+    }
+
+    const int unsafe = user_arg_control_with_state.arg.unsafe;
+
+    if (unsafe == 0)
+    {
+        if (prog_op_create_lock_dir() != 0)
+        {
+            result = -1;
+            goto exit;
+        }
     }
 
     result = prog_op_ameba_must_be_pinned();
@@ -97,36 +107,38 @@ int main(int argc, char *argv[])
         goto rm_prog_op_lock_dir;
     }
 
-    if (prog_op_get_control_in_map(&arg_current_control.control) != 0)
+    struct control current_control;
+    if (prog_op_get_control_in_map(&current_control) != 0)
     {
         return -1;
     }
 
-    arg_control_parse(&arg_control_next_with_state, &arg_current_control, argc, argv);
-    struct arg_parse_state *a_p_s = &(arg_control_next_with_state.parse_state);
+    struct arg_control arg_current_control = {
+        .control = current_control,
+        .unsafe = 0
+    };
+    struct arg_control_with_parse_state new_control_with_state;
+    arg_control_parse(&new_control_with_state, &arg_current_control, argc, argv);
+    a_p_s = &(new_control_with_state.parse_state);
     if (arg_parse_state_is_exit_set(a_p_s))
     {
         result = arg_parse_state_get_code(a_p_s);
         goto rm_prog_op_lock_dir;
     }
 
-    if (argc == 1)
-    {
-        // no user argument. Log the current and exit.
-        log_control_prev_and_current(NULL, &arg_current_control.control);
-        goto rm_prog_op_lock_dir;
-    }
-
-    if (prog_op_set_control_in_map(&arg_control_next_with_state.arg.control) != 0)
+    if (prog_op_set_control_in_map(&new_control_with_state.arg.control) != 0)
     {
         result = -1;
         goto rm_prog_op_lock_dir;
     }
 
-    log_control_prev_and_current(&arg_current_control.control, &arg_control_next_with_state.arg.control);
+    log_control_prev_and_current(&current_control, &new_control_with_state.arg.control);
 
 rm_prog_op_lock_dir:
-    prog_op_remove_lock_dir();
+    if (unsafe == 0)
+    {
+        prog_op_remove_lock_dir();
+    }
 
 exit:
     return result;
