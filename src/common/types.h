@@ -30,15 +30,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/kernel_constants.h"
 
 
-#define RECORD_VERSION_MAJOR 1
-#define RECORD_VERSION_MINOR 0
-#define RECORD_VERSION_PATCH 0
-
-#define API_VERSION_MAJOR 1
-#define API_VERSION_MINOR 0
-#define API_VERSION_PATCH 0
-
-
 // scalar typedefs
 typedef int magic_t;
 typedef unsigned long event_id_t;

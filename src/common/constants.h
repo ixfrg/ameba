@@ -31,6 +31,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // 32 bits
 #define AMEBA_MAGIC 0x616D6562
 
+#define RECORD_VERSION_MAJOR 1
+#define RECORD_VERSION_MINOR 0
+#define RECORD_VERSION_PATCH 0
+
+#define API_VERSION_MAJOR 1
+#define API_VERSION_MINOR 0
+#define API_VERSION_PATCH 0
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define CONCAT_VAR_NAMES_INTERNAL(x, y) x##y
