@@ -46,14 +46,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 int log_trace_mode(char *key, control_trace_mode_t t);
 
 /*
-    Log interpreted value of control lock with key.
-
-    Return:
-        0 -> Always
-*/
-int log_control_lock(char *key, control_lock_t t);
-
-/*
     Log control_input.
 
     Return:

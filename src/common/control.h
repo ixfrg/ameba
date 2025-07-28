@@ -30,12 +30,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 typedef enum
 {
-    FREE = 1,
-    TAKEN = 2
-} control_lock_t;
-
-typedef enum
-{
     IGNORE = 1,
     CAPTURE
 } control_trace_mode_t;

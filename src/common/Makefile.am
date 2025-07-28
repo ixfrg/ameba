@@ -17,6 +17,8 @@
 
 ## Process this file with automake to produce Makefile.in
 
+### Build lib.a
+
 AM_CPPFLAGS = \
     -I$(top_srcdir)/src \
     -I$(top_builddir)/src \
@@ -31,6 +33,13 @@ noinst_LIBRARIES = \
 lib_a_SOURCES = \
     version.h control.h constants.h types.h kernel_constants.h \
     version.c
+
+### Install headers
+
+include_amebadir = $(prefix)/include/ameba
+include_ameba_HEADERS = config.h constants.h control.h kernel_constants.h types.h
+
+### Build vmlinux
 
 vmlinux_h = $(top_builddir)/src/common/vmlinux.h
 
