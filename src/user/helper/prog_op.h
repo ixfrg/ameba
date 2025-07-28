@@ -119,7 +119,7 @@ int prog_op_get_output_ringbuf_fd(void);
         0    => Success
         -ive => Error
 */
-int prog_op_pin_bpf_progs_and_maps(struct arg_pin *arg);
+int prog_op_pin_bpf_progs_and_maps(struct arg_pin *arg, struct control *control);
 
 /*
     Function to unpin all bpf programs and maps.

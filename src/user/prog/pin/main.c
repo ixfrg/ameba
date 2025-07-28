@@ -26,6 +26,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/helper/log.h"
 #include "user/helper/prog_op.h"
 #include "user/config/pin.h"
+#include "user/config/control.h"
 #include "user/arg/pin.h"
 
 
@@ -53,13 +54,16 @@ int main(int argc, char *argv[])
     struct arg_pin arg_pin;
     parse_user_input(&arg_pin, argc, argv);
 
+    struct arg_control arg_control;
+    config_control_parse_default_config(&arg_control);
+
     if (prog_op_create_lock_dir() != 0)
     {
         result = -1;
         goto exit;
     }
 
-    result = prog_op_pin_bpf_progs_and_maps(&arg_pin);
+    result = prog_op_pin_bpf_progs_and_maps(&arg_pin, &arg_control.control);
     if (result != 0)
     {
         result = -1;

@@ -61,13 +61,3 @@ struct control
 
     control_trace_mode_t netio_mode;
 };
-
-/*
-    Set default value for control
-*/
-void control_set_default(struct control *dst);
-
-/*
-    Set ignore everything value for control
-*/
-void control_set_ignore_all(struct control *dst);

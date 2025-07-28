@@ -111,18 +111,11 @@ int main(int argc, char *argv[])
     signal(SIGINT, sig_handler);
     signal(SIGTERM, sig_handler);
 
-    result = prog_op_pin_bpf_progs_and_maps(&arg_pin);
+    result = prog_op_pin_bpf_progs_and_maps(&arg_pin, &arg_control.control);
     if (result != 0)
     {
         result = -1;
         goto cleanup_log_writer;
-    }
-
-    result = prog_op_set_control_in_map(&arg_control.control);
-    if (result != 0)
-    {
-        result = -1;
-        goto unpin_bpf;
     }
 
     int (*handle_ringbuf_data)(void *ctx, void *data, size_t data_len);

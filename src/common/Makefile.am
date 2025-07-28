@@ -29,8 +29,8 @@ noinst_LIBRARIES = \
     lib.a
 
 lib_a_SOURCES = \
-    control.h version.h constants.h types.h kernel_constants.h \
-    control.c version.c
+    version.h control.h constants.h types.h kernel_constants.h \
+    version.c
 
 vmlinux_h = $(top_builddir)/src/common/vmlinux.h
 

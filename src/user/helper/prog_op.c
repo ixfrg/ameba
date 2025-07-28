@@ -465,13 +465,10 @@ static int attach_progs(struct ameba *skel)
     return err;
 }
 
-static int set_default_control_map(struct ameba *skel)
+static int set_control_in_map(struct ameba *skel, struct control *control)
 {
-    if (!skel)
+    if (!skel || !control)
         return -1;
-
-    struct control control;
-    control_set_default(&control);
 
     int update_flags = BPF_ANY;
 
@@ -479,11 +476,11 @@ static int set_default_control_map(struct ameba *skel)
     int ret = bpf_map__update_elem(
         skel->maps.AMEBA_MAP_NAME_CONTROL,
         &key, sizeof(key),
-        &control, sizeof(struct control),
+        control, sizeof(struct control),
         update_flags
     );
     if (ret != 0)
-        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to set default control input in map");
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed to set control input in map");
     return ret;
 }
 
@@ -556,9 +553,9 @@ static struct ameba *open_and_load_skel()
     return skel;
 }
 
-int prog_op_pin_bpf_progs_and_maps(struct arg_pin *arg)
+int prog_op_pin_bpf_progs_and_maps(struct arg_pin *arg, struct control *control)
 {
-    if (!arg)
+    if (!arg || !control)
     {
         log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed prog_op_pin_bpf_progs_and_maps. NULL argument(s)");
         return -1;
@@ -587,7 +584,7 @@ int prog_op_pin_bpf_progs_and_maps(struct arg_pin *arg)
         goto exit;
     }
 
-    if (set_default_control_map(skel) != 0)
+    if (set_control_in_map(skel, control) != 0)
     {
         result = -1;
         goto exit;

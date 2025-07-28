@@ -22,19 +22,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "common/config.h"
 
 
-static const struct elem_version app_version = {
+static const struct elem_version version_app_version = {
     .major = PACKAGE_VERSION_MAJOR,
     .minor = PACKAGE_VERSION_MINOR,
     .patch = PACKAGE_VERSION_PATCH
 };
 
-static const struct elem_version record_version = {
+static const struct elem_version version_record_version = {
     .major = RECORD_VERSION_MAJOR,
     .minor = RECORD_VERSION_MINOR,
     .patch = RECORD_VERSION_PATCH
 };
 
-static const struct elem_version api_version = {
+static const struct elem_version version_api_version = {
     .major = API_VERSION_MAJOR,
     .minor = API_VERSION_MINOR,
     .patch = API_VERSION_PATCH
@@ -45,7 +45,7 @@ int version_get_app_version(struct elem_version *dst)
 {
     if (!dst)
         return -1;
-    *dst = app_version;
+    *dst = version_app_version;
     return 0;
 }
 
@@ -53,7 +53,7 @@ int version_get_record_version(struct elem_version *dst)
 {
     if (!dst)
         return -1;
-    *dst = record_version;
+    *dst = version_record_version;
     return 0;
 }
 
@@ -61,6 +61,6 @@ int version_get_api_version(struct elem_version *dst)
 {
     if (!dst)
         return -1;
-    *dst = api_version;
+    *dst = version_api_version;
     return 0;
 }
