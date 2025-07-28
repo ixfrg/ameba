@@ -55,6 +55,7 @@ static struct arg_ameba global_arg_initial_value;
 */
 enum
 {
+    OPT_OUTPUT_TO_STDOUT = 't',
     OPT_LOG_DIR_PATH = 'o',
     OPT_LOG_FILE_SIZE_BYTES = 's',
     OPT_LOG_FILE_COUNT = 'c',
@@ -65,6 +66,7 @@ enum
 
 // Option definitions
 static struct argp_option options[] = {
+    {"output-stdout", OPT_OUTPUT_TO_STDOUT, 0, 0, "Output to stdout instead of log file", 0},
     {"log-dir", OPT_LOG_DIR_PATH, "PATH", 0, "Directory to write the log files to", 0},
     {"log-size", OPT_LOG_FILE_SIZE_BYTES, "NUMBER", 0, "Size (in bytes) of a log file", 0},
     {"log-count", OPT_LOG_FILE_COUNT, "NUMBER", 0, "Maximum number of log files", 0},
@@ -254,6 +256,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     switch (key)
     {
+    case OPT_OUTPUT_TO_STDOUT:
+        arg_with_state->arg.output_stdout = 1;
+        break;
+
     case OPT_LOG_DIR_PATH:
         parse_arg_log_dir_path(arg_with_state, state, arg);
         break;

@@ -125,7 +125,12 @@ int main(int argc, char *argv[])
         goto unpin_bpf;
     }
 
-    struct ring_buffer *ringbuf = prog_op_setup_output_ringbuf_reader(output_handle_ringbuf_data);
+    int (*handle_ringbuf_data)(void *ctx, void *data, size_t data_len);
+    if (arg_ameba.output_stdout == 1)
+        handle_ringbuf_data = output_stdout_handle_ringbuf_data;
+    else
+        handle_ringbuf_data = output_log_handle_ringbuf_data;
+    struct ring_buffer *ringbuf = prog_op_setup_output_ringbuf_reader(handle_ringbuf_data);
     if (!ringbuf)
     {
         result = -1;

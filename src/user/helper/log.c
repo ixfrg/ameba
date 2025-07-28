@@ -104,6 +104,22 @@ void log_state_msg(app_state_t st, const char *fmt, ...)
     log_state(st, &js_msg);
 }
 
+
+void log_state_record(app_state_t st, char *json_str)
+{
+    int buf_size = 512;
+    char buf[buf_size];
+
+    struct json_buffer js_msg;
+    jsonify_core_init(&js_msg, &buf[0], buf_size);
+    jsonify_core_open_obj(&js_msg);
+    jsonify_core_write_str(&js_msg, "msg", "record");
+    jsonify_core_write_as_literal(&js_msg, "record", json_str);
+    jsonify_core_close_obj(&js_msg);
+
+    log_state(st, &js_msg);
+}
+
 void log_state_msg_and_child_js(
     app_state_t st, 
     const char *msg,

@@ -40,6 +40,17 @@ void output_close_log_writer();
 /*
     The callback function called with data from ringbuf when bpf ringbuf is being polled.
 
+    Write the data to log file.
+
     See bpf docs for prototype doc.
 */
-int output_handle_ringbuf_data(void *ctx, void *data, size_t data_len);
+int output_log_handle_ringbuf_data(void *ctx, void *data, size_t data_len);
+
+/*
+    The callback function called with data from ringbuf when bpf ringbuf is being polled.
+
+    Write the data to stdout.
+
+    See bpf docs for prototype doc.
+*/
+int output_stdout_handle_ringbuf_data(void *ctx, void *data, size_t data_len);

@@ -33,31 +33,66 @@ static const struct record_writer *log_writer = &record_writer_dir;
 
 //
 
-int output_handle_ringbuf_data(void *ctx, void *data, size_t data_len)
+static int alloc_and_get_data_as_json(void **dst, long *dst_len, void *ctx, void *data, size_t data_len)
 {
-    size_t dst_len = MAX_BUFFER_LEN;
-    void *dst = malloc(sizeof(char) * dst_len);
-    if (!dst)
-        goto exit;
+    if (!dst || !dst_len)
+        return -1;
 
-    long data_copied_to_dst = log_serializer->serialize(dst, dst_len, data, data_len);
-    if (data_copied_to_dst <= 0)
+    size_t buf_len = MAX_BUFFER_LEN;
+    void *buf = malloc(sizeof(char) * buf_len);
+    if (!buf)
+        return -1;
+
+    long data_copied_to_buf = log_serializer->serialize(buf, buf_len, data, data_len);
+    if (data_copied_to_buf <= 0)
     {
         log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data conversion");
-        goto free_dst;
+        free(buf);
+        return -1;
     }
 
-    int write_result = log_writer->write(dst, data_copied_to_dst);
+    *dst = buf;
+    *dst_len = data_copied_to_buf;
+
+    return 0;
+}
+
+int output_stdout_handle_ringbuf_data(void *ctx, void *data, size_t data_len)
+{
+    void *dst;
+    long dst_len;
+    int err = alloc_and_get_data_as_json(&dst, &dst_len, ctx, data, data_len);
+    if (err != 0)
+        goto exit;
+
+    log_state_record(APP_STATE_OPERATIONAL, (char*)dst);
+
+    free(dst);
+
+exit:
+    return err;
+}
+
+int output_log_handle_ringbuf_data(void *ctx, void *data, size_t data_len)
+{
+    void *dst;
+    long dst_len;
+    int err = alloc_and_get_data_as_json(&dst, &dst_len, ctx, data, data_len);
+    if (err != 0)
+        goto exit;
+
+    int write_result = log_writer->write(dst, dst_len);
     if (write_result < 0)
     {
         log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed data write");
+        err = -1;
         goto free_dst;
     }
 
 free_dst:
     free(dst);
 exit:
-    return 0;
+    return err;
 }
 
 void output_close_log_writer()
