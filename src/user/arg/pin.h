@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #pragma once
 
 #include "user/arg/parse_state.h"
+#include "user/arg/common.h"
 
 /*
 
@@ -29,13 +30,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 struct arg_pin
 {
-
+    // Needed for testing if empty struct.
+    int dummy;
 };
 
 struct arg_pin_with_parse_state
 {
     struct arg_parse_state parse_state;
     struct arg_pin arg;
+    struct arg_common common;
 };
 
 /*

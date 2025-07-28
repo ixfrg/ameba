@@ -28,6 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <linux/limits.h>
 
 #include "user/arg/parse_state.h"
+#include "user/arg/common.h"
 
 
 struct arg_ameba
@@ -42,6 +43,7 @@ struct arg_ameba_with_parse_state
 {
     struct arg_parse_state parse_state;
     struct arg_ameba arg;
+    struct arg_common common;
 };
 
 /*

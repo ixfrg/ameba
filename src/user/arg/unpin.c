@@ -101,11 +101,19 @@ static void initialize_arg_with_parse_state(struct arg_unpin_with_parse_state *s
         return;
     memcpy(&src->arg, get_global_arg_initial_value(), sizeof(struct arg_unpin));
     arg_parse_state_init(&(src->parse_state));
+    arg_common_init(&src->common);
 }
 
 static void validate_arg(struct arg_unpin_with_parse_state *src, struct argp_state *state)
 {
     // Nothing
+}
+
+static void handle_argp_key_end(struct arg_unpin_with_parse_state *src, struct argp_state *state)
+{
+    if (arg_common_is_usage_help_or_version_set(&src->common))
+        return;
+    validate_arg(src, state);
 }
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -116,17 +124,17 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     {
     case OPT_VERSION:
         jsonify_version_write_all_versions_to_file(stdout);
-        arg_parse_state_set_exit_no_error(&src->parse_state);
+        arg_common_show_version(&src->common, &src->parse_state);
         break;
 
     case OPT_HELP:
         argp_state_help(state, stdout, ARGP_HELP_STD_HELP);
-        arg_parse_state_set_exit_no_error(&src->parse_state);
+        arg_common_show_help(&src->common, &src->parse_state);
         break;
 
     case OPT_USAGE:
         argp_state_help(state, stdout, ARGP_HELP_USAGE);
-        arg_parse_state_set_exit_no_error(&src->parse_state);
+        arg_common_show_usage(&src->common, &src->parse_state);
         break;
 
     case ARGP_KEY_INIT:
@@ -140,7 +148,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         break;
 
     case ARGP_KEY_END:
-        validate_arg(src, state);
+        handle_argp_key_end(src, state);
         break;
 
     default:

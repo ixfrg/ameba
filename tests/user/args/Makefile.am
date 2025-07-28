@@ -22,21 +22,39 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
 AM_CXXFLAGS = -Wall
+
+noinst_LIBRARIES = libtesthelpers.a
+libtesthelpers_a_SOURCES = \
+    test_helper.cpp
+
 COMMON_LDADD = \
-    $(top_builddir)/src/user/args/lib.a \
+    $(top_builddir)/src/user/arg/lib.a \
     $(top_builddir)/src/user/jsonify/lib.a \
     $(top_builddir)/src/common/lib.a \
+    libtesthelpers.a \
     -lCppUTest \
     -lCppUTestExt
 
-check_PROGRAMS = control user helper
+check_PROGRAMS = ameba control parse_state pin read unpin common_struct
 TESTS = $(check_PROGRAMS)
+
+ameba_SOURCES = ameba.cpp
+ameba_LDADD = $(COMMON_LDADD)
 
 control_SOURCES = control.cpp
 control_LDADD = $(COMMON_LDADD)
 
-user_SOURCES = user.cpp
-user_LDADD = $(COMMON_LDADD)
+parse_state_SOURCES = parse_state.cpp
+parse_state_LDADD = $(COMMON_LDADD)
 
-helper_SOURCES = helper.cpp
-helper_LDADD = $(COMMON_LDADD)
+pin_SOURCES = pin.cpp
+pin_LDADD = $(COMMON_LDADD)
+
+read_SOURCES = read.cpp
+read_LDADD = $(COMMON_LDADD)
+
+unpin_SOURCES = unpin.cpp
+unpin_LDADD = $(COMMON_LDADD)
+
+common_struct_SOURCES = common.cpp
+common_struct_LDADD = $(COMMON_LDADD)

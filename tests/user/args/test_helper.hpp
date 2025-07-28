@@ -17,23 +17,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+extern "C" {
+#include "user/arg/parse_state.h"
+#include "user/arg/common.h"
+}
 
-
-struct arg_parser_state
-{
-
-};
-
-struct arg_parser
-{
-    // state
-    struct arg_parse_state state;
-
-
-    // operational functions
-    int (*initialize)(void *arg_initial_value);
-    int (*parse)(int argc, char **argv);
-    int (*is_exit_set)();
-    int (*get_exit_status_code)();
-};
+void test_helper_parse_state_must_be_exit_with_code(struct arg_parse_state *s, int expected_code);
+void test_helper_parse_state_must_be_exit_with_negative_code(struct arg_parse_state *s);
+void test_helper_parse_state_must_be_exit_with_zero_code(struct arg_parse_state *s);
+void test_helper_parse_state_must_be_not_exit(struct arg_parse_state *s);
+void test_helper_arg_common_must_be_show_version(struct arg_common *s);
+void test_helper_arg_common_must_be_show_usage(struct arg_common *s);
+void test_helper_arg_common_must_be_show_help(struct arg_common *s);
+void test_helper_arg_common_must_be_all_zero(struct arg_common *s);

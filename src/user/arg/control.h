@@ -27,6 +27,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "common/control.h"
 #include "user/arg/parse_state.h"
+#include "user/arg/common.h"
 
 
 struct arg_control
@@ -39,6 +40,7 @@ struct arg_control_with_parse_state
 {
     struct arg_parse_state parse_state;
     struct arg_control arg;
+    struct arg_common common;
 };
 
 /*

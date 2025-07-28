@@ -120,6 +120,7 @@ static void initialize_arg_with_parse_state(struct arg_ameba_with_parse_state *s
         return;
     memcpy(&src->arg, get_global_arg_initial_value(), sizeof(struct arg_ameba));
     arg_parse_state_init(&(src->parse_state));
+    arg_common_init(&src->common);
 }
 
 static void validate_arg(struct arg_ameba_with_parse_state *src, struct argp_state *state)
@@ -154,6 +155,13 @@ static void validate_arg(struct arg_ameba_with_parse_state *src, struct argp_sta
         arg_parse_state_set_exit_error(&src->parse_state, -1);
         return;
     }
+}
+
+static void handle_argp_key_end(struct arg_ameba_with_parse_state *src, struct argp_state *state)
+{
+    if (arg_common_is_usage_help_or_version_set(&src->common))
+        return;
+    validate_arg(src, state);
 }
 
 static void parse_arg_log_dir_path(struct arg_ameba_with_parse_state *src, struct argp_state *state, char* path)
@@ -274,17 +282,17 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     case OPT_VERSION:
         jsonify_version_write_all_versions_to_file(stdout);
-        arg_parse_state_set_exit_no_error(&arg_with_state->parse_state);
+        arg_common_show_version(&arg_with_state->common, &arg_with_state->parse_state);
         break;
 
     case OPT_HELP:
         argp_state_help(state, stdout, ARGP_HELP_STD_HELP);
-        arg_parse_state_set_exit_no_error(&arg_with_state->parse_state);
+        arg_common_show_help(&arg_with_state->common, &arg_with_state->parse_state);
         break;
 
     case OPT_USAGE:
         argp_state_help(state, stdout, ARGP_HELP_USAGE);
-        arg_parse_state_set_exit_no_error(&arg_with_state->parse_state);
+        arg_common_show_usage(&arg_with_state->common, &arg_with_state->parse_state);
         break;
 
     case ARGP_KEY_INIT:
@@ -298,7 +306,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         break;
 
     case ARGP_KEY_END:
-        validate_arg(arg_with_state, state);
+        handle_argp_key_end(arg_with_state, state);
         break;
 
     default:
