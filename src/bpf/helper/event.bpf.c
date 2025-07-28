@@ -210,7 +210,7 @@ static int is_audit_log_exit_syscall_auditable(struct task_struct *current_task,
 #endif
             return 1;
         case __NR_connect:
-            if (ret == 0 || ret == ERROR_EINPROGRESS)
+            if (ret == 0 || ret == AMEBA_EINPROGRESS)
                 return 1;
             else
                 return 0; //do not log

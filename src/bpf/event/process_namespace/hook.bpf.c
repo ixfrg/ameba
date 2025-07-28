@@ -103,7 +103,7 @@ static int send_record_new_process(
         sys_id
     );
 
-    bpf_probe_read_kernel(&r_np.comm[0], COMM_MAX_SIZE, &(BPF_CORE_READ(task, comm)[0]));
+    bpf_probe_read_kernel(&r_np.comm[0], AMEBA_COMM_MAX_SIZE, &(BPF_CORE_READ(task, comm)[0]));
 
     output_record_new_process(&r_np);
     return 0;
@@ -115,9 +115,9 @@ static sys_id_t get_sys_id_from_kernel_clone_args(struct kernel_clone_args *args
 
     sys_id = SYS_ID_CLONE; // by default
 
-    if (BPF_CORE_READ(args, exit_signal) == SIGCHLD)
+    if (BPF_CORE_READ(args, exit_signal) == AMEBA_SIGCHLD)
     {
-        if (BPF_CORE_READ(args, flags) == (CLONE_VFORK | CLONE_VM))
+        if (BPF_CORE_READ(args, flags) == (AMEBA_CLONE_VFORK | AMEBA_CLONE_VM))
         {
             sys_id = SYS_ID_VFORK;
         }

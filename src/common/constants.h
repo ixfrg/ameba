@@ -79,25 +79,3 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define PROG_UNPIN_CONFIG_FILE_PATH AMEBA_CONFIG_DIR_PATH "/" "unpin.conf"
 #define PROG_CONTROL_CONFIG_FILE_PATH AMEBA_CONFIG_DIR_PATH "/" "control.conf"
 
-//
-
-// Sockaddr max size in kernel.
-#define SOCKADDR_MAX_SIZE 128
-// Task command max size in kernel.
-#define COMM_MAX_SIZE 16
-
-// The error EINPROGRESS in connect system call.
-#define ERROR_EINPROGRESS -150
-
-// The flag used in clone system call.
-#define SIGCHLD 17
-// The flag used in clone system call.
-#define CLONE_VFORK 0x00004000
-// The flag used in clone system call.
-#define CLONE_VM 0x00000100
-
-// The constants for identifying socket families in kernel.
-#define PF_INET 2
-#define AF_INET PF_INET
-#define PF_INET6 10
-#define AF_INET6 PF_INET6

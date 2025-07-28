@@ -118,7 +118,7 @@ int AMEBA_HOOK(
 
     struct elem_sockaddr local_sa;
     local_sa.byte_order = BYTE_ORDER_NETWORK;
-    local_sa.addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
+    local_sa.addrlen = addrlen & (AMEBA_SOCKADDR_MAX_SIZE - 1);
     bpf_probe_read_user(&(local_sa.addr[0]), local_sa.addrlen, sockaddr);
 
     bind_storage_set(fd, event_id_increment(), &local_sa);

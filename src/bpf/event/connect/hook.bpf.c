@@ -73,11 +73,11 @@ static int update_connect_map_entry_with_local_saddr(struct file *connect_sock_f
     struct sock_common sk_c = BPF_CORE_READ(sock, sk, __sk_common);
     switch (sk_c.skc_family)
     {
-        case AF_INET:
+        case AMEBA_AF_INET:
             copy_sockaddr_in_local_from_skc(&local, &sk_c);
             local_is_set = 1;
             break;
-        case AF_INET6:
+        case AMEBA_AF_INET6:
             copy_sockaddr_in6_local_from_skc(&local, &sk_c);
             local_is_set = 1;
             break;
@@ -102,7 +102,7 @@ static int update_connect_map_entry_on_syscall_exit(
 
     struct elem_sockaddr remote;
     remote.byte_order = BYTE_ORDER_NETWORK;
-    remote.addrlen = addrlen & (SOCKADDR_MAX_SIZE - 1);
+    remote.addrlen = addrlen & (AMEBA_SOCKADDR_MAX_SIZE - 1);
     bpf_probe_read_user(&(remote.addr[0]), remote.addrlen, addr);
     connect_storage_set_remote(&remote);
 
@@ -140,7 +140,7 @@ int AMEBA_HOOK(
     int ret
 )
 {
-    if (ret != 0 && ret != ERROR_EINPROGRESS)
+    if (ret != 0 && ret != AMEBA_EINPROGRESS)
     {
         delete_connect_map_entry();
         return 0;
@@ -167,7 +167,7 @@ int AMEBA_HOOK(
     int ret
 )
 {
-    if (ret != 0 && ret != ERROR_EINPROGRESS)
+    if (ret != 0 && ret != AMEBA_EINPROGRESS)
     {
         delete_connect_map_entry();
         return 0;

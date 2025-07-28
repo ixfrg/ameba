@@ -27,6 +27,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "common/constants.h"
+#include "common/kernel_constants.h"
 
 
 #define RECORD_VERSION_MAJOR 1
@@ -122,7 +123,7 @@ struct elem_timestamp
 
 struct elem_sockaddr
 {
-    unsigned char addr[SOCKADDR_MAX_SIZE];
+    unsigned char addr[AMEBA_SOCKADDR_MAX_SIZE];
     socklen_t addrlen;
     byte_order_t byte_order;
 };
@@ -141,7 +142,7 @@ struct record_new_process
     pid_t ppid;
     pid_t pid;
     sys_id_t sys_id;
-    char comm[COMM_MAX_SIZE];
+    char comm[AMEBA_COMM_MAX_SIZE];
     // struct elem_las_timestamp e_las_ts;
 };
 
