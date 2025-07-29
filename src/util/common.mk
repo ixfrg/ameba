@@ -17,12 +17,9 @@
 
 ## Process this file with automake to produce Makefile.in
 
-
-include $(top_srcdir)/src/util/common.mk
-
-bin_utilsdir = $(bindir)/utils
-bin_utils_PROGRAMS = test_ubsi types_info
-test_ubsi_SOURCES = test_ubsi.c
-types_info_SOURCES = \
-    $(top_srcdir)/src/common/types.h \
-    types_info.c
+AM_CPPFLAGS = \
+    -I$(top_srcdir)/src \
+    -I$(top_builddir)/src \
+    $(CPPFLAGS_ENABLE_TASK_CTX) \
+    -DAMEBA_CONFIG_DIR_PATH='"$(sysconfdir)/$(AMEBA_ETC_CONF_DIR_NAME)"'
+AM_CFLAGS = -Wall
