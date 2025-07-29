@@ -80,21 +80,20 @@ static void parse_user_input(
     *dst = input_arg.arg;
 }
 
-int main(int argc, char *argv[])
+int run(
+    struct arg_ameba *arg_ameba,
+    struct arg_pin *arg_pin,
+    struct arg_unpin *arg_unpin,
+    struct arg_control *arg_control
+)
 {
+    if (!arg_ameba || !arg_pin || !arg_unpin || !arg_control)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed run. Null argument(s)");
+        return -1;
+    }
+
     int result = 0;
-
-    struct arg_ameba arg_ameba;
-    parse_user_input(&arg_ameba, argc, argv);
-
-    struct arg_pin arg_pin;
-    config_pin_parse_default_config(&arg_pin);
-
-    struct arg_unpin arg_unpin;
-    config_unpin_parse_default_config(&arg_unpin);
-
-    struct arg_control arg_control;
-    config_control_parse_default_config(&arg_control);
 
     if (prog_op_create_lock_dir() != 0)
     {
@@ -102,7 +101,7 @@ int main(int argc, char *argv[])
         goto exit;
     }
 
-    if (output_setup_log_writer(&arg_ameba) != 0)
+    if (output_setup_log_writer(arg_ameba) != 0)
     {
         result = -1;
         goto rm_prog_op_lock_dir;
@@ -111,7 +110,7 @@ int main(int argc, char *argv[])
     signal(SIGINT, sig_handler);
     signal(SIGTERM, sig_handler);
 
-    result = prog_op_pin_bpf_progs_and_maps(&arg_pin, &arg_control.control);
+    result = prog_op_pin_bpf_progs_and_maps(arg_pin, &arg_control->control);
     if (result != 0)
     {
         result = -1;
@@ -119,7 +118,7 @@ int main(int argc, char *argv[])
     }
 
     int (*handle_ringbuf_data)(void *ctx, void *data, size_t data_len);
-    if (arg_ameba.output_stdout == 1)
+    if (arg_ameba->output_stdout == 1)
         handle_ringbuf_data = output_stdout_handle_ringbuf_data;
     else
         handle_ringbuf_data = output_log_handle_ringbuf_data;
@@ -146,14 +145,14 @@ int main(int argc, char *argv[])
     
     ring_buffer__free(ringbuf);
     output_close_log_writer();
-    prog_op_unpin_bpf_progs_and_maps(&arg_unpin);
+    prog_op_unpin_bpf_progs_and_maps(arg_unpin);
 
     log_state_msg(APP_STATE_STOPPED_NORMALLY, "Stopped");
 
     goto exit;
 
 unpin_bpf:
-    prog_op_unpin_bpf_progs_and_maps(&arg_unpin);
+    prog_op_unpin_bpf_progs_and_maps(arg_unpin);
 
 cleanup_log_writer:
     output_close_log_writer();
@@ -163,4 +162,26 @@ rm_prog_op_lock_dir:
 
 exit:
     return result;
+}
+
+int main(int argc, char *argv[])
+{
+    struct arg_ameba arg_ameba;
+    parse_user_input(&arg_ameba, argc, argv);
+
+    struct arg_pin arg_pin;
+    config_pin_parse_default_config(&arg_pin);
+
+    struct arg_unpin arg_unpin;
+    config_unpin_parse_default_config(&arg_unpin);
+
+    struct arg_control arg_control;
+    config_control_parse_default_config(&arg_control);
+
+    return run(
+        &arg_ameba,
+        &arg_pin,
+        &arg_unpin,
+        &arg_control
+    );
 }
