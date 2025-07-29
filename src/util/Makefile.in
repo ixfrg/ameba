@@ -301,7 +301,7 @@ AM_CFLAGS = -Wall
 bin_utilsdir = $(bindir)/utils
 test_ubsi_SOURCES = test_ubsi.c
 types_info_SOURCES = \
-    ../common/types.h \
+    $(top_srcdir)/src/common/types.h \
     types_info.c
 
 all: all-am

@@ -141,6 +141,7 @@ AC_CONFIG_FILES([
     src/user/arg/Makefile
     src/user/config/Makefile
     src/user/helper/Makefile
+    src/user/include/Makefile
     src/user/jsonify/Makefile
     src/user/prog/Makefile
     src/user/prog/ameba/Makefile
@@ -154,6 +155,6 @@ AC_CONFIG_FILES([
     src/user/record/writer/Makefile
     src/util/Makefile
     tests/Makefile
-    tests/user/args/Makefile
+    tests/user/arg/Makefile
 ])
 AC_OUTPUT

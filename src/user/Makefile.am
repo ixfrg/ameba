@@ -18,4 +18,4 @@
 ## Process this file with automake to produce Makefile.in
 
 
-SUBDIRS = api arg config record helper jsonify prog
+SUBDIRS = api arg config record helper include jsonify prog

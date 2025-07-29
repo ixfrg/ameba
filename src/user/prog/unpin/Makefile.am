@@ -24,9 +24,6 @@ AM_CPPFLAGS = \
     -DAMEBA_CONFIG_DIR_PATH='"$(sysconfdir)/$(AMEBA_ETC_CONF_DIR_NAME)"'
 AM_CFLAGS = -Wall
 
-COMMON_SOURCES = \
-    include/types.h \
-    include/error.h
 COMMON_LDADD = \
     $(top_builddir)/src/user/config/lib.a \
     $(top_builddir)/src/user/arg/lib.a \
@@ -40,6 +37,5 @@ COMMON_LDADD = \
 bin_PROGRAMS = unpin
 
 unpin_SOURCES = \
-    $(COMMON_SOURCES) \
     main.c
 unpin_LDADD = $(COMMON_LDADD)

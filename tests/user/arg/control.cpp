@@ -22,9 +22,10 @@ extern "C" {
 #include "user/arg/parse_state.h"
 }
 
+#include "user/arg/test_helper.hpp"
+
 #include <CppUTest/CommandLineTestRunner.h>
 #include <CppUTest/TestHarness.h>
-#include "test_helper.hpp"
 #include <string.h>
 #include <stdlib.h>
 

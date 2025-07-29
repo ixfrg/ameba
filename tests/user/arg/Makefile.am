@@ -20,8 +20,10 @@
 
 AUTOMAKE_OPTIONS = subdir-objects
 
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/tests -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
 AM_CXXFLAGS = -Wall
+
+noinst_HEADERS = test_helper.hpp
 
 noinst_LIBRARIES = libtesthelpers.a
 libtesthelpers_a_SOURCES = \

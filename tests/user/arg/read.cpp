@@ -16,21 +16,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 extern "C" {
-#include "user/arg/pin.h"
+#include "user/arg/read.h"
 #include "user/arg/parse_state.h"
 }
 
+#include "user/arg/test_helper.hpp"
+
 #include <CppUTest/CommandLineTestRunner.h>
 #include <CppUTest/TestHarness.h>
-#include "test_helper.hpp"
 #include <string.h>
 #include <stdlib.h>
 
-TEST_GROUP(PinArgParse)
+TEST_GROUP(ReadArgParse)
 {
-    struct arg_pin_with_parse_state parsed;
-    struct arg_pin initial;
+    struct arg_read_with_parse_state parsed;
+    struct arg_read initial;
 
     void setup()
     {
@@ -43,69 +45,69 @@ TEST_GROUP(PinArgParse)
 
 // ---------- FLAGS ----------
 
-TEST(PinArgParse, ParsesHelpSetsNoErrorExit)
+TEST(ReadArgParse, ParsesHelpSetsNoErrorExit)
 {
     char *argv[] = {
-        (char *)"pin",
+        (char *)"read",
         (char *)"--help"
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
 
-    arg_pin_parse(&parsed, &initial, argc, argv);
+    arg_read_parse(&parsed, &initial, argc, argv);
     test_helper_parse_state_must_be_exit_with_zero_code(&parsed.parse_state);
     test_helper_arg_common_must_be_show_help(&parsed.common);
 }
 
-TEST(PinArgParse, ParsesVersionSetsNoErrorExit)
+TEST(ReadArgParse, ParsesVersionSetsNoErrorExit)
 {
     char *argv[] = {
-        (char *)"pin",
+        (char *)"read",
         (char *)"--version"
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
 
-    arg_pin_parse(&parsed, &initial, argc, argv);
+    arg_read_parse(&parsed, &initial, argc, argv);
     test_helper_parse_state_must_be_exit_with_zero_code(&parsed.parse_state);
     test_helper_arg_common_must_be_show_version(&parsed.common);
 }
 
-TEST(PinArgParse, ParsesUsageSetsNoErrorExit)
+TEST(ReadArgParse, ParsesUsageSetsNoErrorExit)
 {
     char *argv[] = {
-        (char *)"pin",
+        (char *)"read",
         (char *)"--usage"
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
 
-    arg_pin_parse(&parsed, &initial, argc, argv);
+    arg_read_parse(&parsed, &initial, argc, argv);
     test_helper_parse_state_must_be_exit_with_zero_code(&parsed.parse_state);
     test_helper_arg_common_must_be_show_usage(&parsed.common);
 }
 
 // ---------- INVALID ----------
 
-TEST(PinArgParse, RejectsUnknownArgument)
+TEST(ReadArgParse, RejectsUnknownArgument)
 {
     char *argv[] = {
-        (char *)"pin",
-        (char *)"--bogus"
+        (char *)"read",
+        (char *)"--unknown"
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
 
-    arg_pin_parse(&parsed, &initial, argc, argv);
+    arg_read_parse(&parsed, &initial, argc, argv);
     test_helper_parse_state_must_be_exit_with_negative_code(&parsed.parse_state);
 }
 
 // ---------- EMPTY ----------
 
-TEST(PinArgParse, ParsesEmptyArgsDoesNotExit)
+TEST(ReadArgParse, ParsesEmptyArgsDoesNotExit)
 {
     char *argv[] = {
-        (char *)"pin"
+        (char *)"read"
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
 
-    arg_pin_parse(&parsed, &initial, argc, argv);
+    arg_read_parse(&parsed, &initial, argc, argv);
     test_helper_parse_state_must_be_not_exit(&parsed.parse_state);
     test_helper_arg_common_must_be_all_zero(&parsed.common);
 }

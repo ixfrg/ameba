@@ -25,5 +25,5 @@ bin_utilsdir = $(bindir)/utils
 bin_utils_PROGRAMS = test_ubsi types_info
 test_ubsi_SOURCES = test_ubsi.c
 types_info_SOURCES = \
-    ../common/types.h \
+    $(top_srcdir)/src/common/types.h \
     types_info.c

@@ -120,8 +120,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 =
-am_ameba_OBJECTS = $(am__objects_1) output.$(OBJEXT) main.$(OBJEXT)
+am_ameba_OBJECTS = output.$(OBJEXT) main.$(OBJEXT)
 ameba_OBJECTS = $(am_ameba_OBJECTS)
 ameba_DEPENDENCIES = $(COMMON_LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -300,10 +299,6 @@ AM_CPPFLAGS = \
     -DAMEBA_CONFIG_DIR_PATH='"$(sysconfdir)/$(AMEBA_ETC_CONF_DIR_NAME)"'
 
 AM_CFLAGS = -Wall
-COMMON_SOURCES = \
-    include/types.h \
-    include/error.h
-
 COMMON_LDADD = \
     $(top_builddir)/src/user/config/lib.a \
     $(top_builddir)/src/user/arg/lib.a \
@@ -315,7 +310,6 @@ COMMON_LDADD = \
     $(top_builddir)/src/common/lib.a
 
 ameba_SOURCES = \
-    $(COMMON_SOURCES) \
     output.h \
     output.c main.c
 
