@@ -47,15 +47,12 @@ static void parse_user_input(struct arg_pin *dst, int argc, char *argv[])
     *dst = input_arg.arg;
 }
 
-int main(int argc, char *argv[])
+int run(
+    struct arg_pin *arg_pin,
+    struct arg_control *arg_control
+)
 {
     int result = 0;
-
-    struct arg_pin arg_pin;
-    parse_user_input(&arg_pin, argc, argv);
-
-    struct arg_control arg_control;
-    config_control_parse_default_config(&arg_control);
 
     if (prog_op_create_lock_dir() != 0)
     {
@@ -63,7 +60,7 @@ int main(int argc, char *argv[])
         goto exit;
     }
 
-    result = prog_op_pin_bpf_progs_and_maps(&arg_pin, &arg_control.control);
+    result = prog_op_pin_bpf_progs_and_maps(arg_pin, &arg_control->control);
     if (result != 0)
     {
         result = -1;
@@ -77,4 +74,15 @@ rm_prog_op_lock_dir:
 
 exit:
     return result;
+}
+
+int main(int argc, char *argv[])
+{
+    struct arg_pin arg_pin;
+    parse_user_input(&arg_pin, argc, argv);
+
+    struct arg_control arg_control;
+    config_control_parse_default_config(&arg_control);
+
+    return run(&arg_pin, &arg_control);
 }
