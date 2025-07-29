@@ -50,12 +50,15 @@ static void parse_user_input(struct arg_unpin *dst, int argc, char *argv[])
     *dst = input_arg.arg;
 }
 
-int main(int argc, char *argv[])
+int run(struct arg_unpin *arg_unpin)
 {
-    int result = 0;
+    if (!arg_unpin)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed run. Null argument(s)");
+        return -1;
+    }
 
-    struct arg_unpin unpin_input;
-    parse_user_input(&unpin_input, argc, argv);
+    int result = 0;
 
     if (prog_op_create_lock_dir() != 0)
     {
@@ -63,7 +66,7 @@ int main(int argc, char *argv[])
         goto exit;
     }
 
-    result = prog_op_unpin_bpf_progs_and_maps(&unpin_input);
+    result = prog_op_unpin_bpf_progs_and_maps(arg_unpin);
     if (result != 0)
     {
         result = -1;
@@ -77,4 +80,12 @@ rm_prog_op_lock_dir:
 
 exit:
     return result;
+}
+
+int main(int argc, char *argv[])
+{
+    struct arg_unpin arg_unpin;
+    parse_user_input(&arg_unpin, argc, argv);
+
+    return run(&arg_unpin);
 }

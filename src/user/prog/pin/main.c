@@ -52,6 +52,12 @@ int run(
     struct arg_control *arg_control
 )
 {
+    if (!arg_pin || !arg_control)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed run. Null argument(s)");
+        return -1;
+    }
+
     int result = 0;
 
     if (prog_op_create_lock_dir() != 0)

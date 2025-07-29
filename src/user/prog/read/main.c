@@ -100,12 +100,15 @@ static void parse_user_input(
     *dst = input_arg.arg;
 }
 
-int main(int argc, char *argv[])
+int run(struct arg_read *arg_read)
 {
-    int result = 0;
+    if (!arg_read)
+    {
+        log_state_msg(APP_STATE_STOPPED_WITH_ERROR, "Failed run. Null argument(s)");
+        return -1;
+    }
 
-    struct arg_read arg_read;
-    parse_user_input(&arg_read, argc, argv);
+    int result = 0;
 
     if (prog_op_create_lock_dir() != 0)
     {
@@ -150,4 +153,12 @@ rm_prog_op_lock_dir:
 
 exit:
     return result;
+}
+
+int main(int argc, char *argv[])
+{
+    struct arg_read arg_read;
+    parse_user_input(&arg_read, argc, argv);
+
+    return run(&arg_read);
 }
