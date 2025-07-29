@@ -17,29 +17,9 @@
 
 ## Process this file with automake to produce Makefile.in
 
-### Build lib.a
-
-include $(top_srcdir)/src/common/common.mk
-
-noinst_LIBRARIES = \
-    lib.a
-
-lib_a_SOURCES = \
-    version.h control.h constants.h types.h kernel_constants.h \
-    version.c
-
-### Install headers
-
-include_amebadir = $(prefix)/include/ameba
-include_ameba_HEADERS = config.h constants.h control.h kernel_constants.h types.h
-
-### Build vmlinux
-
-vmlinux_h = $(top_builddir)/src/common/vmlinux.h
-
-$(vmlinux_h):
-	@BPFTOOL_EXE_FILE@ btf dump file @AMEBA_SYS_KERNEL_BTF_VMLINUX@ format c > $@
-
-CLEANFILES = $(vmlinux_h)
-
-all-local: $(vmlinux_h)
+AM_CPPFLAGS = \
+    -I$(top_srcdir)/src \
+    -I$(top_builddir)/src \
+    $(CPPFLAGS_ENABLE_TASK_CTX) \
+    -DAMEBA_CONFIG_DIR_PATH='"$(sysconfdir)/$(AMEBA_ETC_CONF_DIR_NAME)"'
+AM_CFLAGS = -Wall
