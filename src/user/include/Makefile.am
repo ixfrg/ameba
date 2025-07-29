@@ -18,4 +18,6 @@
 ## Process this file with automake to produce Makefile.in
 
 
+include $(top_srcdir)/src/user/common.mk
+
 noinst_HEADERS = error.h

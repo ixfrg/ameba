@@ -17,20 +17,9 @@
 
 ## Process this file with automake to produce Makefile.in
 
-include $(top_srcdir)/src/user/common.mk
-
-COMMON_LDADD = \
-    $(top_builddir)/src/user/config/lib.a \
-    $(top_builddir)/src/user/arg/lib.a \
-    $(top_builddir)/src/user/record/deserializer/lib.a \
-    $(top_builddir)/src/user/record/writer/lib.a \
-    $(top_builddir)/src/user/record/serializer/lib.a \
-    $(top_builddir)/src/user/helper/lib.a \
-    $(top_builddir)/src/user/jsonify/lib.a \
-    $(top_builddir)/src/common/lib.a
-
-bin_PROGRAMS = pin
-
-pin_SOURCES = \
-    main.c
-pin_LDADD = $(COMMON_LDADD)
+AM_CPPFLAGS = \
+    -I$(top_srcdir)/src \
+    -I$(top_builddir)/src \
+    $(CPPFLAGS_ENABLE_TASK_CTX) \
+    -DAMEBA_CONFIG_DIR_PATH='"$(sysconfdir)/$(AMEBA_ETC_CONF_DIR_NAME)"'
+AM_CFLAGS = -Wall
