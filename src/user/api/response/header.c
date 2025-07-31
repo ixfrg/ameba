@@ -17,15 +17,26 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <unistd.h>
 #include "common/version.h"
-#include "user/api/api.h"
+#include "user/helper/log.h"
+#include "user/api/common.h"
+#include "user/api/response/header.h"
 
 
-void api_header_init(struct api_header *h, api_operation_t op)
+int api_response_header_init(struct api_response_header *header, api_response_type_t resp_type)
 {
-    if (!h)
-        return;
-    version_get_api_version(&(h->version));
-    h->operation = op;
+    if (!header)
+    {
+        log_state_msg(
+            APP_STATE_OPERATIONAL_WITH_ERROR,
+            "Failed api_response_header_init. NULL argument(s)"
+        );
+        return -1;
+    }
+    if (api_header_init(&header->header) != 0)
+    {
+        return -1;
+    }
+    header->response_type = resp_type;
+    return 0;
 }

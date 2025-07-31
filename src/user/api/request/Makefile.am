@@ -20,8 +20,17 @@
 
 include $(top_srcdir)/src/user/common.mk
 
+
+SUBDIRS = get_control
+
+
+noinst_HEADERS = \
+    types.h \
+    header.h \
+    handle.h
+
 noinst_LIBRARIES = lib.a
 
 lib_a_SOURCES = \
-    log.h prog_op.h lock.h \
-    log.c prog_op.c lock.c
+    header.c \
+    handle.c

@@ -20,8 +20,12 @@
 
 include $(top_srcdir)/src/user/common.mk
 
+
+noinst_HEADERS = \
+    types.h \
+    create.h
+
 noinst_LIBRARIES = lib.a
 
 lib_a_SOURCES = \
-    log.h prog_op.h lock.h \
-    log.c prog_op.c lock.c
+    create.c

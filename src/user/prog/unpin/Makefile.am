@@ -17,20 +17,10 @@
 
 ## Process this file with automake to produce Makefile.in
 
-include $(top_srcdir)/src/user/common.mk
-
-COMMON_LDADD = \
-    $(top_builddir)/src/user/config/lib.a \
-    $(top_builddir)/src/user/arg/lib.a \
-    $(top_builddir)/src/user/record/deserializer/lib.a \
-    $(top_builddir)/src/user/record/writer/lib.a \
-    $(top_builddir)/src/user/record/serializer/lib.a \
-    $(top_builddir)/src/user/helper/lib.a \
-    $(top_builddir)/src/user/jsonify/lib.a \
-    $(top_builddir)/src/common/lib.a
+include $(top_srcdir)/src/user/prog/common.mk
 
 bin_PROGRAMS = unpin
 
 unpin_SOURCES = \
     main.c
-unpin_LDADD = $(COMMON_LDADD)
+unpin_LDADD = $(COMMON_PROG_LDADD)

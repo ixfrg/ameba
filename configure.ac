@@ -138,6 +138,11 @@ AC_CONFIG_FILES([
     src/bpf/Makefile
     src/user/Makefile
     src/user/api/Makefile
+    src/user/api/request/Makefile
+    src/user/api/request/get_control/Makefile
+    src/user/api/response/Makefile
+    src/user/api/response/error/Makefile
+    src/user/api/response/get_control/Makefile
     src/user/arg/Makefile
     src/user/config/Makefile
     src/user/helper/Makefile

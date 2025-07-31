@@ -20,8 +20,18 @@
 
 include $(top_srcdir)/src/user/common.mk
 
+
+SUBDIRS = request response
+
+
+noinst_HEADERS = \
+    types.h \
+    context.h \
+    common.h \
+    handle.h
+
 noinst_LIBRARIES = lib.a
 
 lib_a_SOURCES = \
-    api.h control.h \
-    api.c control.c
+    common.c \
+    handle.c

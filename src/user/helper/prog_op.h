@@ -64,7 +64,7 @@ int prog_op_compare_versions_in_loaded_maps_with_current_versions(void);
         0  => Yes, it is pinned.
         -1 => Error or not pinned.
 */
-int prog_op_ameba_must_be_pinned(void);
+extern int prog_op_ameba_must_be_pinned(void);
 
 /*
     Function to check if ameba is not pinned.
@@ -97,7 +97,7 @@ int prog_op_set_control_in_map(struct control *input);
         0  => Success
         -1 => Error
 */
-int prog_op_get_control_in_map(struct control *input);
+extern int prog_op_get_control_in_map(struct control *input);
 
 /*
     Function to get output ringbuf fd.

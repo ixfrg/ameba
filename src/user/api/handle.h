@@ -19,32 +19,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "user/api/api.h"
-#include "user/arg/control.h"
+/*
+    A module to define api handler.
+*/
+
+#include "user/api/types.h"
 
 
-typedef enum
-{
-    SET = 1,
-    GET = 2
-} api_control_operation_t;
+/*
+    Main entrypoint for handling api and creating responses.
 
-struct api_control_operation_set
-{
-    struct control src;
-};
+    Returns:
+        0  => Success i.e. response is properly formed.
+        -1 => Failed
 
-struct api_control_operation_get
-{
-    struct control dst;
-};
+    NOTE:
+        response is malloc'ed and must be free'ed by the caller after use.
+*/
+int api_handle(void *request, size_t request_size, void **response);
 
-struct api_control
-{
-    struct api_header header;
-    api_control_operation_t op;
-    union {
-        struct api_control_operation_set set;
-        struct api_control_operation_get get;
-    } operation ;
-};

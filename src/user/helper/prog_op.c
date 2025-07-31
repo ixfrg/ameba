@@ -80,13 +80,12 @@ int prog_op_remove_lock_dir(void)
 
 static int compare_elem_versions(const struct elem_version *expected, const struct elem_version *actual)
 {
-    if (!expected || !actual)
+    int result = version_check_equal((struct elem_version *)expected, (struct elem_version *)actual);
+    if (result == -1)
+    {
         return -1;
-    if (
-        expected->major == actual->major
-        && expected->minor == actual->minor
-        && expected->patch == actual->patch
-    )
+    }
+    if (result == 1)
     {
         return 0;
     }

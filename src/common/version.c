@@ -64,3 +64,23 @@ int version_get_api_version(struct elem_version *dst)
     *dst = version_api_version;
     return 0;
 }
+
+int version_check_equal(struct elem_version *expected, struct elem_version *actual)
+{
+    if (!expected || !actual)
+        return -1;
+    if (
+        expected->major == actual->major
+        && expected->minor == actual->minor
+        && expected->patch == actual->patch
+    )
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int version_check_equal_api_version(struct elem_version *actual)
+{
+    return version_check_equal((struct elem_version *)&version_api_version, actual);
+}

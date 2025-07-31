@@ -19,28 +19,27 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-/*
-    A module to define common api functionality.
-*/
-
-#include "common/types.h"
-#include "common/version.h"
-
-
-typedef enum
-{
-    CONTROL = 1
-} api_operation_t;
-
-
-struct api_header
-{
-    struct elem_version version;
-    api_operation_t operation;
-};
+#include "user/helper/log.h"
+#include "user/api/response/get_control/types.h"
 
 
 /*
-    Initialize api header.
+    Allocate and initialize response get_control.
+
+    Returns:
+        0   => Success
+        -1  => Error
+
+    NOTE:
+        resp_ptr is alloc'ed on success and must be free'ed after use.
 */
-void api_header_init(struct api_header *h, api_operation_t op);
+int api_response_get_control_create_alloc_init(void **resp_ptr, struct control *control);
+
+/*
+    Initialize response get_control.
+
+    Returns:
+        0   => Success
+        -1  => Error
+*/
+int api_response_get_control_create_init(struct api_response_get_control *resp, struct control *control);

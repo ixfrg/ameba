@@ -56,3 +56,23 @@ int version_get_record_version(struct elem_version *dst);
         -1 => Invalid dst
 */
 int version_get_api_version(struct elem_version *dst);
+
+/*
+    Check if elems are equal.
+
+    Returns:
+        1  => Equal
+        0  => Not equal 
+        -1 => Error
+*/
+int version_check_equal(struct elem_version *expected, struct elem_version *actual);
+
+/*
+    Check if actual api version is equal to the current one.
+
+    Returns:
+        1  => Equal
+        0  => Not equal 
+        -1 => Error
+*/
+int version_check_equal_api_version(struct elem_version *actual);

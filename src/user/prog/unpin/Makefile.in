@@ -48,6 +48,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# SPDX-License-Identifier: GPL-3.0-or-later
+# AMEBA - A Minimal eBPF-based Audit: an eBPF-based Linux telemetry collection tool.
+# Copyright (C) 2025 Hassaan Irshad
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -139,7 +156,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_unpin_OBJECTS = main.$(OBJEXT)
 unpin_OBJECTS = $(am_unpin_OBJECTS)
-unpin_DEPENDENCIES = $(COMMON_LDADD)
+unpin_DEPENDENCIES = $(COMMON_PROG_LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -195,7 +212,8 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/build-aux/depcomp \
-	$(top_srcdir)/src/user/common.mk
+	$(top_srcdir)/src/user/common.mk \
+	$(top_srcdir)/src/user/prog/common.mk
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMEBA_BPF_ARCH_CPPFLAG = @AMEBA_BPF_ARCH_CPPFLAG@
@@ -317,7 +335,7 @@ AM_CPPFLAGS = \
     -DAMEBA_CONFIG_DIR_PATH='"$(sysconfdir)/$(AMEBA_ETC_CONF_DIR_NAME)"'
 
 AM_CFLAGS = -Wall
-COMMON_LDADD = \
+COMMON_PROG_LDADD = \
     $(top_builddir)/src/user/config/lib.a \
     $(top_builddir)/src/user/arg/lib.a \
     $(top_builddir)/src/user/record/deserializer/lib.a \
@@ -325,17 +343,23 @@ COMMON_LDADD = \
     $(top_builddir)/src/user/record/serializer/lib.a \
     $(top_builddir)/src/user/helper/lib.a \
     $(top_builddir)/src/user/jsonify/lib.a \
+	$(top_builddir)/src/user/api/response/error/lib.a \
+	$(top_builddir)/src/user/api/response/get_control/lib.a \
+	$(top_builddir)/src/user/api/response/lib.a \
+	$(top_builddir)/src/user/api/request/get_control/lib.a \
+	$(top_builddir)/src/user/api/request/lib.a \
+	$(top_builddir)/src/user/api/lib.a \
     $(top_builddir)/src/common/lib.a
 
 unpin_SOURCES = \
     main.c
 
-unpin_LDADD = $(COMMON_LDADD)
+unpin_LDADD = $(COMMON_PROG_LDADD)
 all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .o .obj
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/src/user/common.mk $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/src/user/prog/common.mk $(top_srcdir)/src/user/common.mk $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -355,7 +379,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__maybe_remake_depfiles)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__maybe_remake_depfiles);; \
 	esac;
-$(top_srcdir)/src/user/common.mk $(am__empty):
+$(top_srcdir)/src/user/prog/common.mk $(top_srcdir)/src/user/common.mk $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh

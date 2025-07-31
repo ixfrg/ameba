@@ -17,11 +17,20 @@
 
 ## Process this file with automake to produce Makefile.in
 
-
 include $(top_srcdir)/src/user/common.mk
 
-noinst_LIBRARIES = lib.a
-
-lib_a_SOURCES = \
-    log.h prog_op.h lock.h \
-    log.c prog_op.c lock.c
+COMMON_PROG_LDADD = \
+    $(top_builddir)/src/user/config/lib.a \
+    $(top_builddir)/src/user/arg/lib.a \
+    $(top_builddir)/src/user/record/deserializer/lib.a \
+    $(top_builddir)/src/user/record/writer/lib.a \
+    $(top_builddir)/src/user/record/serializer/lib.a \
+    $(top_builddir)/src/user/helper/lib.a \
+    $(top_builddir)/src/user/jsonify/lib.a \
+	$(top_builddir)/src/user/api/response/error/lib.a \
+	$(top_builddir)/src/user/api/response/get_control/lib.a \
+	$(top_builddir)/src/user/api/response/lib.a \
+	$(top_builddir)/src/user/api/request/get_control/lib.a \
+	$(top_builddir)/src/user/api/request/lib.a \
+	$(top_builddir)/src/user/api/lib.a \
+    $(top_builddir)/src/common/lib.a

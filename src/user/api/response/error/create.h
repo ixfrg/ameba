@@ -17,5 +17,29 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <unistd.h>
-#include "user/api/control.h"
+#pragma once
+
+#include "user/helper/log.h"
+#include "user/api/response/error/types.h"
+
+
+/*
+    Allocate and initialize response error.
+
+    Returns:
+        0   => Success
+        -1  => Error
+
+    NOTE:
+        resp_ptr is alloc'ed on success and must be free'ed after use.
+*/
+int api_response_error_create_alloc_init(void **resp_ptr, api_response_error_t err);
+
+/*
+    Initialize response error.
+
+    Returns:
+        0   => Success
+        -1  => Error
+*/
+int api_response_error_create_init(struct api_response_error *resp, api_response_error_t err);
