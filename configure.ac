@@ -143,6 +143,7 @@ AC_CONFIG_FILES([
     src/user/api/response/Makefile
     src/user/api/response/error/Makefile
     src/user/api/response/get_control/Makefile
+    src/user/api/server/Makefile
     src/user/arg/Makefile
     src/user/config/Makefile
     src/user/helper/Makefile
@@ -161,5 +162,6 @@ AC_CONFIG_FILES([
     src/util/Makefile
     tests/Makefile
     tests/user/arg/Makefile
+    tests/user/helper/Makefile
 ])
 AC_OUTPUT

@@ -18,4 +18,14 @@
 ## Process this file with automake to produce Makefile.in
 
 
-SUBDIRS = user/arg user/helper
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/tests -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
+AM_CXXFLAGS = -Wall
+
+
+COMMON_TESTS_LDADD = \
+    $(top_builddir)/src/user/arg/lib.a \
+    $(top_builddir)/src/user/jsonify/lib.a \
+    $(top_builddir)/src/common/lib.a \
+	$(top_builddir)/src/user/helper/lib.a \
+    -lCppUTest \
+    -lCppUTestExt

@@ -18,4 +18,12 @@
 ## Process this file with automake to produce Makefile.in
 
 
-SUBDIRS = user/arg user/helper
+include $(top_srcdir)/tests/common.mk
+
+AUTOMAKE_OPTIONS = subdir-objects
+
+check_PROGRAMS = ring_buffer
+TESTS = $(check_PROGRAMS)
+
+ring_buffer_SOURCES = ring_buffer.cpp
+ring_buffer_LDADD = $(COMMON_TESTS_LDADD)

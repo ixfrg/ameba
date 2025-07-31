@@ -47,8 +47,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -123,58 +121,26 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = ameba$(EXEEXT) control$(EXEEXT) parse_state$(EXEEXT) \
-	pin$(EXEEXT) read$(EXEEXT) unpin$(EXEEXT) \
-	common_struct$(EXEEXT)
-subdir = tests/user/arg
+check_PROGRAMS = ring_buffer$(EXEEXT)
+subdir = tests/user/helper
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/args.m4 $(top_srcdir)/m4/bpf.m4 \
 	$(top_srcdir)/m4/cpp.m4 $(top_srcdir)/m4/host.m4 \
 	$(top_srcdir)/m4/version.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-DIST_COMMON = $(srcdir)/Makefile.am $(noinst_HEADERS) \
-	$(am__DIST_COMMON)
+DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/common/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-AM_V_AR = $(am__v_AR_@AM_V@)
-am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
-am__v_AR_0 = @echo "  AR      " $@;
-am__v_AR_1 = 
-libtesthelpers_a_AR = $(AR) $(ARFLAGS)
-libtesthelpers_a_LIBADD =
-am_libtesthelpers_a_OBJECTS = test_helper.$(OBJEXT)
-libtesthelpers_a_OBJECTS = $(am_libtesthelpers_a_OBJECTS)
-am_ameba_OBJECTS = ameba.$(OBJEXT)
-ameba_OBJECTS = $(am_ameba_OBJECTS)
+am_ring_buffer_OBJECTS = ring_buffer.$(OBJEXT)
+ring_buffer_OBJECTS = $(am_ring_buffer_OBJECTS)
 am__DEPENDENCIES_1 = $(top_builddir)/src/user/arg/lib.a \
 	$(top_builddir)/src/user/jsonify/lib.a \
 	$(top_builddir)/src/common/lib.a \
 	$(top_builddir)/src/user/helper/lib.a
-am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) libtesthelpers.a
-ameba_DEPENDENCIES = $(am__DEPENDENCIES_2)
-am_common_struct_OBJECTS = common.$(OBJEXT)
-common_struct_OBJECTS = $(am_common_struct_OBJECTS)
-common_struct_DEPENDENCIES = $(am__DEPENDENCIES_2)
-am_control_OBJECTS = control.$(OBJEXT)
-control_OBJECTS = $(am_control_OBJECTS)
-control_DEPENDENCIES = $(am__DEPENDENCIES_2)
-am_parse_state_OBJECTS = parse_state.$(OBJEXT)
-parse_state_OBJECTS = $(am_parse_state_OBJECTS)
-parse_state_DEPENDENCIES = $(am__DEPENDENCIES_2)
-am_pin_OBJECTS = pin.$(OBJEXT)
-pin_OBJECTS = $(am_pin_OBJECTS)
-pin_DEPENDENCIES = $(am__DEPENDENCIES_2)
-am_read_OBJECTS = read.$(OBJEXT)
-read_OBJECTS = $(am_read_OBJECTS)
-read_DEPENDENCIES = $(am__DEPENDENCIES_2)
-am_unpin_OBJECTS = unpin.$(OBJEXT)
-unpin_OBJECTS = $(am_unpin_OBJECTS)
-unpin_DEPENDENCIES = $(am__DEPENDENCIES_2)
+ring_buffer_DEPENDENCIES = $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -190,10 +156,7 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/ameba.Po ./$(DEPDIR)/common.Po \
-	./$(DEPDIR)/control.Po ./$(DEPDIR)/parse_state.Po \
-	./$(DEPDIR)/pin.Po ./$(DEPDIR)/read.Po \
-	./$(DEPDIR)/test_helper.Po ./$(DEPDIR)/unpin.Po
+am__depfiles_remade = ./$(DEPDIR)/ring_buffer.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -208,20 +171,13 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libtesthelpers_a_SOURCES) $(ameba_SOURCES) \
-	$(common_struct_SOURCES) $(control_SOURCES) \
-	$(parse_state_SOURCES) $(pin_SOURCES) $(read_SOURCES) \
-	$(unpin_SOURCES)
-DIST_SOURCES = $(libtesthelpers_a_SOURCES) $(ameba_SOURCES) \
-	$(common_struct_SOURCES) $(control_SOURCES) \
-	$(parse_state_SOURCES) $(pin_SOURCES) $(read_SOURCES) \
-	$(unpin_SOURCES)
+SOURCES = $(ring_buffer_SOURCES)
+DIST_SOURCES = $(ring_buffer_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -573,27 +529,9 @@ COMMON_TESTS_LDADD = \
     -lCppUTestExt
 
 AUTOMAKE_OPTIONS = subdir-objects
-noinst_HEADERS = test_helper.hpp
-noinst_LIBRARIES = libtesthelpers.a
-libtesthelpers_a_SOURCES = \
-    test_helper.cpp
-
-COMMON_TESTS_ARGS_LDADD = $(COMMON_TESTS_LDADD) libtesthelpers.a
 TESTS = $(check_PROGRAMS)
-ameba_SOURCES = ameba.cpp
-ameba_LDADD = $(COMMON_TESTS_ARGS_LDADD)
-control_SOURCES = control.cpp
-control_LDADD = $(COMMON_TESTS_ARGS_LDADD)
-parse_state_SOURCES = parse_state.cpp
-parse_state_LDADD = $(COMMON_TESTS_ARGS_LDADD)
-pin_SOURCES = pin.cpp
-pin_LDADD = $(COMMON_TESTS_ARGS_LDADD)
-read_SOURCES = read.cpp
-read_LDADD = $(COMMON_TESTS_ARGS_LDADD)
-unpin_SOURCES = unpin.cpp
-unpin_LDADD = $(COMMON_TESTS_ARGS_LDADD)
-common_struct_SOURCES = common.cpp
-common_struct_LDADD = $(COMMON_TESTS_ARGS_LDADD)
+ring_buffer_SOURCES = ring_buffer.cpp
+ring_buffer_LDADD = $(COMMON_TESTS_LDADD)
 all: all-am
 
 .SUFFIXES:
@@ -607,9 +545,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/tests/common.mk $(am
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign tests/user/arg/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign tests/user/helper/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign tests/user/arg/Makefile
+	  $(AUTOMAKE) --foreign tests/user/helper/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -632,41 +570,9 @@ $(am__aclocal_m4_deps):
 clean-checkPROGRAMS:
 	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-
-libtesthelpers.a: $(libtesthelpers_a_OBJECTS) $(libtesthelpers_a_DEPENDENCIES) $(EXTRA_libtesthelpers_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libtesthelpers.a
-	$(AM_V_AR)$(libtesthelpers_a_AR) libtesthelpers.a $(libtesthelpers_a_OBJECTS) $(libtesthelpers_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libtesthelpers.a
-
-ameba$(EXEEXT): $(ameba_OBJECTS) $(ameba_DEPENDENCIES) $(EXTRA_ameba_DEPENDENCIES) 
-	@rm -f ameba$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(ameba_OBJECTS) $(ameba_LDADD) $(LIBS)
-
-common_struct$(EXEEXT): $(common_struct_OBJECTS) $(common_struct_DEPENDENCIES) $(EXTRA_common_struct_DEPENDENCIES) 
-	@rm -f common_struct$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(common_struct_OBJECTS) $(common_struct_LDADD) $(LIBS)
-
-control$(EXEEXT): $(control_OBJECTS) $(control_DEPENDENCIES) $(EXTRA_control_DEPENDENCIES) 
-	@rm -f control$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(control_OBJECTS) $(control_LDADD) $(LIBS)
-
-parse_state$(EXEEXT): $(parse_state_OBJECTS) $(parse_state_DEPENDENCIES) $(EXTRA_parse_state_DEPENDENCIES) 
-	@rm -f parse_state$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(parse_state_OBJECTS) $(parse_state_LDADD) $(LIBS)
-
-pin$(EXEEXT): $(pin_OBJECTS) $(pin_DEPENDENCIES) $(EXTRA_pin_DEPENDENCIES) 
-	@rm -f pin$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(pin_OBJECTS) $(pin_LDADD) $(LIBS)
-
-read$(EXEEXT): $(read_OBJECTS) $(read_DEPENDENCIES) $(EXTRA_read_DEPENDENCIES) 
-	@rm -f read$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(read_OBJECTS) $(read_LDADD) $(LIBS)
-
-unpin$(EXEEXT): $(unpin_OBJECTS) $(unpin_DEPENDENCIES) $(EXTRA_unpin_DEPENDENCIES) 
-	@rm -f unpin$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(unpin_OBJECTS) $(unpin_LDADD) $(LIBS)
+ring_buffer$(EXEEXT): $(ring_buffer_OBJECTS) $(ring_buffer_DEPENDENCIES) $(EXTRA_ring_buffer_DEPENDENCIES) 
+	@rm -f ring_buffer$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(ring_buffer_OBJECTS) $(ring_buffer_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -674,14 +580,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_state.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pin.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/read.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_helper.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unpin.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ring_buffer.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -898,51 +797,9 @@ recheck: all $(check_PROGRAMS)
 	        am__force_recheck=am--force-recheck \
 	        TEST_LOGS="$$log_list"; \
 	exit $$?
-ameba.log: ameba$(EXEEXT)
-	@p='ameba$(EXEEXT)'; \
-	b='ameba'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-control.log: control$(EXEEXT)
-	@p='control$(EXEEXT)'; \
-	b='control'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-parse_state.log: parse_state$(EXEEXT)
-	@p='parse_state$(EXEEXT)'; \
-	b='parse_state'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pin.log: pin$(EXEEXT)
-	@p='pin$(EXEEXT)'; \
-	b='pin'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-read.log: read$(EXEEXT)
-	@p='read$(EXEEXT)'; \
-	b='read'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-unpin.log: unpin$(EXEEXT)
-	@p='unpin$(EXEEXT)'; \
-	b='unpin'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-common_struct.log: common_struct$(EXEEXT)
-	@p='common_struct$(EXEEXT)'; \
-	b='common_struct'; \
+ring_buffer.log: ring_buffer$(EXEEXT)
+	@p='ring_buffer$(EXEEXT)'; \
+	b='ring_buffer'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -998,7 +855,7 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-am
-all-am: Makefile $(LIBRARIES) $(HEADERS)
+all-am: Makefile
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -1035,18 +892,10 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-checkPROGRAMS clean-generic clean-noinstLIBRARIES \
-	mostlyclean-am
+clean-am: clean-checkPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/ameba.Po
-	-rm -f ./$(DEPDIR)/common.Po
-	-rm -f ./$(DEPDIR)/control.Po
-	-rm -f ./$(DEPDIR)/parse_state.Po
-	-rm -f ./$(DEPDIR)/pin.Po
-	-rm -f ./$(DEPDIR)/read.Po
-	-rm -f ./$(DEPDIR)/test_helper.Po
-	-rm -f ./$(DEPDIR)/unpin.Po
+		-rm -f ./$(DEPDIR)/ring_buffer.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1092,14 +941,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/ameba.Po
-	-rm -f ./$(DEPDIR)/common.Po
-	-rm -f ./$(DEPDIR)/control.Po
-	-rm -f ./$(DEPDIR)/parse_state.Po
-	-rm -f ./$(DEPDIR)/pin.Po
-	-rm -f ./$(DEPDIR)/read.Po
-	-rm -f ./$(DEPDIR)/test_helper.Po
-	-rm -f ./$(DEPDIR)/unpin.Po
+		-rm -f ./$(DEPDIR)/ring_buffer.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -1120,18 +962,17 @@ uninstall-am:
 .MAKE: check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--depfiles check check-TESTS \
-	check-am clean clean-checkPROGRAMS clean-generic \
-	clean-noinstLIBRARIES cscopelist-am ctags ctags-am distclean \
-	distclean-compile distclean-generic distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am recheck tags tags-am \
-	uninstall uninstall-am
+	check-am clean clean-checkPROGRAMS clean-generic cscopelist-am \
+	ctags ctags-am distclean distclean-compile distclean-generic \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
+	recheck tags tags-am uninstall uninstall-am
 
 .PRECIOUS: Makefile
 

@@ -23,5 +23,5 @@ include $(top_srcdir)/src/user/common.mk
 noinst_LIBRARIES = lib.a
 
 lib_a_SOURCES = \
-    log.h prog_op.h lock.h \
-    log.c prog_op.c lock.c
+    log.h prog_op.h lock.h ring_buffer.h \
+    log.c prog_op.c lock.c ring_buffer.c

@@ -18,10 +18,9 @@
 ## Process this file with automake to produce Makefile.in
 
 
-AUTOMAKE_OPTIONS = subdir-objects
+include $(top_srcdir)/tests/common.mk
 
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/tests -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
-AM_CXXFLAGS = -Wall
+AUTOMAKE_OPTIONS = subdir-objects
 
 noinst_HEADERS = test_helper.hpp
 
@@ -29,34 +28,28 @@ noinst_LIBRARIES = libtesthelpers.a
 libtesthelpers_a_SOURCES = \
     test_helper.cpp
 
-COMMON_LDADD = \
-    $(top_builddir)/src/user/arg/lib.a \
-    $(top_builddir)/src/user/jsonify/lib.a \
-    $(top_builddir)/src/common/lib.a \
-    libtesthelpers.a \
-    -lCppUTest \
-    -lCppUTestExt
+COMMON_TESTS_ARGS_LDADD = $(COMMON_TESTS_LDADD) libtesthelpers.a
 
 check_PROGRAMS = ameba control parse_state pin read unpin common_struct
 TESTS = $(check_PROGRAMS)
 
 ameba_SOURCES = ameba.cpp
-ameba_LDADD = $(COMMON_LDADD)
+ameba_LDADD = $(COMMON_TESTS_ARGS_LDADD)
 
 control_SOURCES = control.cpp
-control_LDADD = $(COMMON_LDADD)
+control_LDADD = $(COMMON_TESTS_ARGS_LDADD)
 
 parse_state_SOURCES = parse_state.cpp
-parse_state_LDADD = $(COMMON_LDADD)
+parse_state_LDADD = $(COMMON_TESTS_ARGS_LDADD)
 
 pin_SOURCES = pin.cpp
-pin_LDADD = $(COMMON_LDADD)
+pin_LDADD = $(COMMON_TESTS_ARGS_LDADD)
 
 read_SOURCES = read.cpp
-read_LDADD = $(COMMON_LDADD)
+read_LDADD = $(COMMON_TESTS_ARGS_LDADD)
 
 unpin_SOURCES = unpin.cpp
-unpin_LDADD = $(COMMON_LDADD)
+unpin_LDADD = $(COMMON_TESTS_ARGS_LDADD)
 
 common_struct_SOURCES = common.cpp
-common_struct_LDADD = $(COMMON_LDADD)
+common_struct_LDADD = $(COMMON_TESTS_ARGS_LDADD)
