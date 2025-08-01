@@ -27,6 +27,8 @@ int jsonify_ameba_write_arg_ameba(struct json_buffer *s, struct arg_ameba *val)
 {
     int total = 0;
 
+    total += jsonify_core_write_str(s, "api_unix_socket_path", val->api_unix_socket_path);
+    total += jsonify_core_write_str(s, "output_stdout", val->output_stdout == 0 ? "false" : "true");
     total += jsonify_core_write_str(s, "log_dir_path", val->log_dir_path);
     total += jsonify_core_write_ulonglong(s, "log_file_size_bytes", val->log_file_size_bytes);
     total += jsonify_core_write_uint(s, "log_file_count", val->log_file_count);

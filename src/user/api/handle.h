@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     A module to define api handler.
 */
 
+#include <stdint.h>
 #include "user/api/types.h"
 
 
@@ -36,5 +37,5 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     NOTE:
         response is malloc'ed and must be free'ed by the caller after use.
 */
-int api_handle(void *request, size_t request_size, void **response);
+int api_handle(void *request, uint32_t request_size, void **response, uint32_t *response_size);
 

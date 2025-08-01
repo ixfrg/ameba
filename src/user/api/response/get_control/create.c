@@ -25,8 +25,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/api/response/get_control/create.h"
 
 
-int api_response_get_control_create_alloc_init(void **resp_ptr, struct control *control)
+int api_response_get_control_create_alloc_init(void **resp_ptr, uint32_t *resp_size, struct control *control)
 {
+    if (!resp_ptr || !resp_size)
+        return -1;
+
     struct api_response_get_control *ptr = malloc(sizeof(struct api_response_get_control));
     if (!ptr)
     {
@@ -38,6 +41,7 @@ int api_response_get_control_create_alloc_init(void **resp_ptr, struct control *
         return -1;
     }
     *resp_ptr = ptr;
+    *resp_size = sizeof(struct api_response_get_control);
     return 0;
 }
 

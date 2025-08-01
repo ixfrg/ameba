@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     A module to define api requests.
 */
 
+#include <stdint.h>
 #include "user/api/types.h"
 #include "user/api/context.h"
 
@@ -56,5 +57,5 @@ struct api_request_handler
         NOTE:
             response is malloc'ed and must be free'ed by the caller after use.
     */
-    int (*handle)(struct api_context *api_ctx, struct api_request_header *request, size_t request_size, void **response);
+    int (*handle)(struct api_context *api_ctx, struct api_request_header *request, uint32_t request_size, void **response, uint32_t *response_size);
 };

@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <stdint.h>
 #include "user/helper/log.h"
 #include "user/api/response/error/types.h"
 #include "user/api/response/error/create.h"
@@ -29,12 +30,14 @@ static const char *api_request_get_control_handle_get_name()
     return "get_control_request_handler";
 }
 
-static int api_request_get_control_handle(struct api_context *api_ctx, struct api_request_header *request, size_t request_size, void **response)
+static int api_request_get_control_handle(
+    struct api_context *api_ctx, struct api_request_header *request, uint32_t request_size, void **response, uint32_t *response_size
+)
 {
     if (!api_ctx || !request || !response)
     {
         log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed api_request_get_control_handle. NULL argument(s)");
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_DATA);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_DATA);
     }
 
     if (request_size < sizeof(struct api_request_get_control))
@@ -43,7 +46,7 @@ static int api_request_get_control_handle(struct api_context *api_ctx, struct ap
             APP_STATE_OPERATIONAL_WITH_ERROR,
             "Failed api_request_get_control_handle. Invalid request size"
         );
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_DATA);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_DATA);
     }
     // unused
     // struct api_request_get_control *get_control_request = request;
@@ -55,15 +58,15 @@ static int api_request_get_control_handle(struct api_context *api_ctx, struct ap
             APP_STATE_OPERATIONAL_WITH_ERROR,
             "Failed api_request_get_control_handle. Failed to get control."
         );
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_DATA);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_DATA);
     }
-    if (api_response_get_control_create_alloc_init(response, &control) != 0)
+    if (api_response_get_control_create_alloc_init(response, response_size, &control) != 0)
     {
         log_state_msg(
             APP_STATE_OPERATIONAL_WITH_ERROR,
             "Failed api_request_get_control_handle. Failed to create get_control response."
         );
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_DATA);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_DATA);
     }
     return 0;
 }

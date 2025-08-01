@@ -19,15 +19,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <stdint.h>
+#include <stdbool.h>
 #include <sys/types.h>
 
 
 struct ring_buffer
 {
     char *data;
-    size_t size;
-    size_t head;
-    size_t tail;
+    uint64_t size;
+    uint64_t head;
+    uint64_t tail;
 };
 
 /*
@@ -37,12 +39,17 @@ struct ring_buffer
         NULL  => If failed to alloc
         ptr to aloocated ring_buffer
 */
-struct ring_buffer *ring_buffer_alloc(size_t size);
+struct ring_buffer *ring_buffer_alloc(uint64_t size);
 
 /*
     Free the allocated memory for ring_buffer
 */
 void ring_buffer_free(struct ring_buffer *rb);
+
+/*
+    Discard all data.
+*/
+void ring_buffer_clear(struct ring_buffer *rb);
 
 /*
     Returns:
@@ -62,7 +69,7 @@ bool ring_buffer_is_empty(struct ring_buffer *rb);
     Returns:
         The available space.
 */
-size_t ring_buffer_available_capacity(struct ring_buffer *rb);
+uint64_t ring_buffer_available_capacity(struct ring_buffer *rb);
 
 /*
     Add data.
@@ -71,7 +78,7 @@ size_t ring_buffer_available_capacity(struct ring_buffer *rb);
         true   => If all the data is added
         false  => If not enough space available
 */
-bool ring_buffer_push(struct ring_buffer *rb, char *data, size_t data_len);
+bool ring_buffer_push(struct ring_buffer *rb, char *data, uint64_t data_len);
 
 /*
     Remove data.
@@ -80,4 +87,22 @@ bool ring_buffer_push(struct ring_buffer *rb, char *data, size_t data_len);
         true   => If enough data available
         false  => If not enough data available
 */
-bool ring_buffer_pop(struct ring_buffer *rb, char *data, size_t data_len);
+bool ring_buffer_pop(struct ring_buffer *rb, char *data, uint64_t data_len);
+
+/*
+    Peek at data without removing it.
+
+    Returns:
+        true   => If enough data available
+        false  => If not enough data available
+*/
+bool ring_buffer_peek(struct ring_buffer *rb, char *dst, uint64_t len);
+
+/*
+    Discard data without reading.
+
+    Returns:
+        true   => If enough data available
+        false  => If not enough data available
+*/
+bool ring_buffer_discard(struct ring_buffer *rb, uint64_t len);

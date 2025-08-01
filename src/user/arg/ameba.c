@@ -55,6 +55,7 @@ static struct arg_ameba global_arg_initial_value;
 */
 enum
 {
+    OPT_API_UNIX_SOCKET_PATH = 'a',
     OPT_OUTPUT_TO_STDOUT = 't',
     OPT_LOG_DIR_PATH = 'o',
     OPT_LOG_FILE_SIZE_BYTES = 's',
@@ -66,6 +67,7 @@ enum
 
 // Option definitions
 static struct argp_option options[] = {
+    {"api-unix-socket", OPT_API_UNIX_SOCKET_PATH, 0, 0, "Path to unix socket for api", 0},
     {"output-stdout", OPT_OUTPUT_TO_STDOUT, 0, 0, "Output to stdout instead of log file", 0},
     {"log-dir", OPT_LOG_DIR_PATH, "PATH", 0, "Directory to write the log files to", 0},
     {"log-size", OPT_LOG_FILE_SIZE_BYTES, "NUMBER", 0, "Size (in bytes) of a log file", 0},
@@ -164,27 +166,37 @@ static void handle_argp_key_end(struct arg_ameba_with_parse_state *src, struct a
     validate_arg(src, state);
 }
 
-static void parse_arg_log_dir_path(struct arg_ameba_with_parse_state *src, struct argp_state *state, char* path)
+static void parse_filesystem_path(char *dst, const char *log_id_str, struct arg_ameba_with_parse_state *src, struct argp_state *state, char* path)
 {
     if (!path || strlen(path) == 0) {
-        fprintf(stderr, "Invalid log dir path: missing path\n");
+        fprintf(stderr, "Invalid %s: missing path\n", log_id_str);
         arg_parse_state_set_exit_error(&src->parse_state, -1);
         return;
     }
 
     if (path[0] != '/') {
-        fprintf(stderr, "Invalid log dir path: path is not absolute\n");
+        fprintf(stderr, "Invalid %s: path is not absolute\n", log_id_str);
         arg_parse_state_set_exit_error(&src->parse_state, -1);
         return;
     }
 
     if (strlen(path) > PATH_MAX) {
-        fprintf(stderr, "Invalid log dir path: path too long\n");
+        fprintf(stderr, "Invalid %s: path too long\n", log_id_str);
         arg_parse_state_set_exit_error(&src->parse_state, -1);
         return;
     }
 
-    strncpy(&(src->arg.log_dir_path[0]), path, strnlen(path, PATH_MAX));
+    strncpy(dst, path, strnlen(path, PATH_MAX));
+}
+
+static void parse_api_unix_socket_path(struct arg_ameba_with_parse_state *src, struct argp_state *state, char* path)
+{
+    parse_filesystem_path(&(src->arg.api_unix_socket_path[0]), "api unix socket path", src, state, path);
+}
+
+static void parse_arg_log_dir_path(struct arg_ameba_with_parse_state *src, struct argp_state *state, char* path)
+{
+    parse_filesystem_path(&(src->arg.log_dir_path[0]), "log dir path", src, state, path);
 }
 
 static void parse_arg_log_file_size_bytes(struct arg_ameba_with_parse_state *src, struct argp_state *state, char *arg)
@@ -264,6 +276,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     switch (key)
     {
+    case OPT_API_UNIX_SOCKET_PATH:
+        parse_api_unix_socket_path(arg_with_state, state, arg);
+        break;
+
     case OPT_OUTPUT_TO_STDOUT:
         arg_with_state->arg.output_stdout = 1;
         break;

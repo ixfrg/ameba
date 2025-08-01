@@ -23,11 +23,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/helper/ring_buffer.h"
 
 
-struct ring_buffer *ring_buffer_alloc(size_t size)
+struct ring_buffer *ring_buffer_alloc(uint64_t size)
 {
     struct ring_buffer *rb = malloc(sizeof(struct ring_buffer));
     if (!rb)
         return NULL;
+
+    if (size == UINT64_MAX)
+    {
+        return NULL;
+    }
 
     // Reserve 1 for full check
     size += 1;
@@ -55,6 +60,14 @@ void ring_buffer_free(struct ring_buffer *rb)
     free(rb);
 }
 
+void ring_buffer_clear(struct ring_buffer *rb)
+{
+    if (!rb)
+        return;
+    rb->head = 0;
+    rb->tail = 0;
+}
+
 bool ring_buffer_is_full(struct ring_buffer *rb)
 {
     return ((rb->head + 1) % rb->size) == rb->tail;
@@ -65,7 +78,7 @@ bool ring_buffer_is_empty(struct ring_buffer *rb)
     return rb->head == rb->tail;
 }
 
-size_t ring_buffer_available_capacity(struct ring_buffer *rb)
+uint64_t ring_buffer_available_capacity(struct ring_buffer *rb)
 {
     if (rb->head >= rb->tail)
         return rb->size - (rb->head - rb->tail) - 1;
@@ -73,12 +86,12 @@ size_t ring_buffer_available_capacity(struct ring_buffer *rb)
         return rb->tail - rb->head - 1;
 }
 
-bool ring_buffer_push(struct ring_buffer *rb, char *data, size_t data_len)
+bool ring_buffer_push(struct ring_buffer *rb, char *data, uint64_t data_len)
 {
     if (ring_buffer_available_capacity(rb) < data_len)
         return false;
 
-    for (size_t i = 0; i < data_len; ++i)
+    for (uint64_t i = 0; i < data_len; ++i)
     {
         rb->data[rb->head] = data[i];
         rb->head = (rb->head + 1) % rb->size;
@@ -87,16 +100,41 @@ bool ring_buffer_push(struct ring_buffer *rb, char *data, size_t data_len)
     return true;
 }
 
-bool ring_buffer_pop(struct ring_buffer *rb, char *data, size_t data_len)
+bool ring_buffer_pop(struct ring_buffer *rb, char *data, uint64_t data_len)
 {
     if (((rb->head + rb->size - rb->tail) % rb->size) < data_len)
         return false;
 
-    for (size_t i = 0; i < data_len; ++i)
+    for (uint64_t i = 0; i < data_len; ++i)
     {
         data[i] = rb->data[rb->tail];
         rb->tail = (rb->tail + 1) % rb->size;
     }
 
+    return true;
+}
+
+bool ring_buffer_peek(struct ring_buffer *rb, char *dst, uint64_t len)
+{
+    if (ring_buffer_available_capacity(rb) < len)
+        return false;
+
+    uint64_t temp_tail = rb->tail;
+
+    for (uint64_t i = 0; i < len; ++i)
+    {
+        dst[i] = rb->data[temp_tail];
+        temp_tail = (temp_tail + 1) % rb->size;
+    }
+
+    return true;
+}
+
+bool ring_buffer_discard(struct ring_buffer *rb, uint64_t len)
+{
+    if (ring_buffer_available_capacity(rb) < len)
+        return false;
+
+    rb->tail = (rb->tail + len) % rb->size;
     return true;
 }

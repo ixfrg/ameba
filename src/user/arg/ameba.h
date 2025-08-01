@@ -33,6 +33,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 struct arg_ameba
 {
+    char api_unix_socket_path[PATH_MAX];
     int output_stdout;
     char log_dir_path[PATH_MAX];
     unsigned long long log_file_size_bytes;

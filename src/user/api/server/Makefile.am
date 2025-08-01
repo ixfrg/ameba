@@ -21,17 +21,11 @@
 include $(top_srcdir)/src/user/common.mk
 
 
-SUBDIRS = request response server
-
-
 noinst_HEADERS = \
-    types.h \
-    context.h \
-    common.h \
-    handle.h
+    socket.h
 
-noinst_LIBRARIES = lib.a
+noinst_LIBRARIES = \
+    lib.a
 
 lib_a_SOURCES = \
-    common.c \
-    handle.c
+    socket.c

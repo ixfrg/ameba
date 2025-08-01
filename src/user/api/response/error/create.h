@@ -19,6 +19,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <stdint.h>
+
 #include "user/helper/log.h"
 #include "user/api/response/error/types.h"
 
@@ -33,7 +35,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     NOTE:
         resp_ptr is alloc'ed on success and must be free'ed after use.
 */
-int api_response_error_create_alloc_init(void **resp_ptr, api_response_error_t err);
+int api_response_error_create_alloc_init(void **resp_ptr, uint32_t *resp_size, api_response_error_t err);
 
 /*
     Initialize response error.

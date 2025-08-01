@@ -24,8 +24,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "user/api/response/error/create.h"
 
 
-int api_response_error_create_alloc_init(void **resp_ptr, api_response_error_t err)
+int api_response_error_create_alloc_init(void **resp_ptr, uint32_t *resp_size, api_response_error_t err)
 {
+    if (!resp_ptr || !resp_size)
+        return -1;
+
     struct api_response_error *ptr = malloc(sizeof(struct api_response_error));
     if (!ptr)
     {
@@ -37,6 +40,7 @@ int api_response_error_create_alloc_init(void **resp_ptr, api_response_error_t e
         return -1;
     }
     *resp_ptr = ptr;
+    *resp_size = sizeof(struct api_response_error);
     return 0;
 }
 

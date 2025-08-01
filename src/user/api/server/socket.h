@@ -20,22 +20,33 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #pragma once
 
 /*
-    A module to define api request handler.
-*/
 
-#include <stdint.h>
-#include "user/api/request/types.h"
+    A module to handle api server through unix socket
+
+*/
 
 
 /*
-    Main entrypoint for handling requests and creating responses.
+    Start handling requests sent to api server socket.
 
     Returns:
-        0  => Success i.e. response is properly formed.
-        -1 => Failed
-
-    NOTE:
-        response is malloc'ed and must be free'ed by the caller after use.
+        -1   => Error
+        0    => Returns after 'api_server_socket_stop'
 */
-int api_request_handle(struct api_context *api_ctx, struct api_request_header *request, uint32_t request_size, void **response, uint32_t *response_size);
+int api_server_socket_start(char *unix_socket_path);
 
+/*
+    Stop handling requests.
+
+    Returns:
+        -1   => Error
+        0    => Normal return
+*/
+int api_server_socket_stop();
+
+/*
+    Returns:
+        0   => No
+        1   => Yes
+*/
+int api_server_socket_is_running();

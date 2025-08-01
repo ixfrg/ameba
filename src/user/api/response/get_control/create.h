@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <stdint.h>
 #include "user/helper/log.h"
 #include "user/api/response/get_control/types.h"
 
@@ -33,7 +34,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     NOTE:
         resp_ptr is alloc'ed on success and must be free'ed after use.
 */
-int api_response_get_control_create_alloc_init(void **resp_ptr, struct control *control);
+int api_response_get_control_create_alloc_init(void **resp_ptr, uint32_t *resp_size, struct control *control);
 
 /*
     Initialize response get_control.

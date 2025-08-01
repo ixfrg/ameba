@@ -32,12 +32,12 @@ static struct api_request_handler* request_handlers[] = {
 static int request_handlers_len = sizeof(request_handlers) / sizeof(struct api_request_handler*);
 
 
-int api_request_handle(struct api_context *api_ctx, struct api_request_header *request, size_t request_size, void **response)
+int api_request_handle(struct api_context *api_ctx, struct api_request_header *request, uint32_t request_size, void **response, uint32_t *response_size)
 {
-    if (!api_ctx || !request || !response)
+    if (!api_ctx || !request || !response || !response_size)
     {
         log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed api_request_handle. NULL argument(s)");
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_DATA);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_DATA);
     }
 
     api_request_type_t request_type = request->request_type;
@@ -45,7 +45,7 @@ int api_request_handle(struct api_context *api_ctx, struct api_request_header *r
     if (request_type < 0 || request_type >= request_handlers_len)
     {
         log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed api_request_handle. Invalid request type '%u'", request_type);
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_MSG_TYPE);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_MSG_TYPE);
     }
 
     struct api_request_handler* request_handler = request_handlers[request_type];
@@ -57,10 +57,10 @@ int api_request_handle(struct api_context *api_ctx, struct api_request_header *r
             "Failed api_request_handle. No handler for request type '%u'",
             request_type
         );
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_MSG_TYPE);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_MSG_TYPE);
     }
 
-    int handle_result = request_handler->handle(api_ctx, request, request_size, response);
+    int handle_result = request_handler->handle(api_ctx, request, request_size, response, response_size);
     if (handle_result != 0)
     {
         log_state_msg(
@@ -68,7 +68,7 @@ int api_request_handle(struct api_context *api_ctx, struct api_request_header *r
             "Failed api_request_handle. Failed to handle request type '%u'",
             request_type
         );
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INTERNAL_ERROR);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INTERNAL_ERROR);
     }
 
     return 0;

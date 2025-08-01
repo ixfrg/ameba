@@ -57,12 +57,12 @@ static void log_incorrect_version_msg(struct elem_version *msg_version)
     );
 }
 
-static int internal_unsafe_api_handle(void *request, size_t request_size, void **response)
+static int internal_unsafe_api_handle(void *request, size_t request_size, void **response, uint32_t *response_size)
 {
-    if (!request || !response)
+    if (!request || !response || !response_size)
     {
         log_state_msg(APP_STATE_OPERATIONAL_WITH_ERROR, "Failed internal_unsafe_api_handle. NULL argument(s)");
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_DATA);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_DATA);
     }
 
     if (request_size < sizeof(struct api_header))
@@ -71,7 +71,7 @@ static int internal_unsafe_api_handle(void *request, size_t request_size, void *
             APP_STATE_OPERATIONAL_WITH_ERROR,
             "Failed internal_unsafe_api_handle. Invalid request size"
         );
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_DATA);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_DATA);
     }
 
     struct api_header *header = request;
@@ -82,27 +82,27 @@ static int internal_unsafe_api_handle(void *request, size_t request_size, void *
             APP_STATE_OPERATIONAL_WITH_ERROR,
             "Failed internal_unsafe_api_handle. Invalid magic"
         );
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_DATA);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_DATA);
     }
 
     int version_check_result = version_check_equal_api_version(&header->version);
     if (version_check_result != 1)
     {
         log_incorrect_version_msg(&header->version);
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INVALID_VERSION);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INVALID_VERSION);
     }
 
-    return api_request_handle(&global_api_context, request, request_size, response);
+    return api_request_handle(&global_api_context, request, request_size, response, response_size);
 }
 
-int api_handle(void *request, size_t request_size, void **response)
+int api_handle(void *request, uint32_t request_size, void **response, uint32_t *response_size)
 {
     if (lock_acquire(&global_lock) != 0)
     {
-        return api_response_error_create_alloc_init(response, API_RESPONSE_ERROR_INTERNAL_ERROR);
+        return api_response_error_create_alloc_init(response, response_size, API_RESPONSE_ERROR_INTERNAL_ERROR);
     }
 
-    int ret = internal_unsafe_api_handle(request, request_size, response);
+    int ret = internal_unsafe_api_handle(request, request_size, response, response_size);
 
     lock_release(&global_lock);
 
