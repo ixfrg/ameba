@@ -18,9 +18,9 @@
 ## Process this file with automake to produce Makefile.in
 
 
+include $(top_srcdir)/src/bpf/common.mk
+
 AUTOMAKE_OPTIONS = subdir-objects
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX) $(AMEBA_BPF_ARCH_CPPFLAG)
-AM_CFLAGS = -O2 -Wall -target bpf -mcpu=v4
 
 bpf_combined_obj = $(top_builddir)/src/combined.bpf.o
 bpf_skel_name = ameba
@@ -29,21 +29,21 @@ bpf_skel_header = $(top_builddir)/src/$(bpf_skel_name).skel.h
 noinst_LIBRARIES = libbpfobjs.a
 
 libbpfobjs_a_SOURCES = \
-    helpers/event.bpf.h helpers/copy.bpf.h helpers/map.bpf.h helpers/log.bpf.h helpers/output.bpf.h helpers/event_id.bpf.h helpers/datatype.bpf.h \
-    helpers/event.bpf.c helpers/copy.bpf.c helpers/map.bpf.c helpers/log.bpf.c helpers/output.bpf.c helpers/event_id.bpf.c helpers/datatype.bpf.c \
-    events/process_namespace/hook.bpf.c \
-    events/hook_name.bpf.h \
-    events/kill/storage.bpf.h \
-    events/kill/storage/task.bpf.c events/kill/hook.bpf.c \
-    events/accept/storage.bpf.h \
-    events/accept/storage/task.bpf.c events/accept/hook.bpf.c \
-    events/audit_log_exit/hook.bpf.c \
-    events/bind/storage.bpf.h \
-    events/bind/storage/task.bpf.c events/bind/hook.bpf.c \
-    events/send_recv/storage.bpf.h \
-    events/send_recv/storage/task.bpf.c events/send_recv/hook.bpf.c \
-    events/connect/storage.bpf.h \
-    events/connect/storage/task.bpf.c events/connect/hook.bpf.c \
+    helper/event.bpf.h helper/copy.bpf.h helper/map.bpf.h helper/log.bpf.h helper/output.bpf.h helper/event_id.bpf.h helper/datatype.bpf.h helper/version.bpf.h \
+    helper/event.bpf.c helper/copy.bpf.c helper/map.bpf.c helper/log.bpf.c helper/output.bpf.c helper/event_id.bpf.c helper/datatype.bpf.c helper/version.bpf.c \
+    event/process_namespace/hook.bpf.c \
+    event/hook_name.bpf.h \
+    event/kill/storage.bpf.h \
+    event/kill/storage/task.bpf.c event/kill/hook.bpf.c \
+    event/accept/storage.bpf.h \
+    event/accept/storage/task.bpf.c event/accept/hook.bpf.c \
+    event/audit_log_exit/hook.bpf.c \
+    event/bind/storage.bpf.h \
+    event/bind/storage/task.bpf.c event/bind/hook.bpf.c \
+    event/send_recv/storage.bpf.h \
+    event/send_recv/storage/task.bpf.c event/send_recv/hook.bpf.c \
+    event/connect/storage.bpf.h \
+    event/connect/storage/task.bpf.c event/connect/hook.bpf.c \
     license.bpf.c
 
 $(bpf_combined_obj): $(libbpfobjs_a_OBJECTS)

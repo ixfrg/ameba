@@ -36,6 +36,6 @@ test -f "${trace_pipe_path}" && \
     {
         echo "Reading from trace pipe '${trace_pipe_path}' ..."
         echo ""
-        cat "${trace_pipe_path}"
+        tail -f "${trace_pipe_path}"
     } || \
     echo "No trace pipe at ${trace_pipe_path}"

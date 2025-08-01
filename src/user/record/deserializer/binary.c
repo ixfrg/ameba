@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <stddef.h>
 #include <string.h>
-#include "user/error.h"
+#include "user/include/error.h"
 #include "user/record/deserializer/deserializer.h"
 
 /*

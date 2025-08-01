@@ -18,4 +18,4 @@
 ## Process this file with automake to produce Makefile.in
 
 
-SUBDIRS = user/args
+SUBDIRS = user/arg user/helper

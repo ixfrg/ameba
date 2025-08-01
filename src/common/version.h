@@ -25,19 +25,54 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
-#include "common/config.h"
+#include <unistd.h>
 
 #include "common/types.h"
 
 
-const struct elem_version record_version = {
-    .major = RECORD_VERSION_MAJOR,
-    .minor = RECORD_VERSION_MINOR,
-    .patch = RECORD_VERSION_PATCH
-};
+/*
+    Populate dst with the current app version.
 
-const struct elem_version app_version = {
-    .major = PACKAGE_VERSION_MAJOR,
-    .minor = PACKAGE_VERSION_MINOR,
-    .patch = PACKAGE_VERSION_PATCH
-};
+    Returns:
+        0  => Success
+        -1 => Invalid dst
+*/
+int version_get_app_version(struct elem_version *dst);
+
+/*
+    Populate dst with the current record version.
+
+    Returns:
+        0  => Success
+        -1 => Invalid dst
+*/
+int version_get_record_version(struct elem_version *dst);
+
+/*
+    Populate dst with the current api version.
+
+    Returns:
+        0  => Success
+        -1 => Invalid dst
+*/
+int version_get_api_version(struct elem_version *dst);
+
+/*
+    Check if elems are equal.
+
+    Returns:
+        1  => Equal
+        0  => Not equal 
+        -1 => Error
+*/
+int version_check_equal(struct elem_version *expected, struct elem_version *actual);
+
+/*
+    Check if actual api version is equal to the current one.
+
+    Returns:
+        1  => Equal
+        0  => Not equal 
+        -1 => Error
+*/
+int version_check_equal_api_version(struct elem_version *actual);

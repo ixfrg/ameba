@@ -29,6 +29,8 @@ AMEBA_DEFINE_VERSION_MAJOR([ameba_VERSION],[PACKAGE_VERSION_MAJOR])
 AMEBA_DEFINE_VERSION_MINOR([ameba_VERSION],[PACKAGE_VERSION_MINOR])
 AMEBA_DEFINE_VERSION_PATCH([ameba_VERSION],[PACKAGE_VERSION_PATCH])
 
+AMEBA_ETC_CONF_DIR_NAME="ameba"
+AC_SUBST([AMEBA_ETC_CONF_DIR_NAME])
 
 # Aux script dir
 AC_CONFIG_AUX_DIR([build-aux])
@@ -51,7 +53,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AMEBA_ARG_ENABLE_TASK_CTX
 
 # App entrypoint
-AC_CONFIG_SRCDIR([src/user/ameba.c])
+AC_CONFIG_SRCDIR([src/user/prog/ameba/main.c])
 
 # Path of file containing all the configurable constants
 AC_CONFIG_HEADERS([src/common/config.h])
@@ -131,11 +133,35 @@ AC_CHECK_FUNCS([clock_gettime memset socket strdup strstr strtol])
 
 AC_CONFIG_FILES([
     Makefile
+    src/Makefile
     src/common/Makefile
     src/bpf/Makefile
     src/user/Makefile
-    src/utils/Makefile
+    src/user/api/Makefile
+    src/user/api/request/Makefile
+    src/user/api/request/get_control/Makefile
+    src/user/api/response/Makefile
+    src/user/api/response/error/Makefile
+    src/user/api/response/get_control/Makefile
+    src/user/api/server/Makefile
+    src/user/arg/Makefile
+    src/user/config/Makefile
+    src/user/helper/Makefile
+    src/user/include/Makefile
+    src/user/jsonify/Makefile
+    src/user/prog/Makefile
+    src/user/prog/ameba/Makefile
+    src/user/prog/control/Makefile
+    src/user/prog/pin/Makefile
+    src/user/prog/read/Makefile
+    src/user/prog/unpin/Makefile
+    src/user/record/Makefile
+    src/user/record/deserializer/Makefile
+    src/user/record/serializer/Makefile
+    src/user/record/writer/Makefile
+    src/util/Makefile
     tests/Makefile
-    tests/user/args/Makefile
+    tests/user/arg/Makefile
+    tests/user/helper/Makefile
 ])
 AC_OUTPUT

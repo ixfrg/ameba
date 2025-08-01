@@ -26,46 +26,32 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
-
-#include "user/args/helper.h"
-
-
 #define MAX_LIST_ITEMS 10
-
-typedef enum
-{
-    FREE = 1,
-    TAKEN = 2
-} control_lock_t;
 
 typedef enum
 {
     IGNORE = 1,
     CAPTURE
-} trace_mode_t;
+} control_trace_mode_t;
 
 /*
-    See argp_option definition in src/user/args/control.c
+    See argp_option definition in src/user/arg/control.c
 */
-struct control_input
+struct control
 {
-    trace_mode_t global_mode;
+    control_trace_mode_t global_mode;
 
-    trace_mode_t uid_mode;
+    control_trace_mode_t uid_mode;
     int uids[MAX_LIST_ITEMS];
     int uids_len;
 
-    trace_mode_t pid_mode;
+    control_trace_mode_t pid_mode;
     int pids[MAX_LIST_ITEMS];
     int pids_len;
 
-    trace_mode_t ppid_mode;
+    control_trace_mode_t ppid_mode;
     int ppids[MAX_LIST_ITEMS];
     int ppids_len;
 
-    trace_mode_t netio_mode;
-
-    control_lock_t lock;
-
-    struct arg_parse_state parse_state;
+    control_trace_mode_t netio_mode;
 };

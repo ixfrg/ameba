@@ -92,7 +92,7 @@ AC_DEFUN([AMEBA_BPF_REQUIRE_HOOKS],
         AC_MSG_ERROR([could not create temporary directory: $AEMBA_BPF_TMPDIR])
     fi
 
-    AMEBA_BPF_HOOK_NAME_H="$srcdir/src/bpf/events/hook_name.bpf.h"
+    AMEBA_BPF_HOOK_NAME_H="$srcdir/src/bpf/event/hook_name.bpf.h"
     AMEBA_BPF_BPFTOOL_BTF_FILE="$AEMBA_BPF_TMPDIR/vmlinux.json"
     AMEBA_BPF_HOOK_NAMES=
 

@@ -24,8 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#include "user/record/writer/writer.h"
-#include "user/types.h"
+#include "user/record/writer/net.h"
 
 
 static struct {

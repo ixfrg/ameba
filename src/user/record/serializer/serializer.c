@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <stddef.h>
 #include <sys/types.h>
 
-#include "user/error.h"
+#include "user/include/error.h"
 #include "common/types.h"
 #include "user/record/serializer/serializer.h"
 

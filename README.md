@@ -21,17 +21,26 @@ ameba
 ├── Makefile                            # Build targets
 ├── README.md
 ├── bin                                 # Binaries
+├── config                              # Default configuration for each program
 └── src
     ├── bpf                             # BPF code
-    │   ├── events                      # BPF hooks
-    │   ├── helpers                     # BPF helpers
+    │   ├── event                       # BPF hooks
+    │   └── helper                      # BPF helpers
     ├── common                          # Headers used in BPF, and user-space code
     ├── user                            # User-space code
-    │   ├── ameba.c                     # Userspace entrypoint
-    │   ├── args                        # User arguments
+    │   ├── api                         # API for managing ameba
+    │   ├── arg                         # User arguments for ameba programs
+    │   ├── config                      # Configuration for ameba programs
+    │   ├── helper                      # Helpers
     │   ├── jsonify                     # JSON helper
-    │   └── record                      # BPF generated records serializers and writers
-    └── utils                           # Misc. utilities
+    │   ├── record                      # BPF generated records serializers and writers
+    │   └── prog                        # Ameba programs
+    │       ├── ameba                   # Main program
+    │       ├── control                 # Program to control
+    │       ├── pin                     # Program to pin all bpf progs and maps
+    │       ├── read                    # Program to read from the pinned bpf maps
+    │       └── unpin                   # Program to unpin all bpf progs and maps
+    └── util                            # Misc. utilities
 ```
 
 # Getting Started
@@ -53,7 +62,8 @@ apt-get update && \
         linux-tools-common \
         libbpf-dev \
         linux-headers-$(uname -r) \
-        gcc-multilib
+        gcc-multilib \
+        cpputest
 ```
 
 For `bpftool` installation, directly download version [v7.2.0](https://github.com/libbpf/bpftool/releases/tag/v7.2.0) and add it to your path. For more details, see the issue [here](https://github.com/xdp-project/xdp-tutorial/issues/368).
@@ -93,10 +103,6 @@ local-install/bin/ameba --help
 ```
 
 # Tests
-
-## Requirements
-
-* [CppUTest](https://cpputest.github.io/manual.html) (On Ubuntu use `sudo apt-get install cpputest`)
 
 ## Execute
 

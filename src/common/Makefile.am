@@ -17,6 +17,23 @@
 
 ## Process this file with automake to produce Makefile.in
 
+### Build lib.a
+
+include $(top_srcdir)/src/common/common.mk
+
+noinst_LIBRARIES = \
+    lib.a
+
+lib_a_SOURCES = \
+    version.h control.h constants.h types.h kernel_constants.h \
+    version.c
+
+### Install headers
+
+include_amebadir = $(prefix)/include/ameba
+include_ameba_HEADERS = config.h constants.h control.h kernel_constants.h types.h
+
+### Build vmlinux
 
 vmlinux_h = $(top_builddir)/src/common/vmlinux.h
 

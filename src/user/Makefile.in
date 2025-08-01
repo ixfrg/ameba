@@ -30,8 +30,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -106,7 +104,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ameba$(EXEEXT)
 subdir = src/user
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/args.m4 $(top_srcdir)/m4/bpf.m4 \
@@ -119,55 +116,6 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/common/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)"
-PROGRAMS = $(bin_PROGRAMS)
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-AM_V_AR = $(am__v_AR_@AM_V@)
-am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
-am__v_AR_0 = @echo "  AR      " $@;
-am__v_AR_1 = 
-args_lib_a_AR = $(AR) $(ARFLAGS)
-args_lib_a_LIBADD =
-am__dirstamp = $(am__leading_dot)dirstamp
-am_args_lib_a_OBJECTS = args/helper.$(OBJEXT) args/user.$(OBJEXT) \
-	args/control.$(OBJEXT)
-args_lib_a_OBJECTS = $(am_args_lib_a_OBJECTS)
-helpers_lib_a_AR = $(AR) $(ARFLAGS)
-helpers_lib_a_LIBADD =
-am_helpers_lib_a_OBJECTS = helpers/log.$(OBJEXT)
-helpers_lib_a_OBJECTS = $(am_helpers_lib_a_OBJECTS)
-jsonify_lib_a_AR = $(AR) $(ARFLAGS)
-jsonify_lib_a_LIBADD =
-am_jsonify_lib_a_OBJECTS = jsonify/user.$(OBJEXT) \
-	jsonify/control.$(OBJEXT) jsonify/core.$(OBJEXT) \
-	jsonify/types.$(OBJEXT) jsonify/record.$(OBJEXT) \
-	jsonify/log_msg.$(OBJEXT)
-jsonify_lib_a_OBJECTS = $(am_jsonify_lib_a_OBJECTS)
-record_deserializer_lib_a_AR = $(AR) $(ARFLAGS)
-record_deserializer_lib_a_LIBADD =
-am_record_deserializer_lib_a_OBJECTS =  \
-	record/deserializer/binary.$(OBJEXT)
-record_deserializer_lib_a_OBJECTS =  \
-	$(am_record_deserializer_lib_a_OBJECTS)
-record_serializer_lib_a_AR = $(AR) $(ARFLAGS)
-record_serializer_lib_a_LIBADD =
-am_record_serializer_lib_a_OBJECTS =  \
-	record/serializer/binary.$(OBJEXT) \
-	record/serializer/json.$(OBJEXT) \
-	record/serializer/serializer.$(OBJEXT)
-record_serializer_lib_a_OBJECTS =  \
-	$(am_record_serializer_lib_a_OBJECTS)
-record_writer_lib_a_AR = $(AR) $(ARFLAGS)
-record_writer_lib_a_LIBADD =
-am_record_writer_lib_a_OBJECTS = record/writer/file.$(OBJEXT) \
-	record/writer/net.$(OBJEXT)
-record_writer_lib_a_OBJECTS = $(am_record_writer_lib_a_OBJECTS)
-am_ameba_OBJECTS = ameba.$(OBJEXT)
-ameba_OBJECTS = $(am_ameba_OBJECTS)
-ameba_DEPENDENCIES = args/lib.a record/deserializer/lib.a \
-	record/writer/lib.a record/serializer/lib.a helpers/lib.a \
-	jsonify/lib.a
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -180,46 +128,29 @@ AM_V_at = $(am__v_at_@AM_V@)
 am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
-DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/common
-depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
-am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/ameba.Po args/$(DEPDIR)/control.Po \
-	args/$(DEPDIR)/helper.Po args/$(DEPDIR)/user.Po \
-	helpers/$(DEPDIR)/log.Po jsonify/$(DEPDIR)/control.Po \
-	jsonify/$(DEPDIR)/core.Po jsonify/$(DEPDIR)/log_msg.Po \
-	jsonify/$(DEPDIR)/record.Po jsonify/$(DEPDIR)/types.Po \
-	jsonify/$(DEPDIR)/user.Po \
-	record/deserializer/$(DEPDIR)/binary.Po \
-	record/serializer/$(DEPDIR)/binary.Po \
-	record/serializer/$(DEPDIR)/json.Po \
-	record/serializer/$(DEPDIR)/serializer.Po \
-	record/writer/$(DEPDIR)/file.Po record/writer/$(DEPDIR)/net.Po
-am__mv = mv -f
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-AM_V_CC = $(am__v_CC_@AM_V@)
-am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
-am__v_CC_0 = @echo "  CC      " $@;
-am__v_CC_1 = 
-CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CCLD = $(am__v_CCLD_@AM_V@)
-am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
-am__v_CCLD_0 = @echo "  CCLD    " $@;
-am__v_CCLD_1 = 
-SOURCES = $(args_lib_a_SOURCES) $(helpers_lib_a_SOURCES) \
-	$(jsonify_lib_a_SOURCES) $(record_deserializer_lib_a_SOURCES) \
-	$(record_serializer_lib_a_SOURCES) \
-	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES)
-DIST_SOURCES = $(args_lib_a_SOURCES) $(helpers_lib_a_SOURCES) \
-	$(jsonify_lib_a_SOURCES) $(record_deserializer_lib_a_SOURCES) \
-	$(record_serializer_lib_a_SOURCES) \
-	$(record_writer_lib_a_SOURCES) $(ameba_SOURCES)
+SOURCES =
+DIST_SOURCES =
+RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
+	ctags-recursive dvi-recursive html-recursive info-recursive \
+	install-data-recursive install-dvi-recursive \
+	install-exec-recursive install-html-recursive \
+	install-info-recursive install-pdf-recursive \
+	install-ps-recursive install-recursive installcheck-recursive \
+	installdirs-recursive pdf-recursive ps-recursive \
+	tags-recursive uninstall-recursive
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
+  distclean-recursive maintainer-clean-recursive
+am__recursive_targets = \
+  $(RECURSIVE_TARGETS) \
+  $(RECURSIVE_CLEAN_TARGETS) \
+  $(am__extra_recursive_targets)
+AM_RECURSIVE_TARGETS = $(am__recursive_targets:-recursive=) TAGS CTAGS \
+	distdir distdir-am
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -237,11 +168,37 @@ am__define_uniq_tagged_files = \
   unique=`for i in $$list; do \
     if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
   done | $(am__uniquify_input)`
-am__DIST_COMMON = $(srcdir)/Makefile.in \
-	$(top_srcdir)/build-aux/depcomp
+DIST_SUBDIRS = $(SUBDIRS)
+am__DIST_COMMON = $(srcdir)/Makefile.in
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+am__relativize = \
+  dir0=`pwd`; \
+  sed_first='s,^\([^/]*\)/.*$$,\1,'; \
+  sed_rest='s,^[^/]*/*,,'; \
+  sed_last='s,^.*/\([^/]*\)$$,\1,'; \
+  sed_butlast='s,/*[^/]*$$,,'; \
+  while test -n "$$dir1"; do \
+    first=`echo "$$dir1" | sed -e "$$sed_first"`; \
+    if test "$$first" != "."; then \
+      if test "$$first" = ".."; then \
+        dir2=`echo "$$dir0" | sed -e "$$sed_last"`/"$$dir2"; \
+        dir0=`echo "$$dir0" | sed -e "$$sed_butlast"`; \
+      else \
+        first2=`echo "$$dir2" | sed -e "$$sed_first"`; \
+        if test "$$first2" = "$$first"; then \
+          dir2=`echo "$$dir2" | sed -e "$$sed_rest"`; \
+        else \
+          dir2="../$$dir2"; \
+        fi; \
+        dir0="$$dir0"/"$$first"; \
+      fi; \
+    fi; \
+    dir1=`echo "$$dir1" | sed -e "$$sed_rest"`; \
+  done; \
+  reldir="$$dir2"
 ACLOCAL = @ACLOCAL@
 AMEBA_BPF_ARCH_CPPFLAG = @AMEBA_BPF_ARCH_CPPFLAG@
+AMEBA_ETC_CONF_DIR_NAME = @AMEBA_ETC_CONF_DIR_NAME@
 AMEBA_SYS_KERNEL_BTF_VMLINUX = @AMEBA_SYS_KERNEL_BTF_VMLINUX@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
@@ -352,59 +309,10 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AUTOMAKE_OPTIONS = subdir-objects
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(CPPFLAGS_ENABLE_TASK_CTX)
-AM_CFLAGS = -Wall
-noinst_LIBRARIES = \
-    args/lib.a \
-    record/deserializer/lib.a \
-    record/writer/lib.a \
-    record/serializer/lib.a \
-    helpers/lib.a \
-    jsonify/lib.a
-
-args_lib_a_SOURCES = \
-    args/helper.h args/user.h args/control.h \
-    args/helper.c args/user.c args/control.c
-
-record_deserializer_lib_a_SOURCES = \
-    record/deserializer/deserializer.h \
-    record/deserializer/binary.c
-
-record_writer_lib_a_SOURCES = \
-    record/writer/writer.h \
-    record/writer/file.c record/writer/net.c
-
-record_serializer_lib_a_SOURCES = \
-    record/serializer/serializer.h \
-    record/serializer/binary.c record/serializer/json.c record/serializer/serializer.c
-
-helpers_lib_a_SOURCES = \
-    helpers/log.h \
-    helpers/log.c
-
-jsonify_lib_a_SOURCES = \
-    jsonify/user.h jsonify/control.h jsonify/core.h jsonify/types.h jsonify/record.h jsonify/log_msg.h \
-    jsonify/user.c jsonify/control.c jsonify/core.c jsonify/types.c jsonify/record.c jsonify/log_msg.c
-
-ameba_SOURCES = \
-    ../common/control.h ../common/version.h ../common/constants.h ../common/types.h \
-    types.h \
-    error.h \
-    ameba.c
-
-ameba_LDADD = \
-    args/lib.a \
-    record/deserializer/lib.a \
-    record/writer/lib.a \
-    record/serializer/lib.a \
-    helpers/lib.a \
-    jsonify/lib.a
-
-all: all-am
+SUBDIRS = api arg config record helper include jsonify prog
+all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -434,216 +342,62 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(bindir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(bindir)" || exit 1; \
+
+# This directory's subdirectories are mostly independent; you can cd
+# into them and run 'make' without going through this Makefile.
+# To change the values of 'make' variables: instead of editing Makefiles,
+# (1) if the variable is set in 'config.status', edit 'config.status'
+#     (which will cause the Makefiles to be regenerated when you run 'make');
+# (2) otherwise, pass the desired values on the 'make' command line.
+$(am__recursive_targets):
+	@fail=; \
+	if $(am__make_keepgoing); then \
+	  failcom='fail=yes'; \
+	else \
+	  failcom='exit 1'; \
 	fi; \
-	for p in $$list; do echo "$$p $$p"; done | \
-	sed 's/$(EXEEXT)$$//' | \
-	while read p p1; do if test -f $$p \
-	  ; then echo "$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n;h' \
-	    -e 's|.*|.|' \
-	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
-	sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
-	    else { print "f", $$3 "/" $$4, $$1; } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	    test -z "$$files" || { \
-	      echo " $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
-	      $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
-	    } \
-	; done
-
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
-	      -e 's/$$/$(EXEEXT)/' \
-	`; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(bindir)" && rm -f $$files
-
-clean-binPROGRAMS:
-	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-args/$(am__dirstamp):
-	@$(MKDIR_P) args
-	@: > args/$(am__dirstamp)
-args/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) args/$(DEPDIR)
-	@: > args/$(DEPDIR)/$(am__dirstamp)
-args/helper.$(OBJEXT): args/$(am__dirstamp) \
-	args/$(DEPDIR)/$(am__dirstamp)
-args/user.$(OBJEXT): args/$(am__dirstamp) \
-	args/$(DEPDIR)/$(am__dirstamp)
-args/control.$(OBJEXT): args/$(am__dirstamp) \
-	args/$(DEPDIR)/$(am__dirstamp)
-
-args/lib.a: $(args_lib_a_OBJECTS) $(args_lib_a_DEPENDENCIES) $(EXTRA_args_lib_a_DEPENDENCIES) args/$(am__dirstamp)
-	$(AM_V_at)-rm -f args/lib.a
-	$(AM_V_AR)$(args_lib_a_AR) args/lib.a $(args_lib_a_OBJECTS) $(args_lib_a_LIBADD)
-	$(AM_V_at)$(RANLIB) args/lib.a
-helpers/$(am__dirstamp):
-	@$(MKDIR_P) helpers
-	@: > helpers/$(am__dirstamp)
-helpers/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) helpers/$(DEPDIR)
-	@: > helpers/$(DEPDIR)/$(am__dirstamp)
-helpers/log.$(OBJEXT): helpers/$(am__dirstamp) \
-	helpers/$(DEPDIR)/$(am__dirstamp)
-
-helpers/lib.a: $(helpers_lib_a_OBJECTS) $(helpers_lib_a_DEPENDENCIES) $(EXTRA_helpers_lib_a_DEPENDENCIES) helpers/$(am__dirstamp)
-	$(AM_V_at)-rm -f helpers/lib.a
-	$(AM_V_AR)$(helpers_lib_a_AR) helpers/lib.a $(helpers_lib_a_OBJECTS) $(helpers_lib_a_LIBADD)
-	$(AM_V_at)$(RANLIB) helpers/lib.a
-jsonify/$(am__dirstamp):
-	@$(MKDIR_P) jsonify
-	@: > jsonify/$(am__dirstamp)
-jsonify/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) jsonify/$(DEPDIR)
-	@: > jsonify/$(DEPDIR)/$(am__dirstamp)
-jsonify/user.$(OBJEXT): jsonify/$(am__dirstamp) \
-	jsonify/$(DEPDIR)/$(am__dirstamp)
-jsonify/control.$(OBJEXT): jsonify/$(am__dirstamp) \
-	jsonify/$(DEPDIR)/$(am__dirstamp)
-jsonify/core.$(OBJEXT): jsonify/$(am__dirstamp) \
-	jsonify/$(DEPDIR)/$(am__dirstamp)
-jsonify/types.$(OBJEXT): jsonify/$(am__dirstamp) \
-	jsonify/$(DEPDIR)/$(am__dirstamp)
-jsonify/record.$(OBJEXT): jsonify/$(am__dirstamp) \
-	jsonify/$(DEPDIR)/$(am__dirstamp)
-jsonify/log_msg.$(OBJEXT): jsonify/$(am__dirstamp) \
-	jsonify/$(DEPDIR)/$(am__dirstamp)
-
-jsonify/lib.a: $(jsonify_lib_a_OBJECTS) $(jsonify_lib_a_DEPENDENCIES) $(EXTRA_jsonify_lib_a_DEPENDENCIES) jsonify/$(am__dirstamp)
-	$(AM_V_at)-rm -f jsonify/lib.a
-	$(AM_V_AR)$(jsonify_lib_a_AR) jsonify/lib.a $(jsonify_lib_a_OBJECTS) $(jsonify_lib_a_LIBADD)
-	$(AM_V_at)$(RANLIB) jsonify/lib.a
-record/deserializer/$(am__dirstamp):
-	@$(MKDIR_P) record/deserializer
-	@: > record/deserializer/$(am__dirstamp)
-record/deserializer/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) record/deserializer/$(DEPDIR)
-	@: > record/deserializer/$(DEPDIR)/$(am__dirstamp)
-record/deserializer/binary.$(OBJEXT):  \
-	record/deserializer/$(am__dirstamp) \
-	record/deserializer/$(DEPDIR)/$(am__dirstamp)
-
-record/deserializer/lib.a: $(record_deserializer_lib_a_OBJECTS) $(record_deserializer_lib_a_DEPENDENCIES) $(EXTRA_record_deserializer_lib_a_DEPENDENCIES) record/deserializer/$(am__dirstamp)
-	$(AM_V_at)-rm -f record/deserializer/lib.a
-	$(AM_V_AR)$(record_deserializer_lib_a_AR) record/deserializer/lib.a $(record_deserializer_lib_a_OBJECTS) $(record_deserializer_lib_a_LIBADD)
-	$(AM_V_at)$(RANLIB) record/deserializer/lib.a
-record/serializer/$(am__dirstamp):
-	@$(MKDIR_P) record/serializer
-	@: > record/serializer/$(am__dirstamp)
-record/serializer/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) record/serializer/$(DEPDIR)
-	@: > record/serializer/$(DEPDIR)/$(am__dirstamp)
-record/serializer/binary.$(OBJEXT): record/serializer/$(am__dirstamp) \
-	record/serializer/$(DEPDIR)/$(am__dirstamp)
-record/serializer/json.$(OBJEXT): record/serializer/$(am__dirstamp) \
-	record/serializer/$(DEPDIR)/$(am__dirstamp)
-record/serializer/serializer.$(OBJEXT):  \
-	record/serializer/$(am__dirstamp) \
-	record/serializer/$(DEPDIR)/$(am__dirstamp)
-
-record/serializer/lib.a: $(record_serializer_lib_a_OBJECTS) $(record_serializer_lib_a_DEPENDENCIES) $(EXTRA_record_serializer_lib_a_DEPENDENCIES) record/serializer/$(am__dirstamp)
-	$(AM_V_at)-rm -f record/serializer/lib.a
-	$(AM_V_AR)$(record_serializer_lib_a_AR) record/serializer/lib.a $(record_serializer_lib_a_OBJECTS) $(record_serializer_lib_a_LIBADD)
-	$(AM_V_at)$(RANLIB) record/serializer/lib.a
-record/writer/$(am__dirstamp):
-	@$(MKDIR_P) record/writer
-	@: > record/writer/$(am__dirstamp)
-record/writer/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) record/writer/$(DEPDIR)
-	@: > record/writer/$(DEPDIR)/$(am__dirstamp)
-record/writer/file.$(OBJEXT): record/writer/$(am__dirstamp) \
-	record/writer/$(DEPDIR)/$(am__dirstamp)
-record/writer/net.$(OBJEXT): record/writer/$(am__dirstamp) \
-	record/writer/$(DEPDIR)/$(am__dirstamp)
-
-record/writer/lib.a: $(record_writer_lib_a_OBJECTS) $(record_writer_lib_a_DEPENDENCIES) $(EXTRA_record_writer_lib_a_DEPENDENCIES) record/writer/$(am__dirstamp)
-	$(AM_V_at)-rm -f record/writer/lib.a
-	$(AM_V_AR)$(record_writer_lib_a_AR) record/writer/lib.a $(record_writer_lib_a_OBJECTS) $(record_writer_lib_a_LIBADD)
-	$(AM_V_at)$(RANLIB) record/writer/lib.a
-
-ameba$(EXEEXT): $(ameba_OBJECTS) $(ameba_DEPENDENCIES) $(EXTRA_ameba_DEPENDENCIES) 
-	@rm -f ameba$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(ameba_OBJECTS) $(ameba_LDADD) $(LIBS)
-
-mostlyclean-compile:
-	-rm -f *.$(OBJEXT)
-	-rm -f args/*.$(OBJEXT)
-	-rm -f helpers/*.$(OBJEXT)
-	-rm -f jsonify/*.$(OBJEXT)
-	-rm -f record/deserializer/*.$(OBJEXT)
-	-rm -f record/serializer/*.$(OBJEXT)
-	-rm -f record/writer/*.$(OBJEXT)
-
-distclean-compile:
-	-rm -f *.tab.c
-
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ameba.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/control.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/helper.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@args/$(DEPDIR)/user.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@helpers/$(DEPDIR)/log.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/control.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/core.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/log_msg.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/record.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/types.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@jsonify/$(DEPDIR)/user.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@record/deserializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/json.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@record/serializer/$(DEPDIR)/serializer.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@record/writer/$(DEPDIR)/file.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@record/writer/$(DEPDIR)/net.Po@am__quote@ # am--include-marker
-
-$(am__depfiles_remade):
-	@$(MKDIR_P) $(@D)
-	@echo '# dummy' >$@-t && $(am__mv) $@-t $@
-
-am--depfiles: $(am__depfiles_remade)
-
-.c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
-
-.c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+	dot_seen=no; \
+	target=`echo $@ | sed s/-recursive//`; \
+	case "$@" in \
+	  distclean-* | maintainer-clean-*) list='$(DIST_SUBDIRS)' ;; \
+	  *) list='$(SUBDIRS)' ;; \
+	esac; \
+	for subdir in $$list; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    dot_seen=yes; \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  ($(am__cd) $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	  || eval $$failcom; \
+	done; \
+	if test "$$dot_seen" = "no"; then \
+	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
+	fi; test -z "$$fail"
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
-tags: tags-am
+tags: tags-recursive
 TAGS: tags
 
 tags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
 	set x; \
 	here=`pwd`; \
+	if ($(ETAGS) --etags-include --version) >/dev/null 2>&1; then \
+	  include_option=--etags-include; \
+	  empty_fix=.; \
+	else \
+	  include_option=--include; \
+	  empty_fix=; \
+	fi; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  if test "$$subdir" = .; then :; else \
+	    test ! -f $$subdir/TAGS || \
+	      set "$$@" "$$include_option=$$here/$$subdir/TAGS"; \
+	  fi; \
+	done; \
 	$(am__define_uniq_tagged_files); \
 	shift; \
 	if test -z "$(ETAGS_ARGS)$$*$$unique"; then :; else \
@@ -656,7 +410,7 @@ tags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
 	      $$unique; \
 	  fi; \
 	fi
-ctags: ctags-am
+ctags: ctags-recursive
 
 CTAGS: ctags
 ctags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
@@ -669,7 +423,7 @@ GTAGS:
 	here=`$(am__cd) $(top_builddir) && pwd` \
 	  && $(am__cd) $(top_srcdir) \
 	  && gtags -i $(GTAGS_ARGS) "$$here"
-cscopelist: cscopelist-am
+cscopelist: cscopelist-recursive
 
 cscopelist-am: $(am__tagged_files)
 	list='$(am__tagged_files)'; \
@@ -720,22 +474,45 @@ distdir-am: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
-check-am: all-am
-check: check-am
-all-am: Makefile $(PROGRAMS) $(LIBRARIES)
-installdirs:
-	for dir in "$(DESTDIR)$(bindir)"; do \
-	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+	@list='$(DIST_SUBDIRS)'; for subdir in $$list; do \
+	  if test "$$subdir" = .; then :; else \
+	    $(am__make_dryrun) \
+	      || test -d "$(distdir)/$$subdir" \
+	      || $(MKDIR_P) "$(distdir)/$$subdir" \
+	      || exit 1; \
+	    dir1=$$subdir; dir2="$(distdir)/$$subdir"; \
+	    $(am__relativize); \
+	    new_distdir=$$reldir; \
+	    dir1=$$subdir; dir2="$(top_distdir)"; \
+	    $(am__relativize); \
+	    new_top_distdir=$$reldir; \
+	    echo " (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) top_distdir="$$new_top_distdir" distdir="$$new_distdir" \\"; \
+	    echo "     am__remove_distdir=: am__skip_length_check=: am__skip_mode_fix=: distdir)"; \
+	    ($(am__cd) $$subdir && \
+	      $(MAKE) $(AM_MAKEFLAGS) \
+	        top_distdir="$$new_top_distdir" \
+	        distdir="$$new_distdir" \
+		am__remove_distdir=: \
+		am__skip_length_check=: \
+		am__skip_mode_fix=: \
+	        distdir) \
+	      || exit 1; \
+	  fi; \
 	done
-install: install-am
-install-exec: install-exec-am
-install-data: install-data-am
-uninstall: uninstall-am
+check-am: all-am
+check: check-recursive
+all-am: Makefile
+installdirs: installdirs-recursive
+installdirs-am:
+install: install-recursive
+install-exec: install-exec-recursive
+install-data: install-data-recursive
+uninstall: uninstall-recursive
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 
-installcheck: installcheck-am
+installcheck: installcheck-recursive
 install-strip:
 	if test -z '$(STRIP)'; then \
 	  $(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
@@ -753,139 +530,89 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f args/$(DEPDIR)/$(am__dirstamp)
-	-rm -f args/$(am__dirstamp)
-	-rm -f helpers/$(DEPDIR)/$(am__dirstamp)
-	-rm -f helpers/$(am__dirstamp)
-	-rm -f jsonify/$(DEPDIR)/$(am__dirstamp)
-	-rm -f jsonify/$(am__dirstamp)
-	-rm -f record/deserializer/$(DEPDIR)/$(am__dirstamp)
-	-rm -f record/deserializer/$(am__dirstamp)
-	-rm -f record/serializer/$(DEPDIR)/$(am__dirstamp)
-	-rm -f record/serializer/$(am__dirstamp)
-	-rm -f record/writer/$(DEPDIR)/$(am__dirstamp)
-	-rm -f record/writer/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-clean: clean-am
+clean: clean-recursive
 
-clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
-	mostlyclean-am
+clean-am: clean-generic mostlyclean-am
 
-distclean: distclean-am
-		-rm -f ./$(DEPDIR)/ameba.Po
-	-rm -f args/$(DEPDIR)/control.Po
-	-rm -f args/$(DEPDIR)/helper.Po
-	-rm -f args/$(DEPDIR)/user.Po
-	-rm -f helpers/$(DEPDIR)/log.Po
-	-rm -f jsonify/$(DEPDIR)/control.Po
-	-rm -f jsonify/$(DEPDIR)/core.Po
-	-rm -f jsonify/$(DEPDIR)/log_msg.Po
-	-rm -f jsonify/$(DEPDIR)/record.Po
-	-rm -f jsonify/$(DEPDIR)/types.Po
-	-rm -f jsonify/$(DEPDIR)/user.Po
-	-rm -f record/deserializer/$(DEPDIR)/binary.Po
-	-rm -f record/serializer/$(DEPDIR)/binary.Po
-	-rm -f record/serializer/$(DEPDIR)/json.Po
-	-rm -f record/serializer/$(DEPDIR)/serializer.Po
-	-rm -f record/writer/$(DEPDIR)/file.Po
-	-rm -f record/writer/$(DEPDIR)/net.Po
+distclean: distclean-recursive
 	-rm -f Makefile
-distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-tags
+distclean-am: clean-am distclean-generic distclean-tags
 
-dvi: dvi-am
+dvi: dvi-recursive
 
 dvi-am:
 
-html: html-am
+html: html-recursive
 
 html-am:
 
-info: info-am
+info: info-recursive
 
 info-am:
 
 install-data-am:
 
-install-dvi: install-dvi-am
+install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am: install-binPROGRAMS
+install-exec-am:
 
-install-html: install-html-am
+install-html: install-html-recursive
 
 install-html-am:
 
-install-info: install-info-am
+install-info: install-info-recursive
 
 install-info-am:
 
 install-man:
 
-install-pdf: install-pdf-am
+install-pdf: install-pdf-recursive
 
 install-pdf-am:
 
-install-ps: install-ps-am
+install-ps: install-ps-recursive
 
 install-ps-am:
 
 installcheck-am:
 
-maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/ameba.Po
-	-rm -f args/$(DEPDIR)/control.Po
-	-rm -f args/$(DEPDIR)/helper.Po
-	-rm -f args/$(DEPDIR)/user.Po
-	-rm -f helpers/$(DEPDIR)/log.Po
-	-rm -f jsonify/$(DEPDIR)/control.Po
-	-rm -f jsonify/$(DEPDIR)/core.Po
-	-rm -f jsonify/$(DEPDIR)/log_msg.Po
-	-rm -f jsonify/$(DEPDIR)/record.Po
-	-rm -f jsonify/$(DEPDIR)/types.Po
-	-rm -f jsonify/$(DEPDIR)/user.Po
-	-rm -f record/deserializer/$(DEPDIR)/binary.Po
-	-rm -f record/serializer/$(DEPDIR)/binary.Po
-	-rm -f record/serializer/$(DEPDIR)/json.Po
-	-rm -f record/serializer/$(DEPDIR)/serializer.Po
-	-rm -f record/writer/$(DEPDIR)/file.Po
-	-rm -f record/writer/$(DEPDIR)/net.Po
+maintainer-clean: maintainer-clean-recursive
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
-mostlyclean: mostlyclean-am
+mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic
+mostlyclean-am: mostlyclean-generic
 
-pdf: pdf-am
+pdf: pdf-recursive
 
 pdf-am:
 
-ps: ps-am
+ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS
+uninstall-am:
 
-.MAKE: install-am install-strip
+.MAKE: $(am__recursive_targets) install-am install-strip
 
-.PHONY: CTAGS GTAGS TAGS all all-am am--depfiles check check-am clean \
-	clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
-	cscopelist-am ctags ctags-am distclean distclean-compile \
-	distclean-generic distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-binPROGRAMS \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS
+.PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am check \
+	check-am clean clean-generic cscopelist-am ctags ctags-am \
+	distclean distclean-generic distclean-tags distdir dvi dvi-am \
+	html html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
+	pdf-am ps ps-am tags tags-am uninstall uninstall-am
 
 .PRECIOUS: Makefile
 

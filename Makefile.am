@@ -20,8 +20,16 @@
 
 AM_DISTCHECK_CONFIGURE_FLAGS = CC=clang --prefix=${PWD}/ameba-local-dist-check-install
 
-SUBDIRS = src/common src/bpf src/user src/utils tests
+SUBDIRS = src tests
+
 dist_doc_DATA = README.md
+amebaconfigdir = $(sysconfdir)/ameba
+dist_amebaconfig_DATA = \
+	config/ameba.conf \
+	config/control.conf \
+	config/pin.conf \
+	config/read.conf \
+	config/unpin.conf
 
 dist-hook:
 	echo $(VERSION) > $(distdir)/.tarball-version

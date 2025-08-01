@@ -198,6 +198,7 @@ am__relativize = \
   reldir="$$dir2"
 ACLOCAL = @ACLOCAL@
 AMEBA_BPF_ARCH_CPPFLAG = @AMEBA_BPF_ARCH_CPPFLAG@
+AMEBA_ETC_CONF_DIR_NAME = @AMEBA_ETC_CONF_DIR_NAME@
 AMEBA_SYS_KERNEL_BTF_VMLINUX = @AMEBA_SYS_KERNEL_BTF_VMLINUX@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
@@ -308,7 +309,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = user/args
+SUBDIRS = user/arg user/helper
 all: all-recursive
 
 .SUFFIXES:
