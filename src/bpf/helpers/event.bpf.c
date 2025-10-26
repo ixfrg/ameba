@@ -99,6 +99,9 @@ static int is_task_auditable(struct task_struct *current, struct control_input *
     const pid_t pid = BPF_CORE_READ(current, pid);
     const pid_t ppid = BPF_CORE_READ(current, real_parent, pid);
 
+    if (pid == runtime_control->user_space_pid)
+        return 0;
+
     int is_uid_in_list = is_int_in_control_input_id_list(
         uid, &(runtime_control->uids[0]), (runtime_control->uids_len & (MAX_LIST_ITEMS - 1))
     );

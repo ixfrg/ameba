@@ -63,6 +63,8 @@ struct control_input
     int ppids[MAX_LIST_ITEMS];
     int ppids_len;
 
+    int user_space_pid;
+
     trace_mode_t netio_mode;
 
     control_lock_t lock;

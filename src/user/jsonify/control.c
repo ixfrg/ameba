@@ -88,6 +88,7 @@ int jsonify_control_write_control_input(struct json_buffer *s, struct control_in
     total += jsonify_control_write_int_list(s, "pids", &(val->pids[0]), val->pids_len);
     total += jsonify_control_write_int_list(s, "ppids", &(val->ppids[0]), val->ppids_len);
     total += jsonify_control_write_int_list(s, "uids", &(val->uids[0]), val->uids_len);
+    total += jsonify_core_write_int(s, "user_space_pid", val->user_space_pid);
 
     return total;
 }

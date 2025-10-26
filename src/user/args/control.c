@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <unistd.h>
+
 #include <argp.h>
 #include <stdlib.h>
 #include <string.h>
@@ -87,6 +89,7 @@ static void init_control_input(struct control_input *input)
     input->ppid_mode = IGNORE;
     input->ppids_len = 0;
     input->netio_mode = IGNORE;
+    input->user_space_pid = getpid();
     user_args_helper_state_init(&(input->parse_state));
 }
 

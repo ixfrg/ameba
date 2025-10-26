@@ -93,6 +93,8 @@ int log_control_input(struct control_input *ctrl) {
     }
 
     log_trace_mode("netio_mode", ctrl->netio_mode);
+
+    LOG_WARN("user_space_pid: %d", ctrl->user_space_pid);
     
     log_control_lock("lock", ctrl->lock);
     
